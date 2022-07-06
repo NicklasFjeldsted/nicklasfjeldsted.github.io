@@ -36,8 +36,6 @@ export class ArticleComponent implements OnInit {
 
 			this.categoryArticles = [];
 
-			this.loadSidebar();
-
 			// for (const pair of Object.entries(sidebarContent))
 			// {
 			// 	this.set_navigation({ key: pair[ 0 ], value: pair[ 1 ] });
@@ -65,14 +63,6 @@ export class ArticleComponent implements OnInit {
 		});
 	}
 
-	private async loadSidebar(): Promise<object>
-	{
-		return await new Promise<object>(async (resolve, reject) =>
-		{
-			const collectionRef = collection(this.firestore, 'sidebar-content');
-			const collectionSnap = collectionData(collectionRef);
-		});
-	}
 
 	public get_date(): Date
 	{

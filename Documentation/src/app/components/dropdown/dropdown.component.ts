@@ -18,8 +18,14 @@ export class DropdownComponent implements OnInit {
 
 	ngOnInit(): void
 	{
-		for (const entry of Object.entries(this.data))
+		this.updateContent(this.data);
+	}
+
+	public updateContent(newData: object): void
+	{
+		for (const entry of Object.entries(newData))
 		{
+			if (entry[ 0 ] == 'key') { continue; }
 			this.content.set(entry[ 0 ], entry[ 1 ]);
 		}
 	}

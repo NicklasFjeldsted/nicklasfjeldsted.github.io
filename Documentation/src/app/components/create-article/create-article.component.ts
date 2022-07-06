@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { CodeblockControl, TextareaControl, HeaderControl, FieldType } from '../../interfaces';
 import { Firestore, doc, getDoc, connectFirestoreEmulator, setDoc, EmulatorMockTokenOptions } from '@angular/fire/firestore';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-article',
@@ -12,7 +13,7 @@ import { Firestore, doc, getDoc, connectFirestoreEmulator, setDoc, EmulatorMockT
 })
 export class CreateArticleComponent implements OnInit
 {
-  	constructor(private http: HttpClient, private firestore: Firestore) {}
+  	constructor(private firestore: Firestore, private router: Router) {}
 
 	ngOnInit(): void
 	{
@@ -90,10 +91,7 @@ export class CreateArticleComponent implements OnInit
 		}
 
 
-		this.uploadArticle();
-
-		// let jsonString: string = JSON.stringify(this.articleControl.value);
-		// this.http.post(`http://10.0.6.2:444/api/JsonSaver/save`, this.articleControl.value).subscribe((res) => console.log(res));
+		this.uploadArticle().then(() => this.router.navigate(['/article'], { queryParams: { title: this.articleControl.get('title')?.value } }));
 	}
 
 	private async uploadArticle(): Promise<void>
@@ -120,6 +118,24 @@ export class CreateArticleComponent implements OnInit
 			const sidebarRef = doc(this.firestore, 'sidebar-content', Object.keys(this.articleControl.get('category')?.value)[0]);
 			return await setDoc(sidebarRef, categoryObj);
 		}
+	}
+
+	private async loadCategories(category: string): Promise<object>
+	{
+		return await new Promise<object>(async(resolve, reject) =>
+		{
+			const docRef = doc(this.firestore, 'sidebar-content', category);
+			const docSnap = await getDoc(docRef);
+
+			if (docSnap.exists())
+			{
+				resolve(docSnap.data());
+			}
+			else
+			{
+				reject("Article.component::loadCategories() - No such document!");
+			}
+		});
 	}
 
 	private buildCategoryObject(inputValue: any, endpoint: string): object
