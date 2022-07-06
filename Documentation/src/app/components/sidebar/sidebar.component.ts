@@ -12,7 +12,6 @@ export class SidebarComponent implements OnInit, AfterViewInit {
 
 	constructor(private firestore: Firestore) { }
 
-	public DataObservable!: Observable<object>;
 
 	public data: object = {};
 
@@ -23,6 +22,7 @@ export class SidebarComponent implements OnInit, AfterViewInit {
 	@ViewChild('dropdownRef') dropdownRef!: DropdownComponent;
 
 	public DataSubject!: BehaviorSubject<object>;
+	public DataObservable!: Observable<object>;
 
 	ngOnInit(): void
 	{

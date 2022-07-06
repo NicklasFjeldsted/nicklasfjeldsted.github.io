@@ -45,21 +45,31 @@ export class ArticleComponent implements OnInit {
 		}).catch((reason) => console.error(reason));
 	}
 
-	private async loadArticle(title: string): Promise<Article>
+	private async loadArticle(articleID: string): Promise<Article>
 	{
 		return await new Promise<Article>(async(resolve, reject) =>
 		{
-			const docRef = doc(this.firestore, 'articles', title);
-			const docSnap = await getDoc(docRef);
+			const articlesRef = collection(this.firestore, 'articles');
+			const articlesData = collectionData(articlesRef).forEach(arr =>
+			{
+				for (const docData of arr)
+				{
+					if (docData[ 'articleID' ] != articleID)
+					{
+						continue;
+					}
+				}
+			});
+			// const docSnap = await getDoc(docRef);
 
-			if (docSnap.exists())
-			{
-				resolve(<Article>docSnap.data());
-			}
-			else
-			{
-				reject("Article.component::loadArticle() - No such document!");
-			}
+			// if (docSnap.exists())
+			// {
+			// 	resolve(<Article>docSnap.data());
+			// }
+			// else
+			// {
+			// 	reject("Article.component::loadArticle() - No such document!");
+			// }
 		});
 	}
 

@@ -3,7 +3,7 @@ import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { CodeblockControl, TextareaControl, HeaderControl, FieldType } from '../../interfaces';
-import { Firestore, doc, getDoc, connectFirestoreEmulator, setDoc, EmulatorMockTokenOptions } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc, connectFirestoreEmulator, setDoc, EmulatorMockTokenOptions, collection, collectionData, collectionChanges, collectionGroup, addDoc, DocumentReference, DocumentData, updateDoc } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 
 @Component({
@@ -90,11 +90,11 @@ export class CreateArticleComponent implements OnInit
 			return;
 		}
 
-
-		this.uploadArticle().then(() => this.router.navigate(['/article'], { queryParams: { title: this.articleControl.get('title')?.value } }));
+		// .then(() => this.router.navigate(['/article'], { queryParams: { title: this.articleControl.get('title')?.value } }))
+		this.uploadArticle();
 	}
 
-	private async uploadArticle(): Promise<void>
+	private async uploadArticle(): Promise<DocumentReference>
 	{
 		const docRef = doc(this.firestore, 'articles', this.articleControl.get('title')?.value);
 		return await setDoc(docRef, this.articleControl.value).then(async() =>
@@ -103,37 +103,57 @@ export class CreateArticleComponent implements OnInit
 		});
 	}
 
-	private async uploadCategory(): Promise<void>
+	private async uploadCategory(): Promise<any>
 	{
 		if (typeof this.articleControl.get('category')?.value === 'string')
 		{
-			const sidebarRef = doc(this.firestore, 'sidebar-content', this.articleControl.get('category')?.value);
+			const categoryRef = collection(this.firestore, 'sidebar-content');
 			let categoryObj: { [ key: string ]: any; } = {};
 			categoryObj[ this.articleControl.get('title')?.value ] = this.articleControl.get('title')?.value;
-			return await setDoc(sidebarRef, categoryObj);
+			const sidebarRef = doc(this.firestore, 'sidebar-content', this.articleControl.get('category')?.value);
+			return await this.exists(sidebarRef).then(async result =>
+			{
+				if (result == true)
+				{
+					return await updateDoc(sidebarRef, categoryObj);
+				}
+				else
+				{
+					return await addDoc(categoryRef, categoryObj).then(docRef => console.log(docRef.id));
+				}
+			});
 		}
 		else
 		{
 			let categoryObj: { [ key: string ]: any; } = this.buildCategoryObject(Object.entries(this.articleControl.get('category')?.value)[0][1], this.articleControl.get('title')?.value);
-			const sidebarRef = doc(this.firestore, 'sidebar-content', Object.keys(this.articleControl.get('category')?.value)[0]);
-			return await setDoc(sidebarRef, categoryObj);
+			const categoryRef = collection(this.firestore, 'sidebar-content');
+			const sidebarRef = doc(this.firestore, 'sidebar-content', Object.keys(this.articleControl.get('category')?.value)[ 0 ]);
+			return await this.exists(sidebarRef).then(async result =>
+			{
+				if (result == true)
+				{
+					return await updateDoc(sidebarRef, categoryObj);
+				}
+				else
+				{
+					return await addDoc(categoryRef, categoryObj).then(docRef => console.log(docRef.id));
+				}
+			});
 		}
 	}
 
-	private async loadCategories(category: string): Promise<object>
+	private async exists(documentRef: DocumentReference<DocumentData>): Promise<boolean>
 	{
-		return await new Promise<object>(async(resolve, reject) =>
+		return await new Promise<boolean>(async(resolve) =>
 		{
-			const docRef = doc(this.firestore, 'sidebar-content', category);
-			const docSnap = await getDoc(docRef);
-
+			const docSnap = await getDoc(documentRef);
 			if (docSnap.exists())
 			{
-				resolve(docSnap.data());
+				resolve(true);
 			}
 			else
 			{
-				reject("Article.component::loadCategories() - No such document!");
+				resolve(false);
 			}
 		});
 	}

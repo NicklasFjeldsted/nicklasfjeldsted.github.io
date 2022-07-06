@@ -1,5 +1,7 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { collection, collectionData, Firestore } from '@angular/fire/firestore';
 import { FormGroup } from '@angular/forms';
+import { BehaviorSubject, Observable } from 'rxjs';
 import data from '../../../assets/data/sidebar-content.json';
 
 @Component({
@@ -7,9 +9,9 @@ import data from '../../../assets/data/sidebar-content.json';
   templateUrl: './input-fieldmenu.component.html',
   styleUrls: ['./input-fieldmenu.component.css']
 })
-export class InputFieldmenuComponent implements OnInit
+export class InputFieldmenuComponent implements OnInit, AfterViewInit
 {
-	constructor() { }
+	constructor(private firestore: Firestore) { }
 
 	@Input() group!: FormGroup;
 
@@ -27,9 +29,25 @@ export class InputFieldmenuComponent implements OnInit
 
 	public categories: IterableObject[] = [];
 
+	public DataSubject!: BehaviorSubject<object>;
+	public DataObservable!: Observable<object>;
+
 	ngOnInit(): void
 	{
-		for (const property of Object.entries(data))
+		this.loadCategories();
+		this.DataSubject = new BehaviorSubject<object>({});
+		this.DataObservable = this.DataSubject.asObservable();
+
+	}
+
+	ngAfterViewInit(): void
+	{
+		this.DataObservable.subscribe(data => this.load(data));
+	}
+
+	private load(newData: object): void
+	{
+		for (const property of Object.entries(newData))
 		{
 			if (typeof property[ 1 ] === 'string')
 			{
@@ -38,6 +56,21 @@ export class InputFieldmenuComponent implements OnInit
 
 			this.categories.push(this.setMenu({ key: property[ 0 ], value: property[ 1 ] }));
 		}
+	}
+
+	public loadCategories(): void
+	{
+		const collectionRef = collection(this.firestore, 'sidebar-content');
+		const collectionSnap = collectionData(collectionRef, { idField: 'key' });
+		let data: { [ key: string ]: any; } = {};
+		collectionSnap.subscribe(arr =>
+		{
+			for (let i = 0; i < arr.length; i++)
+			{
+				data[ arr[ i ][ 'key' ] ] = arr[ i ];
+			}
+			this.DataSubject.next(data);
+		});
 	}
 
 	private setMenu(obj: JsonObject): IterableObject
