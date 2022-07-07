@@ -1,0 +1,5 @@
+<div *ngIf="isActive" class="field-wrapper">
+	<input #inputValue class="field-input" placeholder="New category name." (keydown.enter)="raiseConfirm(inputValue.value)" (keydown.escape)="raiseCancel(inputValue.value)">
+	<button class="confirm-btn" (click)="raiseConfirm(inputValue.value)"><i class="fa-solid fa-circle-check"></i></button>
+	<button class="cancel-btn" (click)="raiseCancel(inputValue.value)"><i class="fa-solid fa-circle-xmark"></i></button>
+</div>

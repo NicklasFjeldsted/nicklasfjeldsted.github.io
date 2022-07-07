@@ -23,6 +23,7 @@ import { AboutComponent } from './components/about/about.component';
 import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { ConfirmInputFieldComponent } from './components/confirm-input-field/confirm-input-field.component';
 
 @NgModule({
   	declarations: [
@@ -40,7 +41,8 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
   	 	HomeComponent,
   	 	MenuItemComponent,
   	 	InputFieldarrayComponent,
-  	 	AboutComponent
+  	 	AboutComponent,
+     ConfirmInputFieldComponent
   	],
   	imports: [BrowserModule, AppRoutingModule, ReactiveFormsModule, FormsModule, HttpClientModule, provideFirebaseApp(() => initializeApp(environment.firebase)), provideFirestore(() => getFirestore())],
 	providers: [],

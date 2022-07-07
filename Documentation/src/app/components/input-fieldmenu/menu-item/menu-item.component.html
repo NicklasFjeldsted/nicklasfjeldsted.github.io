@@ -7,11 +7,7 @@
 	</button>
 	<button id="add-option-btn" [ngStyle]="isAddActive ? { 'color': '#50a8ff' } : {}" (click)="openAddOption()"><i class="fa-solid fa-circle-plus"></i></button>
 </div>
-<div *ngIf="isAddActive"  class="add-option-wrapper">
-	<input #newOptionInput id="add-option-input" placeholder="New category name." (keydown.enter)="confirm()" (keydown.escape)="cancel()">
-	<button id="confirm-btn" (click)="confirm()"><i class="fa-solid fa-circle-check"></i></button>
-	<button id="cancel-btn" (click)="cancel()"><i class="fa-solid fa-circle-xmark"></i></button>
-</div>
+<confirm-input-field [isActive]="isAddActive" (confirm)="confirm($event)" (cancel)="cancel($event)"></confirm-input-field>
 <div *ngIf="isActive" class="nested-menu-items">
 	<menu-item *ngFor="let child of item.children" [item]="child" (onPassValueUp)="passValueUp($event)"></menu-item>
 </div>

@@ -20,17 +20,17 @@ export class ArticleComponent implements OnInit {
 	{
 		this.route.queryParams.subscribe(params =>
 			{
-				if (params[ 'title' ] === undefined)
+				if (params[ 'articleID' ] === undefined)
 				{
 					this.router.navigate([ '/' ]);
 				}
-				this.load_data(params[ 'title' ]);
+				this.load_data(params[ 'articleID' ]);
 		});
 	}
 
-	public load_data(title: string): void
+	public load_data(articleID: string): void
 	{
-		this.loadArticle(title).then((articleData) =>
+		this.loadArticle(articleID).then((articleData) =>
 		{
 			this.article = articleData;
 
@@ -50,7 +50,7 @@ export class ArticleComponent implements OnInit {
 		return await new Promise<Article>(async(resolve, reject) =>
 		{
 			const articlesRef = collection(this.firestore, 'articles');
-			const articlesData = collectionData(articlesRef).forEach(arr =>
+			collectionData(articlesRef).forEach(arr =>
 			{
 				for (const docData of arr)
 				{
@@ -58,18 +58,9 @@ export class ArticleComponent implements OnInit {
 					{
 						continue;
 					}
+					resolve(<Article>docData);
 				}
 			});
-			// const docSnap = await getDoc(docRef);
-
-			// if (docSnap.exists())
-			// {
-			// 	resolve(<Article>docSnap.data());
-			// }
-			// else
-			// {
-			// 	reject("Article.component::loadArticle() - No such document!");
-			// }
 		});
 	}
 

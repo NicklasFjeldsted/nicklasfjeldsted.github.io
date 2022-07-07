@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { EventEmitter } from '@angular/core';
 
@@ -44,16 +44,16 @@ export class DropdownComponent implements OnInit {
 	 * Expands a dropdown menu.
 	 * @param elementID string
 	 */
-	public expand_dropdown(elementID: string): void
+	public expand_dropdown(elementRef: HTMLButtonElement): void
 	{
-		let buttonElement = document.getElementById(elementID)!;
+		let buttonElement = elementRef;
 		let elements = document.getElementsByTagName('dropdown');
 
 		buttonElement.classList.contains('expanded') ? buttonElement.classList.remove('expanded') : buttonElement.classList.add('expanded');
 
 		for (let i = 0; i < elements.length; i++)
 		{
-			if (elements.item(i)!.id !== elementID) continue;
+			if (elements.item(i)!.id !== buttonElement.id) continue;
 
 			elements.item(i)!.classList.contains('expanded') ? elements.item(i)!.classList.remove('expanded') : elements.item(i)!.classList.add('expanded');
 			let el = <HTMLElement>elements.item(i)!;
@@ -64,9 +64,9 @@ export class DropdownComponent implements OnInit {
 		}
 	}
 
-	public open_article(article_path: string): void
+	public open_article(articleID: string): void
 	{
-		this.router.navigate([ `/article` ], { queryParams: { title: article_path } });
+		this.router.navigate([ `/article` ], { queryParams: { articleID: articleID } });
 		this.onNavigate.emit();
 	}
 

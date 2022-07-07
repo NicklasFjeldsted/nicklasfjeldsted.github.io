@@ -3,8 +3,11 @@ import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { CodeblockControl, TextareaControl, HeaderControl, FieldType } from '../../interfaces';
-import { Firestore, doc, getDoc, connectFirestoreEmulator, setDoc, EmulatorMockTokenOptions, collection, collectionData, collectionChanges, collectionGroup, addDoc, DocumentReference, DocumentData, updateDoc } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc, connectFirestoreEmulator, setDoc, EmulatorMockTokenOptions, collection, collectionData, collectionChanges, collectionGroup, addDoc, DocumentReference, DocumentData, updateDoc, CollectionReference, DocumentSnapshot, query, getDocs } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+
+export type dynamicObject = { [ key: string ]: any; };
 
 @Component({
   selector: 'app-create-article',
@@ -27,6 +30,7 @@ export class CreateArticleComponent implements OnInit
 	public index: number = 0;
 
 	public articleControl: FormGroup = new FormGroup({
+		articleID: new FormControl(''),
 		title: new FormControl('', Validators.required),
 		author: new FormControl(''),
 		date: new FormControl(''),
@@ -90,82 +94,120 @@ export class CreateArticleComponent implements OnInit
 			return;
 		}
 
-		// .then(() => this.router.navigate(['/article'], { queryParams: { title: this.articleControl.get('title')?.value } }))
+		// this.uploadArticle().then(() => this.router.navigate(['/article'], { queryParams: { articleID: this.articleControl.get('articleID')?.value } }));
 		this.uploadArticle();
 	}
 
 	private async uploadArticle(): Promise<DocumentReference>
 	{
-		const docRef = doc(this.firestore, 'articles', this.articleControl.get('title')?.value);
-		return await setDoc(docRef, this.articleControl.value).then(async() =>
+		const articlesRef = collection(this.firestore, 'articles');
+		return await addDoc(articlesRef, this.articleControl.value).then(async (documentData) =>
 		{
-			return await this.uploadCategory();
+			await updateDoc(documentData, { articleID: documentData.id });
+			this.articleControl.get('articleID')?.setValue(documentData.id);
+			return await this.uploadCategory(documentData.id);
 		});
 	}
 
-	private async uploadCategory(): Promise<any>
+	private async uploadCategory(articleID: string): Promise<any>
 	{
-		if (typeof this.articleControl.get('category')?.value === 'string')
-		{
-			const categoryRef = collection(this.firestore, 'sidebar-content');
-			let categoryObj: { [ key: string ]: any; } = {};
-			categoryObj[ this.articleControl.get('title')?.value ] = this.articleControl.get('title')?.value;
-			const sidebarRef = doc(this.firestore, 'sidebar-content', this.articleControl.get('category')?.value);
-			return await this.exists(sidebarRef).then(async result =>
-			{
-				if (result == true)
-				{
-					return await updateDoc(sidebarRef, categoryObj);
-				}
-				else
-				{
-					return await addDoc(categoryRef, categoryObj).then(docRef => console.log(docRef.id));
-				}
-			});
-		}
-		else
-		{
-			let categoryObj: { [ key: string ]: any; } = this.buildCategoryObject(Object.entries(this.articleControl.get('category')?.value)[0][1], this.articleControl.get('title')?.value);
-			const categoryRef = collection(this.firestore, 'sidebar-content');
-			const sidebarRef = doc(this.firestore, 'sidebar-content', Object.keys(this.articleControl.get('category')?.value)[ 0 ]);
-			return await this.exists(sidebarRef).then(async result =>
-			{
-				if (result == true)
-				{
-					return await updateDoc(sidebarRef, categoryObj);
-				}
-				else
-				{
-					return await addDoc(categoryRef, categoryObj).then(docRef => console.log(docRef.id));
-				}
-			});
-		}
+		const articleCategory: object | string = this.articleControl.get('category')?.value;
+		const articleTitle: string = this.articleControl.get('title')?.value;
+		const builtCategoryObj = this.buildCategoryObject(articleCategory, articleID, articleTitle);
+
+		// const categoryPath: string[] = this.getKeys(builtCategoryObj);
+		// const categoryDoc = doc(this.firestore, 'sidebar-content', ...categoryPath);
+		// const categoryCollection = collection(this.firestore, 'sidebar-content', ...categoryPath);
+		// let endpointObj: dynamicObject = {};
+		// endpointObj[ articleID ] = articleTitle;
+		// addDoc(categoryCollection, endpointObj);
 	}
 
-	private async exists(documentRef: DocumentReference<DocumentData>): Promise<boolean>
+	private async exists(documentRef: DocumentReference<DocumentData> | CollectionReference<DocumentData>): Promise<boolean>
 	{
 		return await new Promise<boolean>(async(resolve) =>
 		{
-			const docSnap = await getDoc(documentRef);
-			if (docSnap.exists())
+			let snapshot: DocumentSnapshot<DocumentData> | Observable<DocumentData[]>
+			if (documentRef instanceof DocumentReference)
 			{
-				resolve(true);
+				snapshot = await getDoc(documentRef);
+				if (snapshot.exists())
+				{
+					resolve(true);
+				}
+				else
+				{
+					resolve(false);
+				}
 			}
 			else
 			{
-				resolve(false);
+				snapshot = collectionData(documentRef);
+				snapshot.forEach(documentDataArray => documentDataArray.length > 0 ? resolve(true) : resolve(false));
 			}
 		});
 	}
 
-	private buildCategoryObject(inputValue: any, endpoint: string): object
+	private async getCategoryPath(categoryName: string, currentPath: string[] = []): Promise<string[]>
 	{
-		let output: { [ key: string ]: any; } = {};
+		return await new Promise<string[]>(async (resolve, reject) =>
+		{
+			const output: string[] = [];
+
+			let currentCollection: any;
+
+			if (currentPath.length > 0)
+			{
+				currentCollection = collection(this.firestore, 'sidebar-content', ...currentPath);
+			}
+			else
+			{
+				currentCollection = collection(this.firestore, 'sidebar-content');
+			}
+			const currentCollectionData = collectionData(currentCollection);
+			currentCollectionData.forEach(documentDataArray =>
+			{
+				for (const documentData of documentDataArray)
+				{
+
+				}
+			});
+
+			resolve(output);
+		});
+	}
+
+	private getKeys(inputValue: object): string[]
+	{
+		const output: string[] = [];
+
+		for (const property of Object.entries(inputValue))
+		{
+			if (typeof property[ 1 ] != 'object')
+			{
+				continue;
+			}
+
+			output.push(property[ 0 ]);
+			output.push(property[ 0 ]);
+
+			for (const key of this.getKeys(property[ 1 ]))
+			{
+				output.push(key);
+			}
+		}
+
+		return output;
+	}
+
+	private buildCategoryObject(inputValue: any, articleID: string, articleTitle: string): object
+	{
+		let output: dynamicObject = {};
 
 		if (typeof inputValue === 'string')
 		{
-			let endpointObj: { [ key: string ]: any; } = {};
-			endpointObj[ endpoint ] = endpoint;
+			let endpointObj: dynamicObject = {};
+			endpointObj[ articleID ] = articleTitle;
 			output[ inputValue ] = endpointObj;
 		}
 
@@ -173,7 +215,7 @@ export class CreateArticleComponent implements OnInit
 		{
 			for (const property of Object.entries(inputValue))
 			{
-				output[ property[ 0 ] ] = this.buildCategoryObject(property[ 1 ], endpoint);
+				output[ property[ 0 ] ] = this.buildCategoryObject(property[ 1 ], articleID, articleTitle);
 			}
 		}
 

@@ -2,7 +2,6 @@ import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '
 import { collection, collectionData, Firestore } from '@angular/fire/firestore';
 import { FormGroup } from '@angular/forms';
 import { BehaviorSubject, Observable } from 'rxjs';
-import data from '../../../assets/data/sidebar-content.json';
 
 @Component({
   selector: 'input-fieldmenu',
@@ -34,10 +33,9 @@ export class InputFieldmenuComponent implements OnInit, AfterViewInit
 
 	ngOnInit(): void
 	{
-		this.loadCategories();
 		this.DataSubject = new BehaviorSubject<object>({});
 		this.DataObservable = this.DataSubject.asObservable();
-
+		this.loadCategories();
 	}
 
 	ngAfterViewInit(): void
@@ -47,6 +45,7 @@ export class InputFieldmenuComponent implements OnInit, AfterViewInit
 
 	private load(newData: object): void
 	{
+		this.categories = [];
 		for (const property of Object.entries(newData))
 		{
 			if (typeof property[ 1 ] === 'string')
@@ -157,6 +156,11 @@ export class InputFieldmenuComponent implements OnInit, AfterViewInit
 			}
 		}
 
+		if (value.children.length <= 0)
+		{
+			output = value.name;
+		}
+
 		return output;
 	}
 
@@ -166,6 +170,19 @@ export class InputFieldmenuComponent implements OnInit, AfterViewInit
 		this.isActive ? this.arrowElement.nativeElement.classList.add('rotated') : this.arrowElement.nativeElement.classList.remove('rotated');
 		this.isActive ? this.menuButtonElement.nativeElement.classList.add('open') : this.menuButtonElement.nativeElement.classList.remove('open');
 		this.isActive ? this.selectionInputElement.nativeElement.classList.add('open') : this.selectionInputElement.nativeElement.classList.remove('open');
+	}
+
+	public confirm(value: any): void
+	{
+		let newCategory: IterableObject = { name: value, children: [] }
+
+		this.categories.push(newCategory);
+		this.receiveValue(newCategory);
+	}
+
+	public cancel(value: any): void
+	{
+
 	}
 }
 

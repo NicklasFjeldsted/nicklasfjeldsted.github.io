@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { collection, collectionData, Firestore } from '@angular/fire/firestore';
+import { collection, collectionData, collectionGroup, Firestore, getDocs } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { DropdownComponent } from '../dropdown/dropdown.component';
 

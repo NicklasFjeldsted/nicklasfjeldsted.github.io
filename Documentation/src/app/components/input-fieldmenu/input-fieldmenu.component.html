@@ -8,6 +8,8 @@
 		</button>
 		<div *ngIf="isActive" class="menu-items">
 			<menu-item *ngFor="let category of categories" [item]="category" (onPassValueUp)="receiveValue($event)"></menu-item>
+			<span class="divider"></span>
+			<confirm-input-field [isActive]="true" (confirm)="confirm($event)" (cancel)="cancel($event)"></confirm-input-field>
 		</div>
 	</div>
 

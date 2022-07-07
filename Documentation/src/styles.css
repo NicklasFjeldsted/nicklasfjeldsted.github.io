@@ -11,13 +11,8 @@
 html {
   font-size: 12px;
 }
-button {
-  outline: none;
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-}
 
+/* light mode */
 body {
   --background-color: #ffffff;
   --text-color: #444;
@@ -47,6 +42,7 @@ body {
   background-color: var(--background-color);
 }
 
+/* dark mode */
 body.dark-mode {
   --background-color: #303030;
   --text-color: #fafafa;
@@ -75,23 +71,27 @@ body.dark-mode {
   background-color: var(--background-color);
 }
 
-/* dark mode */
-
-/* body.dark-mode {
-  background-color: #303030!important;
+button {
+	outline: none;
+	border: none;
+	background-color: transparent;
+	cursor: pointer;
 }
 
-body.dark-mode .header-wrapper {
-  background-color: #0d47a1!important;
+input {
+	border: none;
+	outline: none;
+	padding: 0.5rem;
+	background-color: var(--input-background-color);
 }
 
-body.dark-mode .sidebar {
-  background-color: #333!important;
+.divider {
+	display: block;
+	width: 100%;
+	height: 0.1rem;
+	margin: 1rem auto;
+	background-color: var(--divider-background);
 }
-
-body.dark-mode .sidebar-nav {
-  color: #fafafa!important;
-} */
 
 @media (min-width: 768px) {
   html {

@@ -48,17 +48,17 @@ export class MenuItemComponent
 		this.isAddActive = !this.isAddActive;
 	}
 
-	public cancel(): void
+	public cancel(value: any): void
 	{
 		this.isAddActive = false;
 	}
 
-	public confirm(): void
+	public confirm(value: any): void
 	{
 		this.isActive = false;
 		this.isAddActive = false;
 
-		let newItem: IterableObject = { name: this.inputElement.nativeElement.value, children: [] }
+		let newItem: IterableObject = { name: value, children: [] }
 
 		this.item.children.push(newItem);
 		this.passValueUp(newItem);
