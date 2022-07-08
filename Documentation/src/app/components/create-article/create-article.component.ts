@@ -6,6 +6,7 @@ import { CodeblockControl, TextareaControl, HeaderControl, FieldType } from '../
 import { Firestore, doc, getDoc, connectFirestoreEmulator, setDoc, EmulatorMockTokenOptions, collection, collectionData, collectionChanges, collectionGroup, addDoc, DocumentReference, DocumentData, updateDoc, CollectionReference, DocumentSnapshot, query, getDocs } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { FirebaseService } from 'src/app/services/firebase-service.service';
 
 export type dynamicObject = { [ key: string ]: any; };
 
@@ -114,13 +115,23 @@ export class CreateArticleComponent implements OnInit
 		const articleCategory: object | string = this.articleControl.get('category')?.value;
 		const articleTitle: string = this.articleControl.get('title')?.value;
 		const builtCategoryObj = this.buildCategoryObject(articleCategory, articleID, articleTitle);
+		const categoryPath: string[] = this.getKeys(builtCategoryObj);
+		const categoryKey = this.convertToKey(categoryPath);
 
-		// const categoryPath: string[] = this.getKeys(builtCategoryObj);
-		// const categoryDoc = doc(this.firestore, 'sidebar-content', ...categoryPath);
-		// const categoryCollection = collection(this.firestore, 'sidebar-content', ...categoryPath);
-		// let endpointObj: dynamicObject = {};
-		// endpointObj[ articleID ] = articleTitle;
-		// addDoc(categoryCollection, endpointObj);
+		const categoryDocRef = doc(this.firestore, 'sidebar-content', categoryKey);
+		const categoryDocSnap = await getDoc(categoryDocRef);
+
+		let endpointObj: dynamicObject = {};
+		endpointObj[ articleID ] = articleTitle;
+
+		if (categoryDocSnap.exists())
+		{
+			return await updateDoc(categoryDocRef, endpointObj);
+		}
+		else
+		{
+			return await setDoc(categoryDocRef, endpointObj);
+		}
 	}
 
 	private async exists(documentRef: DocumentReference<DocumentData> | CollectionReference<DocumentData>): Promise<boolean>
@@ -189,7 +200,6 @@ export class CreateArticleComponent implements OnInit
 			}
 
 			output.push(property[ 0 ]);
-			output.push(property[ 0 ]);
 
 			for (const key of this.getKeys(property[ 1 ]))
 			{
@@ -197,6 +207,22 @@ export class CreateArticleComponent implements OnInit
 			}
 		}
 
+		return output;
+	}
+
+	private convertToKey(categoryStrings: string[]): string
+	{
+		let output: string = "";
+		for (const categoryString of categoryStrings)
+		{
+			if (output.length == 0)
+			{
+				output += categoryString;
+				continue;
+			}
+
+			output += ':' + categoryString;
+		}
 		return output;
 	}
 

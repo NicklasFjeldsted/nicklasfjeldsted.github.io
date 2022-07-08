@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '
 import { collection, collectionData, Firestore } from '@angular/fire/firestore';
 import { FormGroup } from '@angular/forms';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { FirebaseService } from 'src/app/services/firebase-service.service';
 
 @Component({
   selector: 'input-fieldmenu',
@@ -10,7 +11,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class InputFieldmenuComponent implements OnInit, AfterViewInit
 {
-	constructor(private firestore: Firestore) { }
+	constructor(private firestore: Firestore, private fireService: FirebaseService) { }
 
 	@Input() group!: FormGroup;
 
@@ -59,17 +60,7 @@ export class InputFieldmenuComponent implements OnInit, AfterViewInit
 
 	public loadCategories(): void
 	{
-		const collectionRef = collection(this.firestore, 'sidebar-content');
-		const collectionSnap = collectionData(collectionRef, { idField: 'key' });
-		let data: { [ key: string ]: any; } = {};
-		collectionSnap.subscribe(arr =>
-		{
-			for (let i = 0; i < arr.length; i++)
-			{
-				data[ arr[ i ][ 'key' ] ] = arr[ i ];
-			}
-			this.DataSubject.next(data);
-		});
+		this.fireService.getAllCategories().then(categories => this.DataSubject.next(categories));
 	}
 
 	private setMenu(obj: JsonObject): IterableObject

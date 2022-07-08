@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { collection, collectionData, collectionGroup, Firestore, getDocs } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { FirebaseService } from 'src/app/services/firebase-service.service';
 import { DropdownComponent } from '../dropdown/dropdown.component';
 
 @Component({
@@ -10,7 +11,7 @@ import { DropdownComponent } from '../dropdown/dropdown.component';
 })
 export class SidebarComponent implements OnInit, AfterViewInit {
 
-	constructor(private firestore: Firestore) { }
+	constructor(private firestore: Firestore, private fireService: FirebaseService) { }
 
 
 	public data: object = {};
@@ -34,25 +35,15 @@ export class SidebarComponent implements OnInit, AfterViewInit {
 	ngAfterViewInit(): void
 	{
 		this.DataObservable.subscribe(data =>
-			{
-				this.dropdownRef.updateContent(data);
-				this.data = data;
-			});
+		{
+			this.dropdownRef.updateContent(data);
+			this.data = data;
+		});
 	}
 
 	public loadSidebar(): void
 	{
-		const collectionRef = collection(this.firestore, 'sidebar-content');
-		const collectionSnap = collectionData(collectionRef, { idField: 'key' });
-		let data: { [ key: string ]: any; } = {};
-		collectionSnap.subscribe(arr =>
-		{
-			for (let i = 0; i < arr.length; i++)
-			{
-				data[ arr[ i ][ 'key' ] ] = arr[ i ];
-			}
-			this.DataSubject.next(data);
-		});
+		this.fireService.getAllCategories().then(categories => this.DataSubject.next(categories));
 	}
 
 	public Emit(): void
