@@ -12,6 +12,8 @@ export class ArticleContentComponent
 
 	@Input() articleContent!: Content;
 
+	public isCodeActive: boolean = false;
+
 	public get get_header(): Header
 	{
 		return <Header>this.articleContent;
@@ -30,6 +32,11 @@ export class ArticleContentComponent
 	public get_id(value: string): string
 	{
 		return value.toLowerCase().replace(' ', '-');
+	}
+
+	public toggle_codeblock(): void
+	{
+		this.isCodeActive = !this.isCodeActive;
 	}
 
 }
