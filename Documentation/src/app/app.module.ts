@@ -24,6 +24,8 @@ import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { ConfirmInputFieldComponent } from './components/confirm-input-field/confirm-input-field.component';
+import { ContentListComponent } from './components/content-list/content-list.component';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 @NgModule({
   	declarations: [
@@ -42,10 +44,11 @@ import { ConfirmInputFieldComponent } from './components/confirm-input-field/con
   	 	MenuItemComponent,
   	 	InputFieldarrayComponent,
   	 	AboutComponent,
-     ConfirmInputFieldComponent
+     ConfirmInputFieldComponent,
+     ContentListComponent
   	],
   	imports: [BrowserModule, AppRoutingModule, ReactiveFormsModule, FormsModule, HttpClientModule, provideFirebaseApp(() => initializeApp(environment.firebase)), provideFirestore(() => getFirestore())],
-	providers: [],
+	providers: [{provide: LocationStrategy, useClass: HashLocationStrategy}],
 	bootstrap: [AppComponent],
 })
 export class AppModule {}
