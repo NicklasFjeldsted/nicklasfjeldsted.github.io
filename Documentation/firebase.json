@@ -8,5 +8,12 @@
 			"enabled": true,
 			"port": 4040
 		}
-	}
+	},
+	"hosting": {
+  		"rewrites": [ {
+    		"source": "**",
+    		"destination": "/index.html"
+   
+		} ]
+}
 }
