@@ -6,7 +6,7 @@
 	position: relative;
 }
 
-.article-codeblock {
+.expandable > .article-codeblock {
 	max-height: 20rem;
 	overflow: hidden;
 	position: relative;
@@ -35,7 +35,7 @@
 	fill: #fff;
 }
 
-.article-codeblock.expanded {
+.expandable > .article-codeblock.expanded {
 	max-height: fit-content;
 }
 
