@@ -1,0 +1,25 @@
+<table id="table" [formGroup]="group">
+	<thead>
+		<tr>
+			<th>Methods</th>
+			<th>Details</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr *ngFor="let row of TableRows; let i = index" [formGroup]="row">
+			<td>
+				<input formControlName="method">
+			</td>
+			<td>
+				<textarea formControlName="description"></textarea>
+			</td>
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr>
+			<td>
+				<button (click)="addRow()">Add Row</button>
+			</td>
+		</tr>
+	</tfoot>
+</table>

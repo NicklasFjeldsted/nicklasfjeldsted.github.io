@@ -1,5 +1,5 @@
-import { AbstractControl, FormGroup } from "@angular/forms";
-import { Codeblock, Header, Textarea } from "./inputFields.h";
+import { AbstractControl, FormArray, FormGroup } from "@angular/forms";
+import { Codeblock, Header, InputTable, InputTableRow, Textarea } from "./inputFields.h";
 
 export interface HeaderControl extends FormGroup
 {
@@ -37,5 +37,27 @@ export interface TextareaControl extends FormGroup
 		font_size: AbstractControl;
 		font_style: AbstractControl;
 		link: AbstractControl;
+	}
+}
+
+export interface TableInputControl extends FormGroup
+{
+	value: InputTable;
+
+	controls: {
+		index: AbstractControl;
+		text: AbstractControl;
+		type: AbstractControl;
+		rows: TableRowControl;
+	}
+}
+
+export interface TableRowControl extends FormGroup
+{
+	value: InputTableRow;
+
+	controls: {
+		method: AbstractControl;
+		description: AbstractControl;
 	}
 }

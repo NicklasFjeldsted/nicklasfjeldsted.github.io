@@ -2,7 +2,8 @@ export enum FieldType
 {
   	Textarea,
   	Codeblock,
-	Header
+	Header,
+	InputTable
 }
 
 export interface Article
@@ -33,6 +34,17 @@ export interface Codeblock extends Content
 	language: string;
 }
 
+export interface InputTable extends Content
+{
+	rows: InputTableRow[];
+}
+
+export interface InputTableRow
+{
+	method:string;
+	description:string;
+}
+
 export interface Link
 {
 	text: string;
@@ -45,3 +57,4 @@ export interface Content
 	type: number;
 	text: string;
 }
+

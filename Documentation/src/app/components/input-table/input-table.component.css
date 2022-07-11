@@ -1,0 +1,51 @@
+table {
+	box-shadow: 0 2px 2px #6e6e6e3d,0 0 2px #ffffff1f;
+	background-color: #303030;
+}
+
+table tr, table th {
+	border-bottom: 1px solid #444444;
+}
+
+table th {
+	background: #333333;
+	border-bottom: 1px solid #444444;
+	color: #fff;
+	font-size: 1.25rem;
+	font-weight: 500;
+	padding: 8px 24px;
+	text-align: left;
+	text-transform: uppercase;
+	line-height: 2.8rem;
+	font-family: Roboto,Helvetica Neue Light,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif;
+}
+
+thead td {
+	padding: 0.5rem;
+}
+
+tbody td {
+	padding: 1rem;
+	border-bottom: 1px solid #444444;
+}
+
+input {
+	max-height: 10rem;
+}
+
+textarea {
+	max-width: 15rem;
+	max-height: 10rem;
+	min-height: 5rem;
+	resize: vertical;
+}
+
+tfoot td {
+	padding: .5rem;
+}
+
+tfoot button {
+	background-color: #326abe;
+	border-radius: 10px;
+	padding: .25rem .5rem;
+}

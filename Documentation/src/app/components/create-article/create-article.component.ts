@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { CodeblockControl, TextareaControl, HeaderControl, FieldType } from '../../interfaces';
+import { CodeblockControl, TextareaControl, HeaderControl, FieldType, TableInputControl } from '../../interfaces';
 import { Firestore, doc, getDoc, connectFirestoreEmulator, setDoc, EmulatorMockTokenOptions, collection, collectionData, collectionChanges, collectionGroup, addDoc, DocumentReference, DocumentData, updateDoc, CollectionReference, DocumentSnapshot, query, getDocs } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -27,6 +27,7 @@ export class CreateArticleComponent implements OnInit
   	codeblockArray: CodeblockControl[] = [];
   	textareaArray: TextareaControl[] = [];
   	headerArray: HeaderControl[] = [];
+	inputTableArray: TableInputControl[] = [];
 
 	public index: number = 0;
 
@@ -83,6 +84,17 @@ export class CreateArticleComponent implements OnInit
 				});
 				this.headerArray.push(headerControl as HeaderControl);
 				content.push(headerControl);
+				break;
+
+			case FieldType.InputTable:
+				let inputTableControl = new FormGroup({
+					index: new FormControl(Number(num)),
+					type: new FormControl(FieldType.InputTable),
+					text: new FormControl(''),
+					rows: new FormArray([])
+				});
+				this.inputTableArray.push(inputTableControl as TableInputControl);
+				content.push(inputTableControl);
 				break;
 		}
 	}

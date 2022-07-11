@@ -18,4 +18,23 @@
 	<pre *ngSwitchCase="1" [ngStyle]="{'order': get_codeblock.index}">
 		<code [class]="'hljs language-' + get_codeblock.language">{{get_codeblock.text}}</code>
 	</pre>
+
+	<table *ngSwitchCase="3">
+		<thead>
+			<tr>
+				<th>Methods</th>
+				<th>Details</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let row of get_inputTable.rows">
+				<td>
+					<code>{{row.method}}</code>
+				</td>
+				<td>
+					<p>{{row.description}}</p>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </div>

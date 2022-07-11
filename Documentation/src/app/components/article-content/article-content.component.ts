@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Content, Header, Codeblock, Textarea } from '../../interfaces';
+import { Content, Header, Codeblock, Textarea, InputTable } from '../../interfaces';
 
 @Component({
   selector: 'article-content',
@@ -25,6 +25,12 @@ export class ArticleContentComponent
 	public get get_textarea(): Textarea
 	{
 		return <Textarea>this.articleContent;
+	}
+
+	public get get_inputTable(): InputTable
+	{
+		return <InputTable>this.articleContent;
+
 	}
 
 	public get_id(value: string): string
