@@ -10,10 +10,10 @@
 		}
 	},
 	"hosting": {
-  		"rewrites": [ {
+ 		"rewrites": [ {
     		"source": "**",
-    		"destination": "/"
-   
-		} ]
+    		"destination": "/index.html"
+  	} ]
 }
+
 }
