@@ -15,6 +15,7 @@ export class ArticleComponent implements OnInit {
 
 	public article!: Article;
 	public categoryArticles: any[] = [];
+	public contentListArticles: string[] = [];
 
 	ngOnInit(): void
 	{
@@ -25,6 +26,17 @@ export class ArticleComponent implements OnInit {
 					this.router.navigate([ '/' ]);
 				}
 				this.load_data(params[ 'articleID' ]);
+				const ref = doc(this.firestore, 'articles', params[ 'articleID' ]);
+            const docSnap = getDoc(ref);
+            docSnap.then(data =>
+            {
+                if (data.exists())
+                {
+                    const docObj = <Article>data.data();
+                    const headers = docObj.content.filter(y => y.type == 2);
+                    headers.forEach(head => this.contentListArticles.push(head.text));
+                }
+            });
 		});
 	}
 

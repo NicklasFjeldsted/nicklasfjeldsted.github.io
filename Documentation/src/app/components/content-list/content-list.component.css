@@ -1,0 +1,81 @@
+.content-list {
+	width: 18vw;
+	height: 100vh;
+	position: fixed;
+	top: 76px;
+	right: .5rem;
+}
+
+ul li.h1:first-child::after {
+	background: #6E6E6E;
+	width: 50px;
+	content: "";
+	display: block;
+	height: 1px;
+	margin: 7px 0 4px;
+	clear: both;
+}
+
+
+.h1 a {
+	font-weight: 500;
+}
+ul {
+	list-style: none;
+}
+
+ul li {
+	position: relative;
+	padding: 9px 0 9px 12px;
+	color: #fff;
+}
+
+ul li.h3 {
+	padding-left: 24px;
+}
+
+ul li a {
+	cursor: pointer;
+	font-size: 14px;
+}
+
+
+ul li::before {
+	bottom: 0;
+	content: "";
+	left: 0;
+	position: absolute;
+	top: 0;
+	border-left-width: 1px;
+	border-left-style: solid;
+	border-left-color: #444;
+}
+
+ul li:hover * {
+	color: #7fc9ff;
+}
+
+ul li:hover a::before {
+	background: #DBDBDB;
+}
+
+ul li:not(.active):hover a::before {
+	border-radius: 50%;
+	content: "";
+	height: 6px;
+	left: -2.5px;
+	position: absolute;
+	top: 18px;
+	width: 6px;
+}
+
+ul li.active a::before {
+	background: #39d0ff;
+	border-radius: 50%;
+	content: "";
+	height: 6px;
+	left: -2.5px;
+	position: absolute;
+	top: 18px;
+	width: 6px;
+}

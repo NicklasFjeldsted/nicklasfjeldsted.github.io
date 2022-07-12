@@ -7,6 +7,7 @@
 <div class="divider"></div>
 <div class="article-content">
 	<article-content *ngFor="let content of article.content" [articleContent]="content" [style]="'order:' + content.index + ';'"></article-content>
+	<content-list [chapters]="contentListArticles"></content-list>
 </div>
 <div class="navigate">
 	<a id="back" (click)="navigate(-1)" *ngIf="currentArticleIndex > 0">Tilbage</a>
