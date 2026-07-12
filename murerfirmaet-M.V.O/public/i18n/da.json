@@ -21,6 +21,24 @@
       "description": "Vi hjælper hele København og Nordsjælland"
     }
   },
+  "features": {
+    "satisfaction": {
+      "title": "100% tilfredshed",
+      "description": "Vi går aldrig, før du er fuldt tilfreds."
+    },
+    "communication": {
+      "title": "Klar kommunikation",
+      "description": "Du får løbende besked og fuldt overblik."
+    },
+    "transparency": {
+      "title": "Gennemsigtige aftaler",
+      "description": "Ingen skjulte omkostninger – kun klare aftaler."
+    },
+    "insurance": {
+      "title": "Forsikringssager",
+      "description": "Vi hjælper med reparationer efter skader."
+    }
+  },
   "services": {
     "heading": "Vores ydelser",
     "subheading": "Vi løser dine mureropgaver",

@@ -37,4 +37,11 @@
   <section class="u-bg-section p-4 lg:pt-6 lg:px-[clamp(0.5rem,2vw,8rem)] rounded-lg lg:rounded-none">
     <mvo-service-grid></mvo-service-grid>
   </section>
+  <section class="u-bg-dark p-6 rounded-lg lg:rounded-none lg:px-[clamp(0.5rem,2vw,8rem)]">
+    <div class="grid grid-cols-1 gap-6 lg:gap-2 lg:grid-cols-4">
+      @for (feature of features; track feature.titleKey) {
+        <mvo-feature-highlight [highlight]="feature" />
+      }
+    </div>
+  </section>
 </main>
