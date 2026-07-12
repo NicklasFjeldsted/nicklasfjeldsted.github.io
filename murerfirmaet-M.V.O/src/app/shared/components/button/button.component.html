@@ -1,0 +1,23 @@
+<button
+  mat-flat-button
+  [class]="'mvo-btn mvo-btn--' + variant() + ' mvo-btn--' + size() + ' ' + additionalClasses()"
+  [class.w-full]="fullWidth()"
+  [disabled]="disabled()"
+  (click)="onClick.emit($event)">
+
+  <span class="flex flex-row gap-2 items-center justify-center">
+    @if (icon() && iconPosition() === 'left') {
+      <fa-icon [icon]="icon()!" [size]="iconSize()" class="mvo-btn__icon" />
+    }
+
+    @if (label()) {
+      {{ label() }}
+    } @else {
+      <ng-content />
+    }
+
+    @if (icon() && iconPosition() === 'right') {
+      <fa-icon [icon]="icon()!" [size]="iconSize()" class="mvo-btn__icon" />
+    }
+  </span>
+</button>
