@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
@@ -23,4 +23,5 @@ export class ButtonComponent {
   disabled = input<boolean>(false);
   fullWidth = input<boolean>(false);
   additionalClasses = input<string>('');
+  onClick = output<MouseEvent>();
 }
