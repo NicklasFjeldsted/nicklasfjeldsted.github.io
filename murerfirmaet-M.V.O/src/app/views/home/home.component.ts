@@ -6,16 +6,19 @@ import {IFeatureHighlight} from '../../core/interfaces/feature-highlight.interfa
 import {TrustHighlightComponent} from '../../shared/components/trust-highlight/trust-highlight.component';
 import {FeatureHighlightComponent} from '../../shared/components/feature-highlight/feature-highlight.component';
 import {ButtonComponent} from '../../shared/components/button/button.component';
-import {faClipboardList, faPhoneVolume, faShield} from '@fortawesome/free-solid-svg-icons';
+import {faCircleCheck, faClipboardList, faHammer, faPhone, faPhoneVolume, faShield} from '@fortawesome/free-solid-svg-icons';
 import {UpperCasePipe} from '@angular/common';
 import {ButtonSize} from '../../core/enums/button-size.enum';
 import {ButtonVariant} from '../../core/enums/button-variant.enum';
 import {ContactConstants} from '../../core/constants/contact.constants';
 import {faFileLines, faMessage, faSmile} from '@fortawesome/free-regular-svg-icons';
+import {ServiceCardComponent} from '../../shared/components/service-card/service-card.component';
+import {WorkStepComponent} from '../../shared/components/work-step/work-step.component';
+import {IWorkStep} from '../../core/interfaces/work-step.interface';
 
 @Component({
   selector: 'mvo-home',
-  imports: [ServiceGridComponent, TrustHighlightComponent, FeatureHighlightComponent, ButtonComponent, TranslatePipe, UpperCasePipe],
+  imports: [ServiceGridComponent, TrustHighlightComponent, FeatureHighlightComponent, WorkStepComponent, ButtonComponent, TranslatePipe, UpperCasePipe, ServiceCardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   standalone: true
@@ -36,6 +39,13 @@ export class HomeComponent {
   ];
 
   protected readonly callHref = `tel:+${ContactConstants.PHONE_NUMBER}`;
+
+  protected workSteps: IWorkStep[] = [
+    { index: 1, titleKey: 'howWeWork.step1.title', descriptionKey: 'howWeWork.step1.description', icon: faPhone },
+    { index: 2, titleKey: 'howWeWork.step2.title', descriptionKey: 'howWeWork.step2.description', icon: faFileLines },
+    { index: 3, titleKey: 'howWeWork.step3.title', descriptionKey: 'howWeWork.step3.description', icon: faHammer },
+    { index: 4, titleKey: 'howWeWork.step4.title', descriptionKey: 'howWeWork.step4.description', icon: faCircleCheck},
+  ];
 
   protected readonly faClipboardList = faClipboardList;
   protected readonly faPhoneVolume = faPhoneVolume;
