@@ -11,16 +11,19 @@
       }
     </div>
   </section>
-  <section class="w-full u-bg-secondary p-2 flex flex-row gap-1 lg:hidden">
-    <mvo-button
-      label="{{ 'home.call' | translate | uppercase }}"
-      [icon]="faPhoneVolume"
-      [size]="ButtonSize.Lg"
-      [variant]="ButtonVariant.Secondary"
-      iconSize="xl"
-      [fullWidth]="true"
-      class="flex-1"
-    ></mvo-button>
+  <section class="w-full u-bg-secondary p-2 flex flex-row gap-1 lg:hidden theme-dark">
+    <a
+      [href]="callHref"
+      class="flex-1">
+      <mvo-button
+        label="{{ 'home.call' | translate | uppercase }}"
+        [icon]="faPhoneVolume"
+        [size]="ButtonSize.Lg"
+        [variant]="ButtonVariant.Secondary"
+        iconSize="xl"
+        [fullWidth]="true"
+      ></mvo-button>
+    </a>
     <mvo-button
       label="{{ 'home.get_offer' | translate | uppercase }}"
       [icon]="faClipboardList"
