@@ -1,5 +1,5 @@
 export interface IProvidedService {
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
   image: string;
 }
