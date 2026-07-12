@@ -1,4 +1,8 @@
 {
+  "home": {
+    "call": "Ring",
+    "get_offer": "Få tilbud"
+  },
   "highlights": {
     "experience": {
       "title": "+5 års erfaring",

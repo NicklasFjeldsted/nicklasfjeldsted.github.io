@@ -1,7 +1,9 @@
-<main>
+<main class="u-bg-secondary">
   <section class="
     px-2 py-6
     bg-[var(--bg-section)]
+    rounded-lg
+    lg:rounded-none
     lg:py-0 lg:px-[clamp(0.5rem,2vw,8rem)] lg:bg-[var(--bg-surface)] lg:[box-shadow:0_4px_12px_rgba(0,0,0,0.06)]">
     <div class="grid grid-cols-2 gap-4 lg:gap-2 lg:grid-cols-4">
       @for (item of highlights; track item.titleKey) {
@@ -9,10 +11,27 @@
       }
     </div>
   </section>
-  <section class="w-full h-32 u-bg-secondary lg:hidden">
-
+  <section class="w-full u-bg-secondary p-2 flex flex-row gap-1 lg:hidden">
+    <mvo-button
+      label="{{ 'home.call' | translate | uppercase }}"
+      [icon]="faPhoneVolume"
+      [size]="ButtonSize.Lg"
+      [variant]="ButtonVariant.Secondary"
+      iconSize="xl"
+      [fullWidth]="true"
+      class="flex-1"
+    ></mvo-button>
+    <mvo-button
+      label="{{ 'home.get_offer' | translate | uppercase }}"
+      [icon]="faClipboardList"
+      [size]="ButtonSize.Lg"
+      [variant]="ButtonVariant.Primary"
+      iconSize="xl"
+      [fullWidth]="true"
+      class="flex-1"
+    ></mvo-button>
   </section>
-  <section class="u-bg-section p-4 lg:pt-6 lg:px-[clamp(0.5rem,2vw,8rem)]">
+  <section class="u-bg-section p-4 lg:pt-6 lg:px-[clamp(0.5rem,2vw,8rem)] rounded-lg lg:rounded-none">
     <mvo-service-grid></mvo-service-grid>
   </section>
 </main>
