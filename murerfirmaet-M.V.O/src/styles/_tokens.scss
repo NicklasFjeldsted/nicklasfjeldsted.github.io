@@ -4,7 +4,7 @@
 // BRAND COLORS
 // =============================================================================
 
-$color-primary:        tone(gold, 400); // was 500 — lighter to match design
+$color-primary:        tone(gold, 400);
 $color-primary-light:  tone(gold, 300);
 $color-primary-soft:   tone(gold, 100);
 $color-primary-hover:  tone(gold, 300);
@@ -43,8 +43,8 @@ $text-inverse:           tone(neutral, 50);
 $text-inverse-secondary: tone(neutral, 300);
 
 $text-accent:       tone(gold, 700);
-$text-on-primary:   tone(neutral, 950);
-$text-on-secondary: tone(neutral, 50);
+$text-on-primary:   #ffffff;
+$text-on-secondary: #ffffff;
 
 
 // =============================================================================
@@ -57,4 +57,3 @@ $border-dark:    #383b40;
 $border-accent:  $color-primary;
 
 $focus-ring: rgba($color-primary, 0.38);
-
