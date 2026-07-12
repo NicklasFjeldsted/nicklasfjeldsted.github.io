@@ -1,7 +1,7 @@
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import {IconProp} from '@fortawesome/fontawesome-svg-core';
 
 export interface ITrustHighlight {
   icon: IconProp;
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
 }

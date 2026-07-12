@@ -1,23 +1,21 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
+import {TranslatePipe} from '@ngx-translate/core';
 import {ServiceGrid} from '../../shared/components/service-grid/service-grid';
 import {ITrustHighlight} from '../../core/interfaces/trust-highlight.interface';
 import {TrustHighlightComponent} from '../../shared/components/trust-highlight/trust-highlight.component';
 
 @Component({
   selector: 'mvo-home',
-  imports: [
-    ServiceGrid,
-    TrustHighlightComponent
-  ],
+  imports: [ServiceGrid, TrustHighlightComponent, TranslatePipe],
   templateUrl: './home.html',
   styleUrl: './home.scss',
   standalone: true
 })
 export class HomeComponent {
-  highlights: ITrustHighlight[] = [
-    { icon: 'shield',    title: '+5 års erfaring',          description: 'Solidt håndværk og mange tilfredse kunder' },
-    { icon: 'check',     title: 'Gratis og uforpligtende',  description: 'Få et tilbud helt gratis – uden bindinger' },
-    { icon: 'clock',     title: 'Svar indenfor 24 timer',   description: 'Vi vender hurtigt tilbage med et konkret tilbud' },
-    { icon: 'location-dot', title: 'København & omegn',     description: 'Vi hjælper hele København og Nordsjælland' },
+  protected highlights: ITrustHighlight[] = [
+    {icon: 'shield', titleKey: 'highlights.experience.title', descriptionKey: 'highlights.experience.description'},
+    {icon: 'check', titleKey: 'highlights.free.title', descriptionKey: 'highlights.free.description'},
+    {icon: 'clock', titleKey: 'highlights.response.title', descriptionKey: 'highlights.response.description'},
+    {icon: 'location-dot', titleKey: 'highlights.location.title', descriptionKey: 'highlights.location.description'},
   ];
 }
