@@ -21,6 +21,24 @@
       "description": "Vi hjælper hele København og Nordsjælland"
     }
   },
+  "features": {
+    "satisfaction": {
+      "title": "100% tilfredshed",
+      "description": "Vi går aldrig, før du er fuldt tilfreds."
+    },
+    "communication": {
+      "title": "Klar kommunikation",
+      "description": "Du får løbende besked og fuldt overblik."
+    },
+    "transparency": {
+      "title": "Gennemsigtige aftaler",
+      "description": "Ingen skjulte omkostninger – kun klare aftaler."
+    },
+    "insurance": {
+      "title": "Forsikringssager",
+      "description": "Vi hjælper med reparationer efter skader."
+    }
+  },
   "services": {
     "heading": "Vores ydelser",
     "subheading": "Vi løser dine mureropgaver",
@@ -44,6 +62,26 @@
     "minor": {
       "title": "Mindre mureropgaver",
       "description": "Intet projekt er for lille. Vi hjælper også med mindre opgaver i hjem og erhverv."
+    }
+  },
+  "howWeWork": {
+    "heading": "Sådan arbejder vi",
+    "subheading": "En tryg proces fra start til slut",
+    "step1": {
+      "title": "Kontakt os",
+      "description": "Fortæl os om din opgave via formularen eller ring til os."
+    },
+    "step2": {
+      "title": "Vi giver dig et tilbud",
+      "description": "Du modtager et gratis og uforpligtende tilbud indenfor 24 timer."
+    },
+    "step3": {
+      "title": "Vi udfører opgaven",
+      "description": "Vi går i gang til aftalt tid og leverer håndværk i højeste kvalitet."
+    },
+    "step4": {
+      "title": "Levering & opfølgning",
+      "description": "Vi gennemgår arbejdet sammen med dig og sikrer, at alt er, som det skal være."
     }
   }
 }

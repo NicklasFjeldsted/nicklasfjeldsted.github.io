@@ -1,0 +1,102 @@
+:host {
+  display: flex;
+  flex: 1;
+}
+
+// ── Circles ──────────────────────────────────────────────────────────────────
+
+.ws-circle {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+// Large icon circle
+.ws-circle--icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 1.5px solid var(--color-primary-soft);
+
+  font-size: 1.25rem;
+
+  @media (min-width: 768px) {
+    font-size: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    font-size: 2.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    width: 6rem;
+    height: 6rem;
+  }
+}
+
+// Small index badge
+.ws-circle--index {
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: var(--color-primary);
+  color: var(--text-on-primary);
+  font-weight: 700;
+  font-size: 0.75rem;
+
+  @media (min-width: 1024px) {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
+// ── Connecting line ───────────────────────────────────────────────────────────
+
+// Mobile default: vertical dashed line
+.ws-line {
+  flex: 1;
+  width: 2px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  background-image: linear-gradient(to bottom, var(--color-primary) 60%, transparent 40%);
+  background-size: 2px 10px;
+  background-repeat: repeat-y;
+  opacity: 0.5;
+}
+
+// Desktop: horizontal half-lines on each side of the circle
+.ws-line--half {
+  flex: 1;
+  height: 2px;
+  min-width: 0.5rem;
+  background-image: linear-gradient(to right, var(--color-primary) 60%, transparent 40%);
+  background-size: 10px 2px;
+  background-repeat: repeat-x;
+  opacity: 0.5;
+}
+
+// Left half-line: tile from right → any partial dash is at the outer (non-icon) end
+// which meets the other half's partial dash in the middle — least visible spot
+.ws-line--half:first-child {
+  margin-right: 12px;
+}
+
+// Right half-line: tile from left → same logic, partial dash at outer end
+.ws-line--half:last-child {
+  margin-left: 12px;
+}
+
+// First step: hide left half-line (nothing to the left)
+:host(:first-child) .ws-line--half:first-child {
+  visibility: hidden;
+}
+
+// Last step: hide right half-line (nothing to the right)
+:host(:last-child) .ws-line--half:last-child {
+  visibility: hidden;
+}
+
+// Hide mobile vertical line on last step
+:host(:last-child) .ws-line:not(.ws-line--half) {
+  display: none;
+}
+

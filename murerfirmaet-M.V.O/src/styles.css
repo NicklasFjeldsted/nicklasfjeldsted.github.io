@@ -12,6 +12,7 @@
   --bg-section: #f5f3f2;
   --bg-surface: #ffffff;
   --bg-surface-soft: #efede9;
+  --bg-gold-subtle: #fbf6ed;
   --bg-dark: #0c0f13;
   --bg-dark-elevated: #1a1b1e;
   --bg-overlay-dark: rgba(12, 15, 19, 0.72);
@@ -56,6 +57,10 @@
 
 .u-bg-surface-soft {
   background-color: var(--bg-surface-soft) !important;
+}
+
+.u-bg-gold-subtle {
+  background-color: var(--bg-gold-subtle) !important;
 }
 
 .u-bg-dark {

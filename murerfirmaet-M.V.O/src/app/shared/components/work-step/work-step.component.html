@@ -1,0 +1,32 @@
+<div class="flex flex-row gap-4 sm:flex-col sm:flex-1 sm:min-w-0 sm:items-center">
+
+  <!-- Mobile: circle stack + vertical line -->
+  <div class="flex flex-col items-center sm:hidden">
+    <div class="relative">
+      <div class="ws-circle ws-circle--icon u-bg-gold-subtle">
+        <fa-icon [icon]="workStep().icon" class="u-text-body" />
+      </div>
+      <div class="ws-circle ws-circle--index absolute -top-2 -left-2">{{ workStep().index }}</div>
+    </div>
+    <div class="ws-line"></div>
+  </div>
+
+  <!-- Desktop: left half-line + circle + right half-line -->
+  <div class="hidden sm:flex flex-row items-center w-full sm:justify-center">
+    <div class="ws-line ws-line--half"></div>
+    <div class="relative shrink-0">
+      <div class="ws-circle ws-circle--icon u-bg-gold-subtle">
+        <fa-icon [icon]="workStep().icon" class="u-text-body" />
+      </div>
+      <div class="ws-circle ws-circle--index absolute -top-2 -left-2">{{ workStep().index }}</div>
+    </div>
+    <div class="ws-line ws-line--half"></div>
+  </div>
+
+  <!-- Title + description -->
+  <div class="flex flex-col gap-1 pb-8 pt-0.5 w-full sm:pb-0 sm:pt-3 sm:text-center sm:px-2">
+    <h4 class="u-text-body">{{ workStep().titleKey | translate }}</h4>
+    <p class="text-sm max-w-[12rem] sm:mx-auto">{{ workStep().descriptionKey | translate }}</p>
+  </div>
+
+</div>
