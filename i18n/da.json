@@ -1,0 +1,50 @@
+{
+  "home": {
+    "call": "Ring",
+    "get_offer": "Få tilbud"
+  },
+  "highlights": {
+    "experience": {
+      "title": "+5 års erfaring",
+      "description": "Solidt håndværk og mange tilfredse kunder"
+    },
+    "free": {
+      "title": "Gratis og uforpligtende",
+      "description": "Få et tilbud helt gratis – uden bindinger"
+    },
+    "response": {
+      "title": "Svar indenfor 24 timer",
+      "description": "Vi vender hurtigt tilbage med et konkret tilbud"
+    },
+    "location": {
+      "title": "København & omegn",
+      "description": "Vi hjælper hele København og Nordsjælland"
+    }
+  },
+  "services": {
+    "heading": "Vores ydelser",
+    "subheading": "Vi løser dine mureropgaver",
+    "readMore": "Læs mere",
+    "bathrooms": {
+      "title": "Badeværelser",
+      "description": "Vi opbygger og renoverer badeværelser med fokus på kvalitet, funktion og et flot resultat"
+    },
+    "tiling": {
+      "title": "Flisearbejde",
+      "description": "Flisearbejde udført med precision og sans for detaljen - både gulv og væg."
+    },
+    "repairs": {
+      "title": "Reparationer",
+      "description": "Vi udfører reparationer og sikrer korrekt opbygning - så det holder i længden."
+    },
+    "facade": {
+      "title": "Facaderenovering",
+      "description": "Vi renoverer facader og sikrer et flot udtryk og beskyttelse i mange år frem."
+    },
+    "minor": {
+      "title": "Mindre mureropgaver",
+      "description": "Intet projekt er for lille. Vi hjælper også med mindre opgaver i hjem og erhverv."
+    }
+  }
+}
+
