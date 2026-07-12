@@ -1,0 +1,57 @@
+// =============================================================================
+// FONT VARIABLES
+// =============================================================================
+
+$font-family-body:    "Inter", Arial, sans-serif;
+$font-family-heading: "Inter Tight", "Inter", Arial, sans-serif;
+
+$font-weight-regular:   400;
+$font-weight-medium:    500;
+$font-weight-semibold:  600;
+$font-weight-bold:      700;
+$font-weight-extrabold: 800;
+
+
+// =============================================================================
+// BASE
+// =============================================================================
+
+html,
+body {
+  font-family: $font-family-body;
+  font-weight: $font-weight-regular;
+}
+
+p {
+  font-weight: $font-weight-regular;
+  line-height: 1.6;
+}
+
+button,
+nav,
+label {
+  font-weight: $font-weight-semibold;
+}
+
+
+// =============================================================================
+// HEADING DEFAULTS
+// Inter Tight for h1–h4, Inter for h5
+// Base font sizes (16px root) — px equivalents shown as reference
+// =============================================================================
+
+h1, h2, h3, h4 {
+  font-family: $font-family-heading;
+  font-weight: $font-weight-bold;
+}
+
+h5 {
+  font-family: $font-family-body;
+  font-weight: $font-weight-bold;
+}
+
+h1 { font-size: 2rem;     line-height: 1.2;  letter-spacing: -0.035em; } // 32px
+h2 { font-size: 1.5rem;   line-height: 1.25; letter-spacing: -0.02em;  } // 24px
+h3 { font-size: 1.25rem;  line-height: 1.3;  letter-spacing: -0.02em;  } // 20px
+h4 { font-size: 1rem;     line-height: 1.4;                             } // 16px
+h5 { font-size: 0.875rem; line-height: 1.4;                             } // 14px

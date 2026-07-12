@@ -4,11 +4,11 @@
 // BRAND COLORS
 // =============================================================================
 
-$color-primary:        tone(gold, 500);
-$color-primary-light:  tone(gold, 400);
+$color-primary:        tone(gold, 400); // was 500 — lighter to match design
+$color-primary-light:  tone(gold, 300);
 $color-primary-soft:   tone(gold, 100);
-$color-primary-hover:  tone(gold, 400);
-$color-primary-active: tone(gold, 600);
+$color-primary-hover:  tone(gold, 300);
+$color-primary-active: tone(gold, 500);
 
 $color-secondary:        tone(neutral, 900);
 $color-secondary-light:  tone(neutral, 800);
