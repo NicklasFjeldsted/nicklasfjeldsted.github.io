@@ -1,1 +1,18 @@
-<p>home works!</p>
+<main>
+  <section class="
+    px-2 py-6
+    bg-[var(--bg-section)]
+    lg:py-0 lg:px-[clamp(0.5rem,2vw,8rem)] lg:bg-[var(--bg-surface)] lg:[box-shadow:0_4px_12px_rgba(0,0,0,0.06)]">
+    <div class="grid grid-cols-2 gap-4 lg:gap-2 lg:grid-cols-4">
+      @for (item of highlights; track item.title) {
+        <mvo-trust-highlight [highlight]="item" />
+      }
+    </div>
+  </section>
+  <section class="w-full h-32 u-bg-secondary lg:hidden">
+
+  </section>
+  <section class="u-bg-section p-4 lg:pt-6 lg:px-[clamp(0.5rem,2vw,8rem)]">
+    <mvo-service-grid></mvo-service-grid>
+  </section>
+</main>
