@@ -6,6 +6,13 @@
 /out-tsc
 /bazel-out
 
+# Source maps
+*.css.map
+
+# Compiled component CSS (compiled by IDE from .scss — Angular uses .scss directly)
+src/app/**/*.css
+src/styles.css.map
+
 # Node
 /node_modules
 npm-debug.log

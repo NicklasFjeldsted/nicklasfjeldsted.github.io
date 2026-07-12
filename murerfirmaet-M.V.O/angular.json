@@ -12,7 +12,7 @@
       },
       "root": "",
       "sourceRoot": "src",
-      "prefix": "app",
+      "prefix": "mvo",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
@@ -53,7 +53,7 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": { "scripts": true, "styles": false }
             }
           },
           "defaultConfiguration": "production"
