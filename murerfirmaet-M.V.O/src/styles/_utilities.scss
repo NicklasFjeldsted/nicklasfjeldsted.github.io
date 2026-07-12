@@ -1,0 +1,70 @@
+// =============================================================================
+// BACKGROUND UTILITY CLASSES
+// =============================================================================
+
+$background-utilities: (
+  primary:       color-primary,
+  primary-soft:  color-primary-soft,
+  secondary:     color-secondary,
+
+  page:          bg-page,
+  section:       bg-section,
+  surface:       bg-surface,
+  surface-soft:  bg-surface-soft,
+
+  dark:          bg-dark,
+  dark-elevated: bg-dark-elevated,
+  overlay:       bg-overlay-dark
+);
+
+@each $name, $token in $background-utilities {
+  .u-bg-#{$name} {
+    background-color: var(--#{$token}) !important;
+  }
+}
+
+
+// =============================================================================
+// TEXT UTILITY CLASSES
+// =============================================================================
+
+$text-utilities: (
+  brand:             color-primary,
+  accent:            text-accent,
+  body:              text-primary,
+  secondary:         text-secondary,
+  muted:             text-muted,
+  inverse:           text-inverse,
+  inverse-secondary: text-inverse-secondary,
+  on-primary:        text-on-primary,
+  on-secondary:      text-on-secondary
+);
+
+@each $name, $token in $text-utilities {
+  .u-text-#{$name} {
+    color: var(--#{$token}) !important;
+  }
+}
+
+
+// =============================================================================
+// BORDER UTILITY CLASSES
+// =============================================================================
+
+$border-utilities: (
+  default: border-default,
+  strong:  border-strong,
+  dark:    border-dark,
+  accent:  border-accent
+);
+
+.u-border {
+  border: 1px solid var(--border-default) !important;
+}
+
+@each $name, $token in $border-utilities {
+  .u-border-#{$name} {
+    border-color: var(--#{$token}) !important;
+  }
+}
+

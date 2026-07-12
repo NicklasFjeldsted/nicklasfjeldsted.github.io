@@ -1,0 +1,50 @@
+@use "sass:map";
+
+// =============================================================================
+// PRIMITIVE COLOR PALETTE
+// =============================================================================
+
+$palette: (
+  gold: (
+    50:  #fbf6ed,
+    100: #f2e6cf,
+    300: #d4b47b,
+    400: #c0954a,
+    500: #b58d45, // Main brand gold
+    600: #9c7638,
+    700: #8e672d, // Accessible gold for small text
+    800: #7d5c2b
+  ),
+
+  neutral: (
+    0:   #ffffff,
+    50:  #faf9f8,
+    100: #f5f3f2,
+    150: #efede9,
+    200: #dfdcd7,
+    300: #c9c6c1,
+    500: #858785,
+    600: #5f6265,
+    800: #252a30,
+    850: #1a1b1e,
+    900: #15191e,
+    950: #0c0f13
+  )
+);
+
+@function tone($family, $shade) {
+  $family-map: map.get($palette, $family);
+
+  @if $family-map == null {
+    @error "Unknown palette family: `#{$family}`.";
+  }
+
+  $value: map.get($family-map, $shade);
+
+  @if $value == null {
+    @error "Unknown shade `#{$shade}` in palette family `#{$family}`.";
+  }
+
+  @return $value;
+}
+

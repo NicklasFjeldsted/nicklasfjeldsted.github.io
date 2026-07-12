@@ -1,0 +1,38 @@
+// =============================================================================
+// LIGHT AND DARK SECTION THEMES
+// =============================================================================
+
+// The theme variables are inherited by all children, making cards, text and
+// buttons reusable inside either light or dark sections.
+
+:root,
+.theme-light {
+  --theme-bg:             var(--bg-page);
+  --theme-surface:        var(--bg-surface);
+  --theme-text:           var(--text-primary);
+  --theme-text-secondary: var(--text-secondary);
+  --theme-border:         var(--border-default);
+  --theme-hover:          rgba(12, 15, 19, 0.06);
+}
+
+.theme-dark {
+  --theme-bg:             var(--bg-dark);
+  --theme-surface:        var(--bg-dark-elevated);
+  --theme-text:           var(--text-inverse);
+  --theme-text-secondary: var(--text-inverse-secondary);
+  --theme-border:         var(--border-dark);
+  --theme-hover:          rgba(255, 255, 255, 0.07);
+}
+
+.theme-light,
+.theme-dark {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+}
+
+.u-bg-theme         { background-color: var(--theme-bg)      !important; }
+.u-bg-theme-surface { background-color: var(--theme-surface) !important; }
+.u-text-theme       { color: var(--theme-text)               !important; }
+.u-text-theme-secondary { color: var(--theme-text-secondary) !important; }
+.u-border-theme     { border-color: var(--theme-border)      !important; }
+

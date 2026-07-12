@@ -1,0 +1,60 @@
+@use 'palette' as *;
+
+// =============================================================================
+// BRAND COLORS
+// =============================================================================
+
+$color-primary:        tone(gold, 500);
+$color-primary-light:  tone(gold, 400);
+$color-primary-soft:   tone(gold, 100);
+$color-primary-hover:  tone(gold, 400);
+$color-primary-active: tone(gold, 600);
+
+$color-secondary:        tone(neutral, 900);
+$color-secondary-light:  tone(neutral, 800);
+$color-secondary-hover:  tone(neutral, 800);
+$color-secondary-active: tone(neutral, 950);
+
+
+// =============================================================================
+// BACKGROUND COLORS
+// =============================================================================
+
+$bg-page:          tone(neutral, 50);
+$bg-section:       tone(neutral, 100);
+$bg-surface:       tone(neutral, 0);
+$bg-surface-soft:  tone(neutral, 150);
+
+$bg-dark:          tone(neutral, 950);
+$bg-dark-elevated: tone(neutral, 850);
+
+$bg-overlay-dark: rgba(tone(neutral, 950), 0.72);
+
+
+// =============================================================================
+// TEXT COLORS
+// =============================================================================
+
+$text-primary:   #181a1d;
+$text-secondary: tone(neutral, 600);
+$text-muted:     tone(neutral, 500);
+
+$text-inverse:           tone(neutral, 50);
+$text-inverse-secondary: tone(neutral, 300);
+
+$text-accent:       tone(gold, 700);
+$text-on-primary:   tone(neutral, 950);
+$text-on-secondary: tone(neutral, 50);
+
+
+// =============================================================================
+// BORDER AND INTERACTION COLORS
+// =============================================================================
+
+$border-default: tone(neutral, 200);
+$border-strong:  tone(neutral, 300);
+$border-dark:    #383b40;
+$border-accent:  $color-primary;
+
+$focus-ring: rgba($color-primary, 0.38);
+

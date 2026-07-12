@@ -1,0 +1,51 @@
+// =============================================================================
+// REUSABLE COLOR-BASED COMPONENT CLASSES
+// =============================================================================
+
+.c-surface {
+  background-color: var(--theme-surface);
+  color: var(--theme-text);
+  border: 1px solid var(--theme-border);
+}
+
+.c-button {
+  border: 1px solid transparent;
+  color: inherit;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.c-button:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.c-button--primary {
+  background: linear-gradient(
+    180deg,
+    var(--color-primary-light),
+    var(--color-primary)
+  );
+  border-color: var(--color-primary);
+  color: var(--text-on-primary);
+}
+
+.c-button--primary:hover  { background: var(--color-primary-hover); }
+.c-button--primary:active { background: var(--color-primary-active); }
+
+.c-button--secondary {
+  background-color: transparent;
+  border-color: var(--theme-border);
+  color: var(--theme-text);
+}
+
+.c-button--secondary:hover {
+  background-color: var(--theme-hover);
+  border-color: var(--color-primary);
+}
+
+.c-link       { color: var(--text-accent); }
+.c-link:hover { color: var(--color-primary-active); }
+
