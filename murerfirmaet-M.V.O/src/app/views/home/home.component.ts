@@ -1,14 +1,14 @@
 import {Component} from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
-import {ServiceGrid} from '../../shared/components/service-grid/service-grid';
+import {ServiceGridComponent} from '../../shared/components/service-grid/service-grid.component';
 import {ITrustHighlight} from '../../core/interfaces/trust-highlight.interface';
 import {TrustHighlightComponent} from '../../shared/components/trust-highlight/trust-highlight.component';
 
 @Component({
   selector: 'mvo-home',
-  imports: [ServiceGrid, TrustHighlightComponent, TranslatePipe],
-  templateUrl: './home.html',
-  styleUrl: './home.scss',
+  imports: [ServiceGridComponent, TrustHighlightComponent, TranslatePipe],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss',
   standalone: true
 })
 export class HomeComponent {
