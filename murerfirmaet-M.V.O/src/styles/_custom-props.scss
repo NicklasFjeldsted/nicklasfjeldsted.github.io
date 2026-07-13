@@ -23,6 +23,7 @@ $css-color-tokens: (
   bg-gold-subtle:   $bg-gold-subtle,
   bg-dark:          $bg-dark,
   bg-dark-elevated: $bg-dark-elevated,
+  bg-dark-deep:     $bg-dark-deep,
   bg-overlay-dark:  $bg-overlay-dark,
 
   text-primary:           $text-primary,
@@ -33,11 +34,16 @@ $css-color-tokens: (
   text-accent:            $text-accent,
   text-on-primary:        $text-on-primary,
   text-on-secondary:      $text-on-secondary,
+  text-heading:           $text-heading,
+  text-body-alt:          $text-body-alt,
+  text-field:             $text-field,
 
   border-default: $border-default,
   border-strong:  $border-strong,
   border-dark:    $border-dark,
   border-accent:  $border-accent,
+  border-card:    $border-card,
+  border-input:   $border-input,
 
   focus-ring: $focus-ring
 );

@@ -1,0 +1,139 @@
+@use '@angular/material' as mat;
+
+// =============================================================================
+// ANGULAR MATERIAL GLOBAL THEME
+// Docs: https://material.angular.dev/guide/theming
+//
+// Strategy:
+//  1. mat.theme()           — bootstraps Material's M3 token system (required)
+//  2. mat.*-overrides()     — override per-component tokens globally using our
+//                             CSS custom properties from _custom-props.scss
+// =============================================================================
+
+
+// ── 1. Base theme ─────────────────────────────────────────────────────────────
+// `mat.$orange-palette` is the closest built-in M3 palette to our gold.
+// Specific colors are overridden below with our own CSS custom properties.
+
+html {
+  @include mat.theme((
+    color: (
+      primary:    mat.$orange-palette,
+      theme-type: dark,
+    ),
+    typography: (
+      brand-family: 'Inter, Arial, sans-serif',
+      plain-family: 'Inter, Arial, sans-serif',
+      bold-weight:  700,
+    ),
+    density: 0,
+  ));
+}
+
+
+// ── 2. Form-field global overrides ────────────────────────────────────────────
+// Every mat-form-field[appearance="outline"] in the app inherits these.
+
+html {
+  @include mat.form-field-overrides((
+    // Outline
+    outlined-outline-color:             (var(--border-input)),
+    outlined-hover-outline-color:       (var(--border-card)),
+    outlined-focus-outline-color:       (var(--color-primary)),
+    outlined-outline-width:             1px,
+    outlined-focus-outline-width:       1px,
+
+    // Shape
+    outlined-container-shape:           6px,
+
+    // Label
+    outlined-label-text-color:          (var(--text-muted)),
+    outlined-hover-label-text-color:    (var(--text-secondary)),
+    outlined-focus-label-text-color:    (var(--color-primary)),
+    outlined-label-text-font:           'Inter, Arial, sans-serif',
+    outlined-label-text-size:           0.875rem,
+    outlined-label-text-weight:         400,
+
+    // Input text
+    outlined-input-text-color:          (var(--text-field)),
+    outlined-input-text-placeholder-color: (var(--text-muted)),
+    outlined-caret-color:               (var(--color-primary)),
+
+    // Container font
+    container-text-font:                'Inter, Arial, sans-serif',
+    container-text-size:                0.875rem,
+    container-text-weight:              400,
+
+    // Container height — 44px for input & select
+    container-height:                   44px,
+
+    // Disabled
+    outlined-disabled-outline-color:    (var(--border-dark)),
+    outlined-disabled-label-text-color: (var(--text-muted)),
+    outlined-disabled-input-text-color: (var(--text-muted)),
+  ));
+}
+
+
+// ── 3. Global MDC structural fixes ────────────────────────────────────────────
+
+// Outlined container background — neutral-850 (#1a1b1e).
+// There is no mat token for outlined background; set it directly on the MDC wrapper.
+.mat-mdc-text-field-wrapper.mdc-text-field--outlined {
+  background-color: var(--color-secondary) !important;
+  border-radius: 6px;
+}
+
+// Center the label and input text vertically within the 44px container.
+// Material's default infix has top/bottom padding that shifts the label off-center.
+.mat-mdc-text-field-wrapper .mat-mdc-form-field-infix {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+// Material positions label top-edge at container-height/2 (below center).
+// Only fix the resting state on non-textarea fields.
+// Use :has(textarea) to detect textarea since mdc-text-field--textarea is NOT added by Angular Material.
+.mat-mdc-form-field-flex:not(:has(textarea))
+  .mat-mdc-floating-label:not(.mdc-floating-label--float-above) {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+// Textarea infix: restore top padding so the label and text have breathing room.
+.mat-mdc-form-field-infix:has(textarea) {
+  padding-top: 16px !important;
+  align-items: flex-start !important;
+}
+
+// Textarea element: nudge typed text down from the top border.
+.mat-mdc-form-field-infix textarea.mat-mdc-input-element {
+  padding-top: 4px !important;
+  margin-top: 0 !important;
+}
+
+// Textarea resting label: sit at the top padding offset, no transform.
+.mat-mdc-form-field-flex:has(textarea)
+  .mat-mdc-floating-label:not(.mdc-floating-label--float-above) {
+  top: 16px !important;
+  transform: none !important;
+}
+
+// The notch piece renders its own right border which creates a visible extra
+// line at the label gap position. Remove it globally — the leading and trailing
+// outline pieces already draw the full border on their own.
+.mdc-notched-outline__notch {
+  border-right: none !important;
+}
+
+// The subscript wrapper (error/hint row) adds ~32px to every form field height.
+// We never show errors or hints so collapse it completely.
+.mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}

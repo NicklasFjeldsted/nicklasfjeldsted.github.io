@@ -1,0 +1,9 @@
+:host {
+  display: block;
+}
+
+.mvo-input {
+  width: 100%;
+
+  .mat-mdc-form-field-focus-overlay { display: none !important; }
+}

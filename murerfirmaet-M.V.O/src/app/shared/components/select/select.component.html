@@ -1,0 +1,25 @@
+<mat-form-field appearance="outline" class="mvo-select w-full">
+  @if (label()) {
+    <mat-label>{{ label() }}</mat-label>
+  }
+
+  @if (control()) {
+    <mat-select
+      [placeholder]="placeholder()"
+      [required]="required()"
+      [formControl]="control()!">
+      @for (opt of options(); track opt.value) {
+        <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+      }
+    </mat-select>
+  } @else {
+    <mat-select
+      [placeholder]="placeholder()"
+      [required]="required()"
+      [(ngModel)]="value">
+      @for (opt of options(); track opt.value) {
+        <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+      }
+    </mat-select>
+  }
+</mat-form-field>

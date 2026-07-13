@@ -88,6 +88,33 @@
     "heading": "Seneste projekter",
     "subheading": "Se et udvalg af vores arbejde",
     "seeMore": "Se flere projekter"
+  },
+  "top": {
+    "heading": "Din murer i København",
+    "subheading": "Kvalitet • Tillid • Holdbare løsninger",
+    "description": "Badeværelser, flisearbejde og reparationer udført med kvalitet ned til detaljen",
+    "specialities": {
+      "bathrooms": "Speciale i badeværelser",
+      "quality": "Kvalitet ned til detaljen",
+      "clearCommunication": "Klar kommunikation",
+      "shortReply": "Svar indenfor 24 timer"
+    },
+
+    "offer": {
+      "heading": "Få et tilbud indenfor 24 timer",
+      "description": "Udfyld formularen - så vender vi hurtigt tilbage med et uforpligtende tilbud.",
+      "name": "Navn",
+      "email": "Email",
+      "phone": "Telefonnummer",
+      "task": "Hvad har du for hjælp til?",
+      "message": "Besked",
+      "message_placeholder": "Beskriv din opgave",
+      "submit": "Send din opgave",
+      "confidentially": "Vi behandler dine oplysninger fortroligt."
+    },
+    "call": "Ring nu",
+    "get_offer": "Få tilbud",
+    "get_offer_extended": "Få et uforpligtende tilbud"
   }
 }
 

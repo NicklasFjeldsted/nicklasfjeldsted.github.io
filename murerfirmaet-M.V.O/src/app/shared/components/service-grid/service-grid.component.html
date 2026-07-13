@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-4 w-full">
     <div class="flex flex-col gap-3">
-        <h4 class="u-text-brand uppercase">{{ 'services.heading' | translate }}</h4>
-        <h2 class="u-text-body max-w-48 md:max-w-none">{{ 'services.subheading' | translate }}</h2>
+        <h4 class="u-text-brand uppercase text-center lg:text-start">{{ 'services.heading' | translate }}</h4>
+        <h2 class="u-text-body max-w-48 md:max-w-none hidden lg:block">{{ 'services.subheading' | translate }}</h2>
     </div>
     <div class="flex flex-col gap-4 sm:grid sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
         @for (service of providedServices; track service.titleKey) {
