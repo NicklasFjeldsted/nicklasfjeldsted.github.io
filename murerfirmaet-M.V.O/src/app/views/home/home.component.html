@@ -1,43 +1,99 @@
-<main class="u-bg-secondary">
-  <section class="
-    px-2 py-6
-    bg-[var(--bg-section)]
-    rounded-lg
-    lg:rounded-none
-    lg:py-0 lg:px-[clamp(0.5rem,2vw,8rem)] lg:bg-[var(--bg-surface)] lg:[box-shadow:0_4px_12px_rgba(0,0,0,0.06)]">
-    <div class="grid grid-cols-2 gap-4 lg:gap-2 lg:grid-cols-4">
+<main class="u-bg-secondary relative">
+  <div class="flex flex-col gap-72 p-4 pt-2 lg:pt-4 lg:gap-12 lg:px-12 lg:h-[85dvh]">
+    <div class="home-bg"></div>
+    <section>
+      <div class="flex flex-row justify-between">
+        <img src="logo.svg" alt="Murerfirmaet M.V.O. logo" class="z-10 w-28 h-8 lg:w-56 lg:h-16"/>
+        <div class="flex flex-row gap-2 hidden lg:flex">
+          <a
+            [href]="callHref"
+            class="flex-1">
+            <mvo-button
+              label="{{ ContactConstants.PHONE_NUMBER }}"
+              [icon]="faPhone"
+              [size]="ButtonSize.Lg"
+              [variant]="ButtonVariant.Ghost"
+              iconSize="xl"
+              [fullWidth]="true"
+              additionalClasses="text-nowrap"
+            ></mvo-button>
+          </a>
+        </div>
+      </div>
+    </section>
+    <section class="home-content">
+      <div class="flex flex-col gap-6 lg:flex-row lg:justify-between">
+        <div class="flex flex-col gap-6">
+          <div class="flex flex-col gap-2 max-w-56 lg:gap-6 lg:max-w-none">
+            <h5 class="u-text-brand uppercase max-w-48 lg:max-w-none">{{ 'top.subheading' | translate }}</h5>
+            <h1 class="u-text-on-primary lg:max-w-80 lg:text-6xl!">{{ 'top.heading' | translate }}</h1>
+            <p class="text-sm u-text-on-primary lg:max-w-56">{{ 'top.description' | translate }}</p>
+          </div>
+          <div class="flex flex-col gap-2">
+            @for (key of specialities; track key) {
+              <div class="flex flex-row gap-2 items-center">
+                <fa-icon [icon]="faCheckCircle" class="u-text-brand shrink-0"></fa-icon>
+                <p class="text-sm u-text-on-primary">{{ key | translate }}</p>
+              </div>
+            }
+          </div>
+        </div>
+        <form class="u-bg-secondary bg-opacity-10 u-border u-border-card rounded-lg p-4 shadow lg:max-w-80">
+          <div class="flex flex-col gap-3">
+            <h3 class="u-text-dark-heading uppercase">Få et tilbud<br>indenfor 24 timer</h3>
+            <p class="u-text-dark-body text-sm">Udfyld formularen - så vender vi hurtigt tilbage tilbage med et uforpligtende tilbud</p>
+            <!-- Fields -->
+            <div class="flex flex-col gap-2">
+              <mvo-input
+                label="{{ 'top.offer.name' | translate }}"
+                placeholder="{{ 'top.offer.name' | translate }}*"
+              ></mvo-input>
+              <mvo-input
+                label="{{ 'top.offer.phone' | translate }}"
+                placeholder="{{ 'top.offer.phone' | translate }}*"
+              ></mvo-input>
+              <mvo-input
+                label="{{ 'top.offer.email' | translate }}"
+                placeholder="{{ 'top.offer.email' | translate }}"
+              ></mvo-input>
+              <mvo-select
+                label="{{ 'top.offer.task' | translate }}"
+                placeholder="{{ 'top.offer.task' | translate }}*"
+              ></mvo-select>
+              <mvo-textarea
+                label="{{ 'top.offer.message' | translate }}"
+                placeholder="{{ 'top.offer.message_placeholder' | translate }}"
+              ></mvo-textarea>
+            </div>
+
+            <!-- Upload -->
+            <mvo-upload [(files)]="uploadedFiles"/>
+
+            <mvo-button
+              label="{{ 'top.offer.submit' | translate | uppercase }}"
+              [variant]="ButtonVariant.Primary"
+              [size]="ButtonSize.Lg"
+              [fullWidth]="true"
+            ></mvo-button>
+
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+  <section class="u-bg-section lg:bg-[var(--bg-surface)]! lg:flex items-center lg:justify-center rounded-t-lg p-2
+    lg:rounded-none lg:h-[15dvh]
+    lg:py-0 lg:px-[clamp(0.5rem,2vw,8rem)] [box-shadow:0_4px_12px_rgba(0,0,0,0.06)]">
+    <div class="grid grid-cols-2 gap-4 lg:gap-2 lg:grid-cols-[repeat(4,minmax(200px,350px))]">
       @for (item of highlights; track item.titleKey) {
         <mvo-trust-highlight [highlight]="item"/>
       }
     </div>
   </section>
-  <section class="w-full u-bg-secondary p-2 flex flex-row gap-1 lg:hidden theme-dark">
-    <a
-      [href]="callHref"
-      class="flex-1">
-      <mvo-button
-        label="{{ 'home.call' | translate | uppercase }}"
-        [icon]="faPhoneVolume"
-        [size]="ButtonSize.Lg"
-        [variant]="ButtonVariant.Secondary"
-        iconSize="xl"
-        [fullWidth]="true"
-      ></mvo-button>
-    </a>
-    <mvo-button
-      label="{{ 'home.get_offer' | translate | uppercase }}"
-      [icon]="faClipboardList"
-      [size]="ButtonSize.Lg"
-      [variant]="ButtonVariant.Primary"
-      iconSize="xl"
-      [fullWidth]="true"
-      class="flex-1"
-    ></mvo-button>
-  </section>
-  <section class="u-bg-section p-4 lg:pt-6 lg:px-[clamp(0.5rem,2vw,8rem)] rounded-lg lg:rounded-none">
+  <section class="u-bg-section p-4 lg:pt-6 lg:px-[clamp(0.5rem,2vw,8rem)] rounded-b-lg lg:rounded-none">
     <mvo-service-grid></mvo-service-grid>
   </section>
-  <section class="u-bg-dark p-6 rounded-lg lg:rounded-none lg:px-[clamp(0.5rem,2vw,8rem)]">
+  <section class="u-bg-dark p-6 rounded-b-lg lg:rounded-none lg:px-[clamp(0.5rem,2vw,8rem)]">
     <div class="grid grid-cols-1 gap-6 lg:gap-2 lg:grid-cols-4">
       @for (feature of features; track feature.titleKey) {
         <mvo-feature-highlight [highlight]="feature"/>
@@ -63,7 +119,7 @@
         <h4 class="u-text-brand uppercase">{{ 'projects.heading' | translate }}</h4>
         <h2 class="u-text-inverse">{{ 'projects.subheading' | translate }}</h2>
       </div>
-      <mvo-project-carousel [images]="projectImages" />
+      <mvo-project-carousel [images]="projectImages"/>
     </div>
   </section>
 </main>

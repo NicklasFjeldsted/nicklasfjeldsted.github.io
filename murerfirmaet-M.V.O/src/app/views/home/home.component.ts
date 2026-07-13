@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, signal} from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
 import {ServiceGridComponent} from '../../shared/components/service-grid/service-grid.component';
 import {ITrustHighlight} from '../../core/interfaces/trust-highlight.interface';
@@ -6,19 +6,25 @@ import {IFeatureHighlight} from '../../core/interfaces/feature-highlight.interfa
 import {TrustHighlightComponent} from '../../shared/components/trust-highlight/trust-highlight.component';
 import {FeatureHighlightComponent} from '../../shared/components/feature-highlight/feature-highlight.component';
 import {ButtonComponent} from '../../shared/components/button/button.component';
-import {faCircleCheck, faClipboardList, faHammer, faPhone, faPhoneVolume, faShield} from '@fortawesome/free-solid-svg-icons';
+import {faArrowRight, faArrowRightLong, faCircleCheck, faClipboardList, faHammer, faPhone, faPhoneVolume, faShield} from '@fortawesome/free-solid-svg-icons';
 import {UpperCasePipe} from '@angular/common';
 import {ButtonSize} from '../../core/enums/button-size.enum';
 import {ButtonVariant} from '../../core/enums/button-variant.enum';
 import {ContactConstants} from '../../core/constants/contact.constants';
-import {faFileLines, faMessage, faSmile} from '@fortawesome/free-regular-svg-icons';
+import {faCheckCircle, faFileLines, faMessage, faSmile} from '@fortawesome/free-regular-svg-icons';
 import {WorkStepComponent} from '../../shared/components/work-step/work-step.component';
 import {IWorkStep} from '../../core/interfaces/work-step.interface';
 import {ProjectCarouselComponent} from '../../shared/components/project-carousel/project-carousel.component';
+import {FaIconComponent} from '@fortawesome/angular-fontawesome';
+import {InputComponent} from '../../shared/components/input/input.component';
+import {SelectComponent} from '../../shared/components/select/select.component';
+import {TextareaComponent} from '../../shared/components/textarea/textarea.component';
+import {UploadComponent} from '../../shared/components/upload/upload.component';
+import {ButtonIconPosition} from '../../core/enums/button-icon.enum';
 
 @Component({
   selector: 'mvo-home',
-  imports: [ServiceGridComponent, TrustHighlightComponent, FeatureHighlightComponent, WorkStepComponent, ProjectCarouselComponent, ButtonComponent, TranslatePipe, UpperCasePipe],
+  imports: [ServiceGridComponent, TrustHighlightComponent, FeatureHighlightComponent, WorkStepComponent, ProjectCarouselComponent, ButtonComponent, TranslatePipe, UpperCasePipe, FaIconComponent, InputComponent, SelectComponent, TextareaComponent, UploadComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   standalone: true
@@ -39,6 +45,13 @@ export class HomeComponent {
   ];
 
   protected readonly callHref = `tel:+${ContactConstants.PHONE_NUMBER}`;
+
+  protected readonly specialities: string[] = [
+    'top.specialities.bathrooms',
+    'top.specialities.quality',
+    'top.specialities.clearCommunication',
+    'top.specialities.shortReply',
+  ];
 
   protected readonly projectImages: string[] = [
     'bathrooms/bathroom1.png',
@@ -67,8 +80,16 @@ export class HomeComponent {
     {index: 4, titleKey: 'howWeWork.step4.title', descriptionKey: 'howWeWork.step4.description', icon: faCircleCheck},
   ];
 
+  protected uploadedFiles = signal<File[]>([]);
+
+
   protected readonly faClipboardList = faClipboardList;
   protected readonly faPhoneVolume = faPhoneVolume;
   protected readonly ButtonSize = ButtonSize;
   protected readonly ButtonVariant = ButtonVariant;
+  protected readonly faCheckCircle = faCheckCircle;
+  protected readonly ContactConstants = ContactConstants;
+  protected readonly faPhone = faPhone;
+  protected readonly ButtonIconPosition = ButtonIconPosition;
+  protected readonly faArrowRightLong = faArrowRightLong;
 }
