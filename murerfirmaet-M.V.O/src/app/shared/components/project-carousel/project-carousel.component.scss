@@ -1,0 +1,205 @@
+:host {
+  display: block;
+}
+
+// ── Wrapper ───────────────────────────────────────────────────────────────────
+
+.carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
+}
+
+// ── Track ─────────────────────────────────────────────────────────────────────
+
+.carousel__track {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: .5rem;
+}
+
+// ── Slides ────────────────────────────────────────────────────────────────────
+
+.carousel__slide {
+  flex: 1;
+  min-width: 0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: transform 260ms ease, opacity 260ms ease, filter 260ms ease;
+  position: relative;
+
+  &--center {
+    flex: 1.25;
+    z-index: 2;
+    opacity: 1;
+    filter: brightness(1);
+  }
+
+  &--side {
+    filter: brightness(0.55);
+    opacity: 0.85;
+  }
+
+  &--adjacent {
+    filter: brightness(0.7);
+    opacity: 0.9;
+  }
+
+  &--far {
+    flex: 0.7;
+    filter: brightness(0.45);
+    opacity: 0.75;
+  }
+
+  &--clickable {
+    cursor: pointer;
+
+    &:hover {
+      filter: brightness(0.85) !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
+.carousel__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+// ── Arrows ────────────────────────────────────────────────────────────────────
+
+.carousel__arrow {
+  position: absolute;
+  z-index: 10;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.85);
+  color: var(--text-primary);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 160ms ease, transform 160ms ease;
+
+  &:hover {
+    background-color: #fff;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  &--left  { left:  0.5rem; }
+  &--right { right: 0.5rem; }
+}
+
+// ── Track slide animations ────────────────────────────────────────────────────
+
+@keyframes slide-left {
+  0%   { transform: translateX(0);    }
+  45%  { transform: translateX(-3%);  }
+  100% { transform: translateX(0);    }
+}
+
+@keyframes slide-right {
+  0%   { transform: translateX(0);   }
+  45%  { transform: translateX(3%);  }
+  100% { transform: translateX(0);   }
+}
+
+.slide-left  { animation: slide-left  320ms ease forwards; }
+.slide-right { animation: slide-right 320ms ease forwards; }
+
+// ── Modal animations ──────────────────────────────────────────────────────────
+
+@keyframes backdrop-enter {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes backdrop-leave {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes content-enter {
+  from { transform: scale(0.88); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes content-leave {
+  from { transform: scale(1);    opacity: 1; }
+  to   { transform: scale(0.92); opacity: 0; }
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: backdrop-enter 180ms ease forwards;
+
+  &.closing {
+    animation: backdrop-leave 150ms ease forwards;
+  }
+}
+
+.modal-content {
+  position: relative;
+  max-width: min(90vw, 900px);
+  max-height: 90vh;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  animation: content-enter 240ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+
+  &.closing {
+    animation: content-leave 150ms ease forwards;
+  }
+}
+
+.modal-img {
+  display: block;
+  width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 10;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  transition: background-color 160ms ease, transform 160ms ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+  }
+}
+
+

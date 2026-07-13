@@ -1,0 +1,54 @@
+<div class="carousel">
+
+  <!-- Left arrow -->
+  <button class="carousel__arrow carousel__arrow--left" (click)="navigate(-1)" aria-label="Previous">
+    <fa-icon [icon]="faLeft" />
+  </button>
+
+  <!-- Mobile: 3 slots -->
+  <div class="carousel__track lg:!hidden" [class]="slideClass()" (animationend)="onSlideEnd()">
+    @for (offset of mobileOffsets; track offset) {
+      <div
+        class="carousel__slide"
+        [class.carousel__slide--center]="offset === 0"
+        [class.carousel__slide--side]="offset !== 0"
+        [class.carousel__slide--clickable]="true"
+        (click)="offset === 0 ? openModal() : goToOffset(offset)">
+        <img [src]="imageAt(offset)" alt="Project image" class="carousel__img" draggable="false" />
+      </div>
+    }
+  </div>
+
+  <!-- Desktop: 5 slots -->
+  <div class="carousel__track !hidden lg:!flex" [class]="slideClass()" (animationend)="onSlideEnd()">
+    @for (offset of desktopOffsets; track offset) {
+      <div
+        class="carousel__slide"
+        [class.carousel__slide--center]="offset === 0"
+        [class.carousel__slide--adjacent]="offset === 1 || offset === -1"
+        [class.carousel__slide--far]="offset === 2 || offset === -2"
+        [class.carousel__slide--clickable]="true"
+        (click)="offset === 0 ? openModal() : goToOffset(offset)">
+        <img [src]="imageAt(offset)" alt="Project image" class="carousel__img" draggable="false" />
+      </div>
+    }
+  </div>
+
+  <!-- Right arrow -->
+  <button class="carousel__arrow carousel__arrow--right" (click)="navigate(1)" aria-label="Next">
+    <fa-icon [icon]="faRight" />
+  </button>
+
+</div>
+
+<!-- Modal -->
+@if (modalImage()) {
+  <div class="modal-backdrop" [class.closing]="modalClosing()" (click)="closeModal()">
+    <div class="modal-content" [class.closing]="modalClosing()" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeModal()" aria-label="Close">
+        <fa-icon [icon]="faClose" size="lg" />
+      </button>
+      <img [src]="modalImage()!" alt="Project image" class="modal-img" draggable="false" />
+    </div>
+  </div>
+}
