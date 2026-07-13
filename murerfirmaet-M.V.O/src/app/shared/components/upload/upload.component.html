@@ -1,0 +1,46 @@
+<div
+  class="flex flex-col gap-3 u-border u-border-card rounded-lg p-4 cursor-pointer"
+  (click)="fileInput.click()"
+  (dragover)="$event.preventDefault()"
+  (drop)="onDrop($event)">
+
+  <!-- Hidden file input -->
+  <input
+    #fileInput
+    type="file"
+    multiple
+    accept=".jpg,.jpeg,.png,.pdf"
+    class="hidden"
+    (change)="onFileSelected($event)" />
+
+  <!-- Drop zone -->
+  <div class="flex flex-row gap-3 items-center">
+    <fa-icon [icon]="faUpload" size="xl" class="u-text-brand shrink-0" />
+    <div class="flex flex-col gap-0.5">
+      <h5 class="u-text-dark-heading">Vedhæft billeder (valgfrit)</h5>
+      <p class="u-text-dark-body text-sm">
+        Træk filer hertil eller klik for at vælge JPG, PNG eller PDF – max 10 MB
+      </p>
+    </div>
+  </div>
+
+  <!-- File list -->
+  @if (files().length > 0) {
+    <div class="flex flex-col gap-1" (click)="$event.stopPropagation()">
+      @for (file of files(); track file.name; let i = $index) {
+        <div class="flex flex-row items-center gap-2 rounded px-2 py-1 u-bg-dark-elevated">
+          <fa-icon [icon]="faFile" class="u-text-brand shrink-0" />
+          <span class="text-sm u-text-dark-body truncate flex-1">{{ fileName(file) }}</span>
+          <span class="text-xs u-text-muted shrink-0">.{{ fileExtension(file) }}</span>
+          <button
+            type="button"
+            class="u-text-muted hover:u-text-on-primary shrink-0 p-0.5 leading-none"
+            (click)="removeFile(i)">
+            <fa-icon [icon]="faXmark" size="sm" />
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>
+
