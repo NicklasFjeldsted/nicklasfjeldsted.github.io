@@ -12,14 +12,13 @@ import {ButtonSize} from '../../core/enums/button-size.enum';
 import {ButtonVariant} from '../../core/enums/button-variant.enum';
 import {ContactConstants} from '../../core/constants/contact.constants';
 import {faFileLines, faMessage, faSmile} from '@fortawesome/free-regular-svg-icons';
-import {ServiceCardComponent} from '../../shared/components/service-card/service-card.component';
 import {WorkStepComponent} from '../../shared/components/work-step/work-step.component';
 import {IWorkStep} from '../../core/interfaces/work-step.interface';
 import {ProjectCarouselComponent} from '../../shared/components/project-carousel/project-carousel.component';
 
 @Component({
   selector: 'mvo-home',
-  imports: [ServiceGridComponent, TrustHighlightComponent, FeatureHighlightComponent, WorkStepComponent, ProjectCarouselComponent, ButtonComponent, TranslatePipe, UpperCasePipe, ServiceCardComponent],
+  imports: [ServiceGridComponent, TrustHighlightComponent, FeatureHighlightComponent, WorkStepComponent, ProjectCarouselComponent, ButtonComponent, TranslatePipe, UpperCasePipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   standalone: true
