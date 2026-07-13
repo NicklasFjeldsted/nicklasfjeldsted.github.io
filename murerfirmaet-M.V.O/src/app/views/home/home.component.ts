@@ -56,13 +56,16 @@ export class HomeComponent {
     'tile-work/image7.jpeg',
     'tile-work/image8.jpeg',
     'tile-work/image9.jpeg',
+    'personality/personality0.png',
+    'reparations/reparation0.jpeg',
+    'minor-solutions/solution0.png',
   ];
 
   protected workSteps: IWorkStep[] = [
-    { index: 1, titleKey: 'howWeWork.step1.title', descriptionKey: 'howWeWork.step1.description', icon: faPhone },
-    { index: 2, titleKey: 'howWeWork.step2.title', descriptionKey: 'howWeWork.step2.description', icon: faFileLines },
-    { index: 3, titleKey: 'howWeWork.step3.title', descriptionKey: 'howWeWork.step3.description', icon: faHammer },
-    { index: 4, titleKey: 'howWeWork.step4.title', descriptionKey: 'howWeWork.step4.description', icon: faCircleCheck},
+    {index: 1, titleKey: 'howWeWork.step1.title', descriptionKey: 'howWeWork.step1.description', icon: faPhone},
+    {index: 2, titleKey: 'howWeWork.step2.title', descriptionKey: 'howWeWork.step2.description', icon: faFileLines},
+    {index: 3, titleKey: 'howWeWork.step3.title', descriptionKey: 'howWeWork.step3.description', icon: faHammer},
+    {index: 4, titleKey: 'howWeWork.step4.title', descriptionKey: 'howWeWork.step4.description', icon: faCircleCheck},
   ];
 
   protected readonly faClipboardList = faClipboardList;
