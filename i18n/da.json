@@ -83,6 +83,11 @@
       "title": "Levering & opfølgning",
       "description": "Vi gennemgår arbejdet sammen med dig og sikrer, at alt er, som det skal være."
     }
+  },
+  "projects": {
+    "heading": "Seneste projekter",
+    "subheading": "Se et udvalg af vores arbejde",
+    "seeMore": "Se flere projekter"
   }
 }
 
