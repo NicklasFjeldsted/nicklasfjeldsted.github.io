@@ -28,6 +28,7 @@ $bg-gold-subtle:   tone(gold, 50);   // #fbf6ed — warm off-white gold tint
 
 $bg-dark:          tone(neutral, 950);
 $bg-dark-elevated: tone(neutral, 850);
+$bg-dark-deep:     tone(neutral, 875); // #191a1b — form/card background on dark sections
 
 $bg-overlay-dark: rgba(tone(neutral, 950), 0.72);
 
@@ -47,6 +48,11 @@ $text-accent:       tone(gold, 700);
 $text-on-primary:   #ffffff;
 $text-on-secondary: #ffffff;
 
+// Dark-section specific text tokens
+$text-heading:   tone(neutral, 0);    // #ffffff  — headings on dark bg
+$text-body-alt:  tone(neutral, 200);  // #dfdcd7  — body text on dark bg
+$text-field:     tone(neutral, 200);  // #dfdcd7  — input typed text
+
 
 // =============================================================================
 // BORDER AND INTERACTION COLORS
@@ -56,5 +62,7 @@ $border-default: tone(neutral, 200);
 $border-strong:  tone(neutral, 300);
 $border-dark:    #383b40;
 $border-accent:  $color-primary;
+$border-card:    rgba(tone(gold, 500), 0.40); // card borders on dark bg
+$border-input:   rgba(tone(gold, 500), 0.32); // input borders (default)
 
 $focus-ring: rgba($color-primary, 0.38);

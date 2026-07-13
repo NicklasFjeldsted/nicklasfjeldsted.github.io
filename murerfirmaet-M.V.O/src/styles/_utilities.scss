@@ -15,12 +15,13 @@ $background-utilities: (
 
   dark:          bg-dark,
   dark-elevated: bg-dark-elevated,
+  dark-deep:     bg-dark-deep,
   overlay:       bg-overlay-dark
 );
 
 @each $name, $token in $background-utilities {
   .u-bg-#{$name} {
-    background-color: var(--#{$token}) !important;
+    background-color: var(--#{$token});
   }
 }
 
@@ -38,12 +39,16 @@ $text-utilities: (
   inverse:           text-inverse,
   inverse-secondary: text-inverse-secondary,
   on-primary:        text-on-primary,
-  on-secondary:      text-on-secondary
+  on-secondary:      text-on-secondary,
+  // Dark-section specific
+  dark-heading:      text-heading,    // #ffffff — primary heading on dark bg
+  dark-body:         text-body-alt,   // #dfdcd7 — body/paragraph on dark bg
+  field:             text-field       // #dfdcd7 — input typed text
 );
 
 @each $name, $token in $text-utilities {
   .u-text-#{$name} {
-    color: var(--#{$token}) !important;
+    color: var(--#{$token});
   }
 }
 
@@ -56,16 +61,20 @@ $border-utilities: (
   default: border-default,
   strong:  border-strong,
   dark:    border-dark,
-  accent:  border-accent
+  accent:  border-accent,
+  card:    border-card,
+  input:   border-input
 );
 
 .u-border {
-  border: 1px solid var(--border-default) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: var(--border-default);
 }
 
 @each $name, $token in $border-utilities {
   .u-border-#{$name} {
-    border-color: var(--#{$token}) !important;
+    border-color: var(--#{$token});
   }
 }
 
