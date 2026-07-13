@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+.mvo-textarea {
+  width: 100%;
+
+  .mat-mdc-form-field-focus-overlay { display: none !important; }
+  .mdc-line-ripple                  { display: none !important; }
+}
+

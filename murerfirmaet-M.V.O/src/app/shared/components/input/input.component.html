@@ -1,0 +1,23 @@
+<mat-form-field appearance="outline" class="mvo-input w-full">
+  @if (label()) {
+    <mat-label>{{ label() }}</mat-label>
+  }
+
+  @if (control()) {
+    <input
+      matInput
+      [type]="type()"
+      [placeholder]="placeholder()"
+      [required]="required()"
+      [formControl]="control()!"
+    />
+  } @else {
+    <input
+      matInput
+      [type]="type()"
+      [placeholder]="placeholder()"
+      [required]="required()"
+      [(ngModel)]="value"
+    />
+  }
+</mat-form-field>
