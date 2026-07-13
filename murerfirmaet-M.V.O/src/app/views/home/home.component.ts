@@ -15,10 +15,11 @@ import {faFileLines, faMessage, faSmile} from '@fortawesome/free-regular-svg-ico
 import {ServiceCardComponent} from '../../shared/components/service-card/service-card.component';
 import {WorkStepComponent} from '../../shared/components/work-step/work-step.component';
 import {IWorkStep} from '../../core/interfaces/work-step.interface';
+import {ProjectCarouselComponent} from '../../shared/components/project-carousel/project-carousel.component';
 
 @Component({
   selector: 'mvo-home',
-  imports: [ServiceGridComponent, TrustHighlightComponent, FeatureHighlightComponent, WorkStepComponent, ButtonComponent, TranslatePipe, UpperCasePipe, ServiceCardComponent],
+  imports: [ServiceGridComponent, TrustHighlightComponent, FeatureHighlightComponent, WorkStepComponent, ProjectCarouselComponent, ButtonComponent, TranslatePipe, UpperCasePipe, ServiceCardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   standalone: true
@@ -39,6 +40,23 @@ export class HomeComponent {
   ];
 
   protected readonly callHref = `tel:+${ContactConstants.PHONE_NUMBER}`;
+
+  protected readonly projectImages: string[] = [
+    'bathrooms/bathroom1.png',
+    'bathrooms/bathroom2.png',
+    'bathrooms/bathroom3.png',
+    'bathrooms/bathroom4.png',
+    'bathrooms/bathroom5.png',
+    'tile-work/image0.png',
+    'tile-work/image1.jpeg',
+    'tile-work/image2.jpeg',
+    'tile-work/image3.jpeg',
+    'tile-work/image4.png',
+    'tile-work/image5.jpeg',
+    'tile-work/image7.jpeg',
+    'tile-work/image8.jpeg',
+    'tile-work/image9.jpeg',
+  ];
 
   protected workSteps: IWorkStep[] = [
     { index: 1, titleKey: 'howWeWork.step1.title', descriptionKey: 'howWeWork.step1.description', icon: faPhone },

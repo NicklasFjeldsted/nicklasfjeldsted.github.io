@@ -57,4 +57,13 @@
       </div>
     </div>
   </section>
+  <section class="u-bg-dark pt-6 pb-4 px-4 lg:px-8 theme-dark">
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-3">
+        <h4 class="u-text-brand uppercase">{{ 'projects.heading' | translate }}</h4>
+        <h2 class="u-text-inverse">{{ 'projects.subheading' | translate }}</h2>
+      </div>
+      <mvo-project-carousel [images]="projectImages" />
+    </div>
+  </section>
 </main>
