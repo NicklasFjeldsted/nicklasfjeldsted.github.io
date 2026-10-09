@@ -5,7 +5,8 @@ import {SpecializedMasonryComponent} from './views/specialized-masonry/specializ
 export const routes: Routes = [
   {
     path: 'specialiseret-murerarbejde',
-    component: SpecializedMasonryComponent
+    component: SpecializedMasonryComponent,
+    data: {headerTheme: 'light'}
   },
   {
     path: '**',
