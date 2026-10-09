@@ -1,0 +1,29 @@
+@let s = section();
+<article class="showcase" [class.showcase--reversed]="reversed()" [attr.aria-labelledby]="'section-' + s.id">
+  <div class="showcase__media" mvoReveal mvoRevealThreshold="0.1">
+    @if (s.primaryImage || s.gallery.length) {
+      <mvo-masonry-gallery [primaryImage]="s.primaryImage" [gallery]="s.gallery" [title]="s.title"/>
+    }
+  </div>
+
+  <div class="showcase__text">
+    @if (s.eyebrow) {
+      <p class="showcase__eyebrow" mvoReveal [mvoRevealDelay]="0">{{ s.eyebrow }}</p>
+    }
+    <h2 class="showcase__title" [id]="'section-' + s.id" mvoReveal [mvoRevealDelay]="100">{{ s.title }}</h2>
+    @if (s.introduction) {
+      <p class="showcase__intro" mvoReveal [mvoRevealDelay]="200">{{ s.introduction }}</p>
+    }
+    <p class="showcase__body" mvoReveal [mvoRevealDelay]="300">{{ s.description }}</p>
+    @if (s.additionalDescription) {
+      <p class="showcase__body" mvoReveal [mvoRevealDelay]="400">{{ s.additionalDescription }}</p>
+    }
+    @if (s.details.length) {
+      <ul class="showcase__details" mvoReveal [mvoRevealDelay]="500">
+        @for (detail of s.details; track $index) {
+          <li>{{ detail }}</li>
+        }
+      </ul>
+    }
+  </div>
+</article>

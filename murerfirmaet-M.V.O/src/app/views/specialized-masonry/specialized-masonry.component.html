@@ -1,0 +1,19 @@
+@if (page(); as p) {
+  <main class="masonry-page">
+    <header class="masonry-page__intro">
+      @if (p.eyebrow) {
+        <p class="masonry-page__eyebrow" mvoReveal [mvoRevealDelay]="0">{{ p.eyebrow }}</p>
+      }
+      <h1 class="masonry-page__heading" mvoReveal [mvoRevealDelay]="100">{{ p.heading }}</h1>
+      <p class="masonry-page__lead" mvoReveal [mvoRevealDelay]="200">{{ p.introduction }}</p>
+    </header>
+
+    @for (section of p.sections; track section.id; let i = $index) {
+      <section class="masonry-page__section" [class.masonry-page__section--tinted]="i % 2 === 1">
+        <div class="masonry-page__container">
+          <mvo-masonry-showcase [section]="section" [reversed]="i % 2 === 1"/>
+        </div>
+      </section>
+    }
+  </main>
+}

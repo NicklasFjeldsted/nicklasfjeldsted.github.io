@@ -1,0 +1,32 @@
+<div class="masonry-gallery">
+  <div class="masonry-gallery__stage">
+    @for (image of images(); track image.id; let i = $index) {
+      <img
+        class="masonry-gallery__image"
+        [class.masonry-gallery__image--active]="image.id === selected()?.id"
+        [src]="image.url"
+        [alt]="image.id === selected()?.id ? image.alt : ''"
+        [attr.aria-hidden]="image.id === selected()?.id ? null : 'true'"
+        [attr.loading]="i === 0 ? null : 'lazy'"
+        draggable="false"/>
+    }
+  </div>
+
+  @if (showThumbnails()) {
+    <ul class="masonry-gallery__thumbs" [attr.aria-label]="title()">
+      @for (image of images(); track image.id; let i = $index) {
+        <li>
+          <button
+            type="button"
+            class="masonry-gallery__thumb"
+            [class.masonry-gallery__thumb--selected]="image.id === selected()?.id"
+            [attr.aria-label]="'Vis billede ' + (i + 1) + ' af ' + images().length"
+            [attr.aria-pressed]="image.id === selected()?.id"
+            (click)="select(image)">
+            <img [src]="image.url" alt="" loading="lazy" draggable="false"/>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</div>
