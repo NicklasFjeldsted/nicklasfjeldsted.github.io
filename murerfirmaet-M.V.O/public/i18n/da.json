@@ -5,7 +5,7 @@
   },
   "highlights": {
     "experience": {
-      "title": "+5 års erfaring",
+      "title": "+20 års erfaring",
       "description": "Solidt håndværk og mange tilfredse kunder"
     },
     "free": {
@@ -13,7 +13,7 @@
       "description": "Få et tilbud helt gratis – uden bindinger"
     },
     "response": {
-      "title": "Svar indenfor 24 timer",
+      "title": "Svar indenfor kort tid",
       "description": "Vi vender hurtigt tilbage med et konkret tilbud"
     },
     "location": {
@@ -34,9 +34,9 @@
       "title": "Gennemsigtige aftaler",
       "description": "Ingen skjulte omkostninger – kun klare aftaler."
     },
-    "insurance": {
-      "title": "Forsikringssager",
-      "description": "Vi hjælper med reparationer efter skader."
+    "protectionAndCleanup": {
+      "title": "Afdækning og oprydning",
+      "description": "Vi sørger for grundig afdækning og omhyggelig oprydning, så området efterlades rent og præsentabelt."
     }
   },
   "services": {

@@ -19,3 +19,4 @@ export class ServiceGridComponent {
     {titleKey: 'services.minor.title', descriptionKey: 'services.minor.description', image: 'minor-solutions/solution0.png'},
   ];
 }
+
