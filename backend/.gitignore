@@ -1,0 +1,5 @@
+bin/
+obj/
+.env
+src/Mvo.Api/media/
+*.user
