@@ -1,0 +1,143 @@
+<div class="adm adm-shell">
+  <header class="adm-topbar">
+    <h1>Website-indhold</h1>
+    <div class="adm-actions" style="margin: 0">
+      @if (page(); as p) {
+        <a class="adm-btn adm-btn--small" [href]="'/' + p.slug" target="_blank" rel="noopener">Se siden live ↗</a>
+      }
+      <button type="button" class="adm-btn adm-btn--small" (click)="logout()">Log ud</button>
+    </div>
+  </header>
+
+  <nav class="adm-breadcrumb" aria-label="Du redigerer her">
+    <ol>
+      <li>Website-indhold</li>
+      @if (page(); as p) {
+        <li>{{ p.name }}</li>
+        @if (isIntro()) {
+          <li aria-current="location">Sideindledning</li>
+        } @else if (section()) {
+          <li>{{ sectionTitle() }}</li>
+          <li aria-current="location">{{ tabLabel() }}</li>
+        }
+      }
+    </ol>
+    @if (isDirty()) { <span class="adm-badge adm-badge--unsaved">Ugemte ændringer</span> }
+  </nav>
+
+  @if (notice(); as n) {
+    <div class="adm-notice" [class.adm-notice--error]="n.kind === 'error'" [attr.role]="n.kind === 'error' ? 'alert' : 'status'">
+      <span>{{ n.text }}</span>
+      <button type="button" class="adm-btn adm-btn--small" (click)="notice.set(null)" aria-label="Luk besked">Luk</button>
+    </div>
+  }
+
+  @if (loadingPages()) {
+    <p role="status">Henter sider…</p>
+  } @else if (loadError()) {
+    <div class="adm-notice adm-notice--error" role="alert">
+      <span>Siderne kunne ikke hentes. {{ loadError() }}</span>
+      <button type="button" class="adm-btn adm-btn--small" (click)="loadPages()">Prøv igen</button>
+    </div>
+  } @else {
+    <div class="adm-layout">
+      <aside class="adm-side" aria-label="Vælg indhold">
+        <h2>Sider</h2>
+        <ul class="adm-list">
+          @for (p of managedPages(); track p.id) {
+            <li><button type="button" class="adm-list__btn" [attr.aria-current]="page()?.id === p.id ? 'true' : null" (click)="selectPage(p)">{{ p.name }}</button></li>
+          }
+          @for (p of unmanagedPages(); track p.id) {
+            <li>
+              <button type="button" class="adm-list__btn" disabled aria-disabled="true">
+                {{ p.name }} <span class="adm-badge adm-badge--hidden">Ikke redigerbar her</span>
+              </button>
+            </li>
+          }
+        </ul>
+        @if (unmanagedPages().length) {
+          <p class="adm-hint">Sider markeret "Ikke redigerbar her" styres endnu ikke fra administrationen. Deres indhold ligger fast i websitet.</p>
+        }
+
+        @if (page(); as p) {
+          <h2>Sektioner</h2>
+          <ul class="adm-list">
+            <li><button type="button" class="adm-list__btn" [attr.aria-current]="isIntro() ? 'true' : null" (click)="selectIntro()">Sideindledning</button></li>
+            @for (s of sections(); track s.id; let i = $index; let first = $first; let last = $last) {
+              <li class="adm-list__row">
+                <button type="button" class="adm-list__btn" [attr.aria-current]="selected() === s.id ? 'true' : null" (click)="selectSection(s)">
+                  {{ s.title }} @if (!s.isPublished) { <span class="adm-badge adm-badge--hidden">Skjult</span> }
+                </button>
+                <span class="adm-list__move">
+                  <button type="button" class="adm-btn adm-btn--small" (click)="move(i, -1)" [disabled]="first || busy() || isDirty()" [attr.aria-label]="'Flyt ' + s.title + ' op'">↑</button>
+                  <button type="button" class="adm-btn adm-btn--small" (click)="move(i, 1)" [disabled]="last || busy() || isDirty()" [attr.aria-label]="'Flyt ' + s.title + ' ned'">↓</button>
+                </span>
+              </li>
+            } @empty {
+              <li class="adm-hint">Siden har ingen sektioner endnu.</li>
+            }
+          </ul>
+
+          <form class="adm-add" (ngSubmit)="addSection()">
+            <h3>Ny sektion</h3>
+            <div class="adm-field">
+              <label for="new-title">Titel</label>
+              <input id="new-title" name="newTitle" class="adm-input" maxlength="200" autocomplete="off" [ngModel]="newTitle()" (ngModelChange)="newTitle.set($event)">
+            </div>
+            <div class="adm-field">
+              <label for="new-type">Type</label>
+              <select id="new-type" name="newType" class="adm-input" [ngModel]="newType()" (ngModelChange)="newType.set(+$event)">
+                @for (t of sectionTypes; track t.id) { <option [value]="t.id">{{ t.label }}</option> }
+              </select>
+            </div>
+            <button type="submit" class="adm-btn adm-btn--small" [disabled]="adding() || !newTitle().trim()">{{ adding() ? 'Opretter…' : 'Opret sektion' }}</button>
+          </form>
+        }
+      </aside>
+
+      <main class="adm-main">
+        @if (!page()) {
+          <div class="adm-empty">{{ managedPages().length ? 'Vælg en side for at komme i gang.' : 'Der er ingen redigerbare sider.' }}</div>
+        } @else if (isIntro()) {
+          <h2>Sideindledning</h2>
+          <mvo-page-text-editor [page]="page()!" (pageChange)="onPageChange($event)" (dirtyChange)="setDirty('page', $event)" (notify)="notice.set($event)" />
+        } @else if (loadingContent()) {
+          <p role="status">Henter sektion…</p>
+        } @else if (section(); as s) {
+          <div class="adm-section-head">
+            <h2>{{ s.title }}</h2>
+            <span class="adm-badge" [class.adm-badge--hidden]="!s.isPublished">{{ s.isPublished ? 'Synlig' : 'Skjult' }}</span>
+            <span class="adm-hint">{{ s.sectionTypeName }}</span>
+          </div>
+          <div class="adm-actions" style="margin-top: 0">
+            <button type="button" class="adm-btn adm-btn--small" (click)="toggleVisibility()" [disabled]="busy() || isDirty()">{{ s.isPublished ? 'Skjul sektion' : 'Gør synlig' }}</button>
+            <button type="button" class="adm-btn adm-btn--small" (click)="reloadSection()">Genindlæs</button>
+            <button type="button" class="adm-btn adm-btn--small adm-btn--danger" (click)="deleteSection()" [disabled]="busy()">Slet sektion</button>
+          </div>
+
+          <div class="adm-tabs" role="tablist" aria-label="Del af sektionen">
+            @for (t of tabs(); track t.id) {
+              <button type="button" role="tab" class="adm-tab" [attr.aria-selected]="tab() === t.id" (click)="selectTab(t.id)">{{ t.label }}</button>
+            }
+          </div>
+
+          <div role="tabpanel">
+            @switch (tab()) {
+              @case ('text') {
+                <mvo-section-text-editor [section]="s" (sectionChange)="onSectionChange($event)" (dirtyChange)="setDirty('text', $event)" (notify)="notice.set($event)" />
+              }
+              @case ('primary') {
+                <mvo-primary-image-editor [section]="s" (sectionChange)="onSectionChange($event)" (dirtyChange)="setDirty('primary', $event)" (notify)="notice.set($event)" />
+              }
+              @case ('gallery') {
+                <mvo-gallery-editor [section]="s" (sectionChange)="onSectionChange($event)" (dirtyChange)="setDirty('gallery', $event)" (notify)="notice.set($event)" />
+              }
+            }
+          </div>
+        } @else {
+          <div class="adm-empty">Vælg en sektion i listen til venstre.</div>
+        }
+      </main>
+    </div>
+  }
+</div>

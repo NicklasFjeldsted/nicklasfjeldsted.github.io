@@ -1,0 +1,56 @@
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <div class="adm-field">
+    <label for="sec-title">Titel</label>
+    <input id="sec-title" class="adm-input" formControlName="title" maxlength="200" autocomplete="off"
+           [attr.aria-invalid]="form.controls.title.invalid && form.controls.title.touched">
+    @if (form.controls.title.invalid && form.controls.title.touched) { <span class="adm-error">Skriv en titel.</span> }
+    @for (m of serverError('title'); track m) { <span class="adm-error">{{ m }}</span> }
+  </div>
+
+  <div class="adm-field">
+    <label for="sec-eyebrow">Overtekst (valgfri)</label>
+    <input id="sec-eyebrow" class="adm-input" formControlName="eyebrow" maxlength="500" autocomplete="off">
+    <span class="adm-hint">Vises over titlen. Lad feltet stå tomt, hvis den ikke skal vises.</span>
+    @for (m of serverError('eyebrow'); track m) { <span class="adm-error">{{ m }}</span> }
+  </div>
+
+  <div class="adm-field">
+    <label for="sec-intro">Kort introduktion (valgfri)</label>
+    <textarea id="sec-intro" class="adm-input" formControlName="introduction" maxlength="4000"></textarea>
+    @for (m of serverError('introduction'); track m) { <span class="adm-error">{{ m }}</span> }
+  </div>
+
+  <div class="adm-field">
+    <label for="sec-desc">Hovedbeskrivelse</label>
+    <textarea id="sec-desc" class="adm-input" formControlName="description" maxlength="4000"
+              [attr.aria-invalid]="form.controls.description.invalid && form.controls.description.touched"></textarea>
+    @if (form.controls.description.invalid && form.controls.description.touched) { <span class="adm-error">Skriv en beskrivelse.</span> }
+    @for (m of serverError('description'); track m) { <span class="adm-error">{{ m }}</span> }
+  </div>
+
+  <div class="adm-field">
+    <label for="sec-more">Yderligere beskrivelse (valgfri)</label>
+    <textarea id="sec-more" class="adm-input" formControlName="additionalDescription" maxlength="4000"></textarea>
+    @for (m of serverError('additionalDescription'); track m) { <span class="adm-error">{{ m }}</span> }
+  </div>
+
+  <fieldset class="adm-field" formArrayName="details">
+    <legend class="adm-label">Punkter (valgfri)</legend>
+    <span class="adm-hint">Korte punkter, som vises som en liste. Højst {{ maxDetails }}.</span>
+    @for (control of details.controls; track control; let i = $index) {
+      <div class="adm-actions" style="margin-top: 0.25rem">
+        <input class="adm-input" [formControlName]="i" maxlength="300" autocomplete="off" [attr.aria-label]="'Punkt ' + (i + 1)"
+               [attr.aria-invalid]="control.invalid && control.touched" style="flex: 1">
+        <button type="button" class="adm-btn adm-btn--small" (click)="removeDetail(i)" [attr.aria-label]="'Fjern punkt ' + (i + 1)">Fjern</button>
+      </div>
+    }
+    @for (m of serverError('details'); track m) { <span class="adm-error">{{ m }}</span> }
+    <div><button type="button" class="adm-btn adm-btn--small" (click)="addDetail()" [disabled]="details.length >= maxDetails">Tilføj punkt</button></div>
+  </fieldset>
+
+  <div class="adm-actions">
+    <button type="submit" class="adm-btn adm-btn--primary" [disabled]="saving() || !form.dirty">{{ saving() ? 'Gemmer…' : 'Gem ændringer' }}</button>
+    <button type="button" class="adm-btn" (click)="cancel()" [disabled]="saving() || !form.dirty">Fortryd</button>
+    @if (form.dirty) { <span class="adm-badge adm-badge--unsaved">Ugemte ændringer</span> }
+  </div>
+</form>

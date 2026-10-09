@@ -1,0 +1,30 @@
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <div class="adm-field">
+    <label for="page-eyebrow">Overtekst (valgfri)</label>
+    <input id="page-eyebrow" class="adm-input" formControlName="eyebrow" maxlength="500" autocomplete="off">
+    <span class="adm-hint">Den lille tekst over hovedoverskriften. Lad feltet stå tomt, hvis den ikke skal vises.</span>
+    @for (m of serverError('eyebrow'); track m) { <span class="adm-error">{{ m }}</span> }
+  </div>
+
+  <div class="adm-field">
+    <label for="page-heading">Hovedoverskrift</label>
+    <input id="page-heading" class="adm-input" formControlName="heading" maxlength="200" autocomplete="off"
+           [attr.aria-invalid]="form.controls.heading.invalid && form.controls.heading.touched">
+    @if (form.controls.heading.invalid && form.controls.heading.touched) { <span class="adm-error">Skriv en overskrift.</span> }
+    @for (m of serverError('heading'); track m) { <span class="adm-error">{{ m }}</span> }
+  </div>
+
+  <div class="adm-field">
+    <label for="page-intro">Introtekst</label>
+    <textarea id="page-intro" class="adm-input" formControlName="introduction" maxlength="4000"
+              [attr.aria-invalid]="form.controls.introduction.invalid && form.controls.introduction.touched"></textarea>
+    @if (form.controls.introduction.invalid && form.controls.introduction.touched) { <span class="adm-error">Skriv en introtekst.</span> }
+    @for (m of serverError('introduction'); track m) { <span class="adm-error">{{ m }}</span> }
+  </div>
+
+  <div class="adm-actions">
+    <button type="submit" class="adm-btn adm-btn--primary" [disabled]="saving() || !form.dirty">{{ saving() ? 'Gemmer…' : 'Gem ændringer' }}</button>
+    <button type="button" class="adm-btn" (click)="cancel()" [disabled]="saving() || !form.dirty">Fortryd</button>
+    @if (form.dirty) { <span class="adm-badge adm-badge--unsaved">Ugemte ændringer</span> }
+  </div>
+</form>
