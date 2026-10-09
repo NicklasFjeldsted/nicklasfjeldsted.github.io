@@ -1,4 +1,8 @@
 {
+  "nav": {
+    "home": "Forside",
+    "specializedMasonry": "Specialiseret murerarbejde"
+  },
   "home": {
     "call": "Ring",
     "get_offer": "Få tilbud"
