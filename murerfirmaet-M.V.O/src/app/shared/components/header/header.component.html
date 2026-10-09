@@ -1,0 +1,59 @@
+<header
+  class="site-header"
+  [class.site-header--light]="theme() === 'light'"
+  [class.site-header--hidden]="hidden()"
+  [class.site-header--top]="atTop()"
+  [class.site-header--open]="menuOpen()">
+  <div class="site-header__bar">
+    <a routerLink="/" class="site-header__logo" aria-label="Murerfirmaet M.V.O. - forside" (click)="closeMenu()">
+      <img src="logo.svg" alt="Murerfirmaet M.V.O. logo"/>
+    </a>
+
+    <nav class="site-header__nav" aria-label="Hovednavigation">
+      @for (item of navItems; track item.path) {
+        <a
+          class="site-header__link"
+          [routerLink]="item.path"
+          routerLinkActive="site-header__link--active"
+          [routerLinkActiveOptions]="{exact: item.exact}"
+          ariaCurrentWhenActive="page">
+          {{ item.labelKey | translate }}
+        </a>
+      }
+    </nav>
+
+    <a class="site-header__phone" [href]="callHref">
+      <fa-icon [icon]="faPhone"></fa-icon>
+      <span>{{ phoneNumber }}</span>
+    </a>
+
+    <button
+      type="button"
+      class="site-header__toggle"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="site-header-menu"
+      [attr.aria-label]="menuOpen() ? 'Luk menu' : 'Åbn menu'"
+      (click)="toggleMenu()">
+      <fa-icon [icon]="menuOpen() ? faXmark : faBars"></fa-icon>
+    </button>
+  </div>
+
+  <div id="site-header-menu" class="site-header__menu" [attr.aria-hidden]="!menuOpen()" [attr.inert]="menuOpen() ? null : ''">
+    <nav aria-label="Mobilnavigation">
+      @for (item of navItems; track item.path) {
+        <a
+          class="site-header__menu-link"
+          [routerLink]="item.path"
+          routerLinkActive="site-header__menu-link--active"
+          [routerLinkActiveOptions]="{exact: item.exact}"
+          (click)="closeMenu()">
+          {{ item.labelKey | translate }}
+        </a>
+      }
+      <a class="site-header__menu-link site-header__menu-phone" [href]="callHref">
+        <fa-icon [icon]="faPhone"></fa-icon>
+        <span>{{ phoneNumber }}</span>
+      </a>
+    </nav>
+  </div>
+</header>
