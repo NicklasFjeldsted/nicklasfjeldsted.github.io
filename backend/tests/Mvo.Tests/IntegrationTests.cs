@@ -113,7 +113,7 @@ public class GalleryTests(TestHost host)
     public async Task Gallery_images_are_added_in_order_with_sequential_positions()
     {
         var s = await WithImagesAsync(3);
-        s.Gallery.Select(g => g.Position).Should().Equal(0, 1, 2);
+        s.Gallery.Select(g => g.Position).Should().Equal(1, 2, 3);
         s.Gallery.Select(g => g.AltText).Should().Equal("Billede 0", "Billede 1", "Billede 2");
     }
 
@@ -124,7 +124,7 @@ public class GalleryTests(TestHost host)
         var removed = s.Gallery[1];
         s = await host.SendAsync(new RemoveGalleryImageCommand(s.PageId, s.Id, s.Version, removed.Id));
 
-        s.Gallery.Select(g => g.Position).Should().Equal(0, 1);
+        s.Gallery.Select(g => g.Position).Should().Equal(1, 2);
         s.Gallery.Should().NotContain(g => g.Id == removed.Id);
         // the asset itself must still exist so it can be reused
         await host.SendAsync(new AddGalleryImagesCommand(s.PageId, s.Id, s.Version, [new GalleryImageInput(removed.MediaId, null)]));
@@ -139,7 +139,7 @@ public class GalleryTests(TestHost host)
 
         s = await host.SendAsync(new ReplaceGalleryImageCommand(s.PageId, s.Id, s.Version, target.Id, newMedia, "Ny"));
         s.Gallery[1].MediaId.Should().Be(newMedia);
-        s.Gallery.Select(g => g.Position).Should().Equal(0, 1, 2);
+        s.Gallery.Select(g => g.Position).Should().Equal(1, 2, 3);
     }
 
     [Fact]
@@ -151,7 +151,7 @@ public class GalleryTests(TestHost host)
 
         s = await host.SendAsync(new ReorderGalleryCommand(s.PageId, s.Id, s.Version, order));
         s.Gallery.Select(g => g.Id).Should().Equal(order);
-        s.Gallery.Select(g => g.Position).Should().Equal(0, 1, 2, 3);
+        s.Gallery.Select(g => g.Position).Should().Equal(1, 2, 3, 4);
 
         var reloaded = await host.SendAsync(new GetSectionContentQuery(s.PageId, s.Id));
         reloaded.Gallery.Select(g => g.Id).Should().Equal(order);

@@ -25,7 +25,7 @@ public class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) : IExcepti
         }
 
         context.Response.StatusCode = problem.Status!.Value;
-        await context.Response.WriteAsJsonAsync(problem, cancellationToken);
+        await context.Response.WriteAsJsonAsync(problem, problem.GetType(), cancellationToken: cancellationToken);
         return true;
     }
 
