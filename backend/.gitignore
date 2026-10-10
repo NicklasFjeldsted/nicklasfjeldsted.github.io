@@ -3,3 +3,6 @@ obj/
 .env
 src/Mvo.Api/media/
 *.user
+
+# Local uploaded media (dev)
+.media/

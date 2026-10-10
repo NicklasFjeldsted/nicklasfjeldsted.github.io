@@ -1,0 +1,130 @@
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {Injectable, inject} from '@angular/core';
+import {Observable, throwError} from 'rxjs';
+import {catchError, map} from 'rxjs/operators';
+import {API_BASE_URL, mediaUrl} from '../core/config/api.config';
+import {
+  IApiError, IGalleryImageInput, IMedia, IPageDetail, IPageListItem, ISectionContent,
+} from './admin.models';
+
+const BASE = `${API_BASE_URL}/api/admin`;
+
+export interface ISectionTextUpdate {
+  title: string;
+  eyebrow: string | null;
+  introduction: string | null;
+  description: string;
+  additionalDescription: string | null;
+  details: string[];
+}
+
+/** Single access point for the admin endpoints. Every call returns the server-confirmed state. */
+@Injectable({providedIn: 'root'})
+export class AdminApiService {
+  private readonly http = inject(HttpClient);
+
+  getPages(): Observable<IPageListItem[]> {
+    return this.http.get<IPageListItem[]>(`${BASE}/pages`).pipe(this.fail());
+  }
+
+  getPage(pageId: number): Observable<IPageDetail> {
+    return this.http.get<IPageDetail>(`${BASE}/pages/${pageId}`).pipe(this.fail());
+  }
+
+  updatePageText(pageId: number, expectedVersion: number, eyebrow: string | null, heading: string, introduction: string) {
+    return this.http
+      .put<IPageDetail>(`${BASE}/pages/${pageId}/text`, {expectedVersion, eyebrow, heading, introduction})
+      .pipe(this.fail());
+  }
+
+  reorderSections(pageId: number, expectedPageVersion: number, orderedSectionIds: number[]) {
+    return this.http
+      .put<IPageDetail>(`${BASE}/pages/${pageId}/sections/order`, {expectedPageVersion, orderedSectionIds})
+      .pipe(this.fail());
+  }
+
+  createSection(pageId: number, title: string, sectionType: number) {
+    return this.http.post<ISectionContent>(`${BASE}/pages/${pageId}/sections`, {title, sectionType})
+      .pipe(map(s => this.withUrls(s)), this.fail());
+  }
+
+  getSection(pageId: number, sectionId: number) {
+    return this.http.get<ISectionContent>(this.section(pageId, sectionId)).pipe(map(s => this.withUrls(s)), this.fail());
+  }
+
+  updateSectionText(pageId: number, sectionId: number, expectedVersion: number, text: ISectionTextUpdate) {
+    return this.http.put<ISectionContent>(`${this.section(pageId, sectionId)}/text`, {expectedVersion, ...text})
+      .pipe(map(s => this.withUrls(s)), this.fail());
+  }
+
+  setVisibility(pageId: number, sectionId: number, expectedVersion: number, isPublished: boolean) {
+    return this.http.put<ISectionContent>(`${this.section(pageId, sectionId)}/visibility`, {expectedVersion, isPublished})
+      .pipe(map(s => this.withUrls(s)), this.fail());
+  }
+
+  deleteSection(pageId: number, sectionId: number, expectedVersion: number) {
+    return this.http.delete<void>(this.section(pageId, sectionId), {params: {expectedVersion}}).pipe(this.fail());
+  }
+
+  setPrimaryImage(pageId: number, sectionId: number, expectedVersion: number, mediaId: number, altText: string | null) {
+    return this.http.put<ISectionContent>(`${this.section(pageId, sectionId)}/primary-image`, {expectedVersion, mediaId, altText})
+      .pipe(map(s => this.withUrls(s)), this.fail());
+  }
+
+  addGalleryImages(pageId: number, sectionId: number, expectedVersion: number, images: IGalleryImageInput[]) {
+    return this.http.post<ISectionContent>(`${this.section(pageId, sectionId)}/gallery`, {expectedVersion, images})
+      .pipe(map(s => this.withUrls(s)), this.fail());
+  }
+
+  replaceGalleryImage(pageId: number, sectionId: number, expectedVersion: number, galleryImageId: number, mediaId: number, altText: string | null) {
+    return this.http.put<ISectionContent>(`${this.section(pageId, sectionId)}/gallery/${galleryImageId}`, {expectedVersion, mediaId, altText})
+      .pipe(map(s => this.withUrls(s)), this.fail());
+  }
+
+  removeGalleryImage(pageId: number, sectionId: number, expectedVersion: number, galleryImageId: number) {
+    return this.http.delete<ISectionContent>(`${this.section(pageId, sectionId)}/gallery/${galleryImageId}`, {params: {expectedVersion}})
+      .pipe(map(s => this.withUrls(s)), this.fail());
+  }
+
+  reorderGallery(pageId: number, sectionId: number, expectedVersion: number, orderedGalleryImageIds: number[]) {
+    return this.http.put<ISectionContent>(`${this.section(pageId, sectionId)}/gallery/order`, {expectedVersion, orderedGalleryImageIds})
+      .pipe(map(s => this.withUrls(s)), this.fail());
+  }
+
+  uploadMedia(file: File): Observable<IMedia> {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    return this.http.post<IMedia>(`${BASE}/media`, form).pipe(map(m => ({...m, url: mediaUrl(m.url)})), this.fail());
+  }
+
+  /** Best-effort cleanup of an upload that was never attached to anything. */
+  deleteMedia(mediaId: number): Observable<void> {
+    return this.http.delete<void>(`${BASE}/media/${mediaId}`);
+  }
+
+  private section(pageId: number, sectionId: number): string {
+    return `${BASE}/pages/${pageId}/sections/${sectionId}`;
+  }
+
+  private withUrls(section: ISectionContent): ISectionContent {
+    return {
+      ...section,
+      primaryImage: section.primaryImage && {...section.primaryImage, url: mediaUrl(section.primaryImage.url)},
+      gallery: section.gallery.map(g => ({...g, url: mediaUrl(g.url)})),
+    };
+  }
+
+  private fail<T>() {
+    return catchError<T, Observable<never>>((error: HttpErrorResponse) => throwError(() => toApiError(error)));
+  }
+}
+
+export function toApiError(error: HttpErrorResponse): IApiError {
+  if (error.status === 0) return {status: 0, message: 'Der er ingen forbindelse til serveren. Dine ændringer er ikke gemt.', fields: {}};
+  const body = error.error as {title?: string; detail?: string; errors?: Record<string, string[]>} | null;
+  return {
+    status: error.status,
+    message: body?.detail ?? body?.title ?? 'Der opstod en uventet fejl. Dine ændringer er ikke gemt.',
+    fields: body?.errors ?? {},
+  };
+}

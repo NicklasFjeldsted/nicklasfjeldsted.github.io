@@ -1,0 +1,404 @@
+# Development Specification: Centralized Website Content Administration
+
+## 1. Objective
+
+Develop a simple, intuitive, and centralized admin interface that allows authorized administrators to manage the content displayed across the website.
+
+The primary purpose of this interface is to allow the masons and other administrators to maintain the website independently, without modifying frontend code or requiring developer assistance.
+
+The administration interface must allow users to navigate between website pages, select individual sections, and edit the content associated with those sections.
+
+This includes text, images, primary images, image galleries, gallery ordering, and other editable content elements.
+
+The interface should prioritize clarity, ease of use, and visual feedback. Administrators must always understand which content they are editing and how their changes relate to the public-facing website.
+
+**Core principle: Make content editing straightforward for a non-technical user while preserving the existing website's design, structure, and functionality.**
+
+## 2. Inspect the Existing System Before Implementation
+
+Before making changes, inspect the existing admin interface, authentication system, backend, database schema, API endpoints, media storage, and any existing content-management functionality.
+
+Determine how the current website represents its pages, sections, images, galleries, and editable text.
+
+Reuse existing components, data structures, and backend functionality wherever possible.
+
+Do not introduce a parallel content-management system if the existing architecture can be extended to support the requirements.
+
+Do not modify unrelated admin functionality or replace the existing authentication and authorization mechanisms.
+
+If the current backend does not support a required editing operation, implement the necessary functionality using the project's existing conventions.
+
+## 3. Overall Admin Page Layout
+
+Create a centralized page called "Website Content" or an equivalent name that fits the existing admin interface.
+
+The interface should use a clean, professional, restrained design. Prioritize usability over visual decoration.
+
+Use a light background, clear typography, subtle borders, consistent spacing, and a logical information hierarchy.
+
+Avoid unnecessary animations, excessive card layouts, complex navigation, or visual elements that distract from the editing task.
+
+The interface should be divided into three main areas:
+
+1. **Page selection:** Choose which website page to manage.
+2. **Section selection:** Choose the section within that page.
+3. **Content editor:** Choose and modify the content belonging to the selected section.
+
+These areas should work together as one coherent workflow.
+
+Where screen space permits, display the page and section selectors together in a compact navigation area, with the content editor occupying the main working area.
+
+On smaller screens, stack the controls vertically.
+
+## 4. Navigation and Selection Workflow
+
+The intended workflow is:
+
+**Select page → Select section → Select content element → Edit → Save**
+
+Each step must update the available choices in the following step.
+
+### 4.1. Page selector
+
+Display a dropdown containing all website pages that are supported by the content-management system.
+
+Examples might include:
+
+* Home
+* Services
+* Specialized Masonry
+* About
+* Contact
+
+These are illustrative examples. Populate the selector from the actual pages and content structures supported by the existing application rather than hardcoding a list of assumed pages.
+
+Each page should have a clear, human-readable name.
+
+When a page is selected, load its available sections and reset any selections that are no longer relevant.
+
+If useful, display the page's current publication status or provide a link to preview the public page.
+
+The selector should not imply that every page is editable if some pages are currently static or unsupported. Clearly distinguish between pages with managed content and pages that still require implementation.
+
+### 4.2. Section selector
+
+After selecting a page, display a second dropdown containing the sections available on that page.
+
+For example, the Specialized Masonry page might contain:
+
+* Page introduction
+* Facade restoration
+* Complex brickwork
+* Custom masonry details
+* Historical masonry
+
+These are examples only. Actual section names must come from the stored page content.
+
+The section selector must update whenever the selected page changes.
+
+If section management is supported, administrators should also be able to create, rename, reorder, hide, or remove sections through appropriate controls.
+
+Destructive actions such as deleting a section must require confirmation.
+
+When possible, show the selected section's display order or another clear indication of its position on the public page.
+
+### 4.3. Content element selector
+
+After selecting a section, display the editable content belonging to that section.
+
+The available editing options should depend on the type of content selected.
+
+For example:
+
+**Page introduction**
+
+* Main heading
+* Introductory text
+* Optional image
+
+**Masonry showcase section**
+
+* Category title
+* Short introduction
+* Main description
+* Additional description
+* Primary image
+* Supporting gallery
+* Image captions or alternative text, where supported
+
+Do not display irrelevant controls for the selected element.
+
+The interface should help the administrator understand the distinction between editing the primary image, editing gallery images, and editing descriptive text.
+
+For content-heavy sections, a list of clearly named editing options or tabs can be more usable than a dropdown containing many individual elements. Keep the page and section selection workflow, but use the most appropriate control for the content editor itself.
+
+The administrator should never need to select a database field, technical identifier, component name, or source-code property.
+
+Use meaningful labels such as "Main description", "Primary image", and "Supporting gallery".
+
+## 5. Context and Editing Clarity
+
+At all times, display a clear indication of the current editing location.
+
+For example:
+
+**Website Content / Specialized Masonry / Facade Restoration / Supporting Gallery**
+
+This breadcrumb or contextual heading should update as the user navigates.
+
+The main editor should display a heading identifying the selected content, together with a short explanation of what the content controls on the public-facing website.
+
+For example:
+
+**Primary image**
+
+"Manage the main photograph displayed beside the description in this masonry section."
+
+For a gallery:
+
+**Supporting gallery**
+
+"Manage the images displayed beneath the primary photograph. You can add, remove, and reorder images."
+
+The user should never have to guess which image, text, or section will be affected by a change.
+
+## 6. Text Editing
+
+Provide suitable editing controls for each text element.
+
+Use single-line inputs for short titles and labels, and multiline text areas for descriptions and longer content.
+
+If the existing application supports a rich-text editor, reuse it where appropriate. Otherwise, avoid introducing a complex editor unnecessarily.
+
+Each text field must have:
+
+* A clear label.
+* The current saved content.
+* A visible indication of unsaved changes.
+* Appropriate validation and error messages.
+* A save mechanism consistent with the rest of the admin interface.
+
+Where helpful, display a preview of the text as it will appear on the website.
+
+Ensure that empty optional fields can be handled intentionally without displaying unwanted blank content on the public page.
+
+The editor must support ordinary changes in wording and paragraph length without requiring the administrator to modify formatting or layout settings.
+
+## 7. Primary Image Management
+
+The primary image editor must show the currently saved image prominently.
+
+The administrator should be able to:
+
+* View the current primary image.
+* Upload or select a replacement image.
+* Preview the replacement before saving.
+* Confirm or cancel the change.
+* Update the image's alternative text where supported.
+
+Clearly label the image as the **Primary image** so that it cannot be confused with the supporting gallery.
+
+When selecting a replacement, provide immediate visual feedback showing which image will become the new primary image.
+
+Use the existing media storage and upload system. Do not implement an unrelated image-storage mechanism.
+
+Replacing the primary image must not inadvertently remove, reorder, or change the associated gallery images.
+
+## 8. Gallery Management
+
+Gallery editing is one of the most important features of this admin page. It must be visual, straightforward, and fully manageable.
+
+The administrator must be able to see the current gallery images and understand the order in which they appear on the public-facing page.
+
+### 8.1. Visual gallery editor
+
+Display the current gallery as a grid of image thumbnails.
+
+Each thumbnail should include:
+
+* A preview of the actual image.
+* A clear indication of its position in the gallery.
+* An action to replace the image.
+* An action to remove the image.
+* A way to change its position in the gallery.
+
+Do not present gallery images only as filenames, URLs, or database records.
+
+The actual photographs must be visible so that the administrator can identify them.
+
+Keep the interface clean and compact while providing enough room to recognize the images.
+
+### 8.2. Reordering gallery images
+
+The administrator must be able to control the exact order in which gallery images appear on the public website.
+
+Prefer drag-and-drop reordering, with a clear visual indication of the image being moved and the position where it will be placed.
+
+Also provide an accessible alternative, such as move-left/move-right or move-up/move-down controls, so that the gallery can be managed without a mouse.
+
+Display the current order clearly, either through numbered positions or another unobtrusive indicator.
+
+When an image is moved, update the ordering in the editing interface immediately.
+
+The new order must be persisted when saved and reflected on the public-facing page.
+
+Do not rely solely on the incidental order in which images happen to be returned by the database or file storage system. Store and retrieve an explicit gallery order.
+
+### 8.3. Adding images
+
+Provide a clearly visible "Add image" action.
+
+The administrator should be able to upload one or multiple images, or select existing media if the application already supports a shared media library.
+
+After selection, display previews of the new images in the gallery editor.
+
+New images should be assigned predictable positions, normally at the end of the gallery, unless the administrator explicitly chooses another position.
+
+Support the existing project's allowed image formats and size restrictions.
+
+Validate uploads and provide clear feedback if an image cannot be uploaded.
+
+### 8.4. Removing images
+
+Each gallery image must have a clear remove action.
+
+Removing an image should remove it from that gallery, not accidentally delete the primary image or an image associated with another section.
+
+If the application uses a shared media library, distinguish between removing an image from the gallery and permanently deleting the underlying media file.
+
+Require confirmation before irreversible deletion of a media asset.
+
+Where appropriate, allow gallery changes to be cancelled before saving.
+
+### 8.5. Replacing images
+
+Allow an existing gallery image to be replaced without requiring the administrator to remove the image and manually reconstruct its position.
+
+Replacing an image should preserve its position in the gallery unless the administrator explicitly changes the ordering.
+
+Provide a preview of the replacement before it is committed.
+
+### 8.6. Gallery persistence and consistency
+
+The gallery must be stored as a collection associated with its specific content section.
+
+Each image must have a stable identifier or media reference and an explicit position.
+
+The backend must preserve the intended order and association when images are added, removed, replaced, or rearranged.
+
+Changes to one gallery must never affect the contents or order of another gallery.
+
+If the gallery has no images, display a useful empty state explaining that no images have been added yet, together with an "Add image" action.
+
+## 9. Saving, Unsaved Changes, and Feedback
+
+Editing must be predictable and safe.
+
+Use the existing application's save behavior where possible.
+
+If the application does not already provide a suitable pattern, use explicit save and cancel controls for content editing.
+
+Display a clear indication when the selected content has unsaved changes.
+
+If the administrator attempts to navigate away while unsaved changes exist, warn them and allow them to return to the editor or discard the changes.
+
+After a successful save, show a clear confirmation.
+
+If saving fails, preserve the administrator's changes and display an understandable error message.
+
+For gallery changes involving multiple operations, avoid leaving the gallery in a partially updated state if one of the operations fails. Use an appropriate transactional or staged-update approach supported by the backend.
+
+The public-facing website should reflect saved changes according to the application's existing publication and caching behavior.
+
+Do not indicate that a change has been saved before the backend has confirmed success.
+
+## 10. Previewing the Public-Facing Page
+
+Where feasible, provide a "Preview page" or "View live page" action.
+
+This should open the selected page on the public-facing website so that the administrator can verify how the content looks in its actual layout.
+
+If the application supports draft previews, make it possible to preview unsaved or unpublished content without exposing it to public visitors.
+
+If draft preview functionality does not exist and is outside the intended scope, link to the published page instead and make it clear that only saved, published changes will be visible there.
+
+Do not expose unpublished content through public endpoints without appropriate authorization.
+
+## 11. Managing Different Pages and Content Types
+
+The interface must be extensible enough to support other managed pages in the future.
+
+Different pages may have different structures and content types. Not every section will contain a primary image or a gallery.
+
+For example, one page may have introductory text and a hero image, while another may contain several masonry sections, each with its own gallery.
+
+The editor should therefore render controls based on the actual content schema of the selected page and section.
+
+Avoid assuming that every section has identical fields.
+
+At the same time, maintain consistent interaction patterns for common content types. Titles should be edited similarly across pages, and gallery controls should behave consistently wherever galleries are supported.
+
+The page and section selectors must be driven by actual available content, rather than a fixed collection of hardcoded options.
+
+## 12. Backend and Data Integrity
+
+All editing operations must use the existing backend and follow its conventions.
+
+Ensure that:
+
+* Only authorized users can edit content.
+* Uploaded files are validated.
+* Content is validated before saving.
+* Images are associated with the correct page and section.
+* Gallery ordering is persisted explicitly.
+* Deleting a section does not accidentally delete unrelated media.
+* Shared images are not permanently removed while still referenced elsewhere.
+* Changes to one content entry do not overwrite unrelated entries.
+* Errors are handled without silently losing unsaved edits.
+
+Use the existing API, data-access layer, database relationships, and media-storage mechanisms where possible.
+
+If the current data model cannot represent ordered galleries or independently managed sections, extend it carefully rather than introducing hardcoded exceptions.
+
+## 13. Responsive Design and Accessibility
+
+The administration interface must remain usable on desktop, tablet, and mobile devices.
+
+On desktop, keep the selection controls compact and give the main editing area sufficient space.
+
+On mobile, stack the controls and editor vertically. Ensure that image thumbnails remain identifiable and that gallery actions are easy to access.
+
+All interactive controls must have clear labels, visible focus states, and suitable keyboard support.
+
+Drag-and-drop reordering must have an alternative that works with a keyboard or touch input.
+
+Confirmations, errors, and save statuses must be understandable without relying on color alone.
+
+Do not prioritize decorative animations over usability.
+
+## 14. Acceptance Criteria
+
+The implementation is complete when the following can be demonstrated:
+
+1. An administrator can select a managed website page.
+2. Selecting a page displays its available sections.
+3. Selecting a section displays only the relevant editable content.
+4. The current editing location is always clearly visible.
+5. Text fields show the existing content and allow it to be edited and saved.
+6. Primary images are visible and can be replaced.
+7. Gallery images are displayed as recognizable thumbnails.
+8. Gallery images can be added, removed, replaced, and reordered.
+9. Gallery order persists after saving and reloading.
+10. Changes to one gallery do not affect another gallery.
+11. Unsaved changes and save failures are handled safely.
+12. The public page reflects successfully saved changes according to the application's publication behavior.
+13. The interface supports different page structures and content types.
+14. The existing admin functionality, authentication, and public website continue to work correctly.
+
+## Final Design Principle
+
+The admin page should feel like a simple content-management tool, not a technical configuration panel.
+
+An administrator should be able to select a page, choose a section, identify the content they want to change, see the current content, make their edits, and save with confidence.
+
+**Prioritize clear context, visual editing, predictable behavior, and complete control over the text, images, galleries, and ordering of the managed content.**
