@@ -1,0 +1,378 @@
+# Additional Technical Specification: Backend Architecture and Content Management
+
+## 1. Existing Technology Stack and Architectural Requirements
+
+The website content administration system must integrate with the existing backend architecture.
+
+The technology stack and architectural conventions are:
+
+* **Frontend:** The existing website and administration interface.
+* **Backend:** C# and the existing .NET application.
+* **Request handling:** MediatR, following the existing CQRS architecture.
+* **Database:** MySQL.
+* **Validation:** FluentValidation using `AbstractValidator<T>` for requests and commands where appropriate.
+* **Enum representation:** Enums are represented by database tables rather than being assumed to exist exclusively as C# enums.
+
+These requirements are mandatory. Do not introduce an alternative backend architecture, bypass MediatR, or access MySQL directly from the frontend.
+
+Before implementation, inspect the existing solution to identify the .NET version, project structure, application layers, dependency injection setup, database access technology, existing request and command conventions, validation pipeline, entity relationships, and error-handling patterns.
+
+Follow the conventions already established in the codebase wherever possible.
+
+The objective is to extend the existing application with a maintainable content-management capability, not to redesign the entire backend.
+
+## 2. Architectural Separation of Responsibilities
+
+Maintain a clear separation between the frontend, API, application logic, persistence, and database.
+
+The intended flow is:
+
+1. An administrator interacts with the frontend.
+2. The frontend sends an HTTP request to the backend API.
+3. The API creates the appropriate request or command and dispatches it through MediatR.
+4. The application layer validates the input and executes the relevant business operation.
+5. The persistence layer reads or modifies the MySQL database and associated media references.
+6. The API returns an appropriate response.
+7. The frontend updates its state and provides feedback to the administrator.
+
+Use the project's existing layering conventions rather than introducing additional layers without a clear need.
+
+The frontend must never connect directly to MySQL, execute database queries, or bypass the backend's authorization and validation logic.
+
+All content changes must be performed through the established backend API and application workflow.
+
+## 3. Apply CQRS Consistently
+
+Use CQRS to separate operations that retrieve content from operations that modify content.
+
+### Queries
+
+Queries retrieve information and must not modify persistent state.
+
+Create or extend queries for the information required by the admin interface, such as:
+
+* Retrieving the list of manageable website pages.
+* Retrieving the sections belonging to a selected page.
+* Retrieving the editable content for a selected section.
+* Retrieving primary image metadata.
+* Retrieving the ordered gallery images associated with a section.
+* Retrieving any additional metadata needed by the editor.
+
+Use MediatR query requests and their corresponding handlers, following the existing project conventions.
+
+Return purpose-specific response DTOs rather than exposing database entities directly.
+
+Where appropriate, project directly into DTOs and retrieve only the fields required by the editor.
+
+### Commands
+
+Commands represent operations that modify persistent state.
+
+Implement commands for the content-management operations that are required by the existing domain model, including:
+
+* Updating page-level text.
+* Updating section titles and descriptions.
+* Replacing a primary image reference.
+* Adding an image to a gallery.
+* Removing an image from a gallery.
+* Replacing a gallery image.
+* Reordering gallery images.
+* Creating or deleting sections, if section management is supported.
+* Updating section visibility or display order, if supported.
+
+Use a dedicated command and handler for each distinct business operation where that separation improves clarity and maintainability.
+
+Do not create a generic command that accepts arbitrary database table names, entity names, or property names and modifies them dynamically.
+
+Each command must explicitly define what it is allowed to change.
+
+Avoid creating excessive handlers for trivial internal operations if the existing architecture already provides a well-established pattern for related updates.
+
+## 4. API Contracts and Data Transfer Objects
+
+Define clear request and response contracts between the frontend and backend.
+
+Use DTOs designed for the administration workflow rather than returning database entities or exposing internal persistence structures.
+
+For example, the section-list response may provide:
+
+* Section identifier.
+* Section title.
+* Section type, if relevant.
+* Display order.
+* Publication status, if supported.
+
+A section-content response may provide:
+
+* Section identifier.
+* Section title.
+* Editable text fields.
+* Primary image metadata.
+* Ordered gallery image metadata.
+* Relevant optional fields supported by the content model.
+
+An image response may provide:
+
+* Image or media identifier.
+* Image URL or media reference.
+* Alternative text, if supported.
+* Display order for gallery images.
+* Any other metadata required by the frontend.
+
+Use stable identifiers to reference pages, sections, and media. Do not use display titles as the primary identifiers because administrators may change those titles.
+
+Keep request and response DTOs explicit and typed. Avoid passing loosely structured dictionaries or arbitrary JSON objects for ordinary, known content operations.
+
+Use the existing API's naming conventions, serialization configuration, and error-response format.
+
+## 5. FluentValidation and AbstractValidator<T>
+
+Use FluentValidation and `AbstractValidator<T>` for request and command validation where appropriate.
+
+Validation must be implemented in the backend. Frontend validation is useful for usability, but it must not be treated as a security or data-integrity boundary.
+
+Examples of appropriate validation include:
+
+### Text updates
+
+* Required identifiers must be valid.
+* Required titles must not be empty.
+* Text fields must respect defined length constraints.
+* Optional fields may be empty when the domain permits it.
+* The target section must exist and belong to the intended page when the operation depends on that relationship.
+
+### Image operations
+
+* Required media identifiers must be valid.
+* The referenced section must exist.
+* The image must be eligible for use by the requested operation.
+* Gallery operations must reference the correct gallery or section.
+* Reordering requests must contain valid image identifiers and positions.
+* Duplicate entries must be rejected when they are not allowed by the domain rules.
+
+### Section management
+
+* Required section fields must be valid.
+* Display order values must satisfy the chosen ordering rules.
+* Any referenced page must exist.
+* Operations must respect the existing authorization and publication rules.
+
+Implement validators as dedicated `AbstractValidator<T>` classes where appropriate.
+
+Register validators using the existing dependency injection configuration.
+
+If the application already uses a MediatR pipeline behavior for validation, reuse it. Otherwise, integrate validation into the request pipeline using the existing architecture and supported MediatR version.
+
+Ensure that invalid requests do not reach their handlers and modify persistent state.
+
+Do not duplicate every validation rule in multiple layers without a reason. Keep validation responsibilities clear and avoid turning validators into substitutes for domain logic or database constraints.
+
+## 6. Database Design and MySQL
+
+Extend the existing MySQL schema only where necessary.
+
+Before adding tables or columns, inspect the current schema and determine whether existing entities can represent the required page, section, content, and media relationships.
+
+The implementation should support the following logical relationships, adapted to the actual database model:
+
+* A manageable page can contain multiple sections.
+* Each section belongs to its intended page.
+* Each section can have its own editable text content.
+* Each section can reference a primary image.
+* Each section can have an ordered collection of gallery images.
+* Gallery image order must persist independently for each section.
+
+Use the existing entity and table naming conventions.
+
+Where new tables or columns are necessary, create proper schema migrations or database scripts consistent with the project's current migration strategy.
+
+Preserve existing data and relationships. Do not drop or recreate tables merely to simplify the implementation.
+
+### Enum tables
+
+The existing system stores enums as database tables.
+
+Respect that design. Do not assume that a new content type, section type, status, or other enumerated value can simply be added as a C# enum without considering its database representation.
+
+Inspect how existing lookup tables are represented in the C# domain and persistence layers.
+
+Reuse existing lookup tables when they already represent the required concept. If a new lookup table is necessary, add it using the established schema and migration conventions.
+
+Use the appropriate foreign keys or existing relationship patterns when referencing lookup values.
+
+Avoid duplicating lookup data or introducing competing representations of the same concept.
+
+If the existing application maps lookup rows to C# enums, follow its established mapping approach rather than introducing a second, inconsistent pattern.
+
+### Data integrity
+
+Use database constraints and transactions where appropriate.
+
+Ensure that gallery ordering, section associations, and primary image references remain consistent.
+
+Use suitable indexes for frequently queried relationships, such as sections by page and gallery images by section and display order.
+
+Avoid relying on frontend ordering or incidental database result order to determine how images appear.
+
+## 7. Gallery Operations and Transactional Consistency
+
+Gallery management requires particular care because one user action may affect multiple records.
+
+### Adding images
+
+Validate the target section and media references before creating the relevant gallery associations.
+
+Persist the new association and its display order through the backend.
+
+### Removing images
+
+Remove the association between the image and the gallery without automatically deleting the underlying media asset if it may be shared or referenced elsewhere.
+
+Permanent media deletion must be a separate, explicitly authorized operation when supported.
+
+### Replacing images
+
+Update the relevant gallery association while preserving its position unless the administrator also changes the ordering.
+
+### Reordering images
+
+Treat the submitted gallery order as an explicit ordered collection of image identifiers.
+
+Validate that the submitted images belong to the intended gallery and that the request represents a valid ordering operation.
+
+Persist the resulting order consistently.
+
+Where multiple records must change together, use a database transaction so that partial updates do not leave the gallery in an inconsistent state.
+
+Account for concurrent edits if multiple administrators may manage the same content. Use the project's existing concurrency strategy where available, and avoid silently overwriting changes made by another user.
+
+The API should return a clear success or error response so the frontend can reflect the actual persisted state.
+
+## 8. Media Uploads and Storage
+
+Inspect the existing media-upload and storage architecture before implementing image management.
+
+If the backend already provides an upload service or media library, extend and reuse it.
+
+Keep file storage separate from relational content metadata where that matches the existing design.
+
+The backend must validate uploaded files according to the application's security requirements, including permitted formats, file sizes, and any necessary content checks.
+
+Do not trust a filename, extension, or client-provided content type as sufficient validation on its own.
+
+If the existing architecture stores images in external storage, the database should retain the appropriate media reference or metadata rather than duplicating the binary file unnecessarily.
+
+For replacing images, consider failure scenarios where the upload succeeds but the database update fails, or where the database update succeeds but cleanup of an obsolete file fails.
+
+Use an appropriate strategy to preserve valid references and avoid deleting files that are still in use.
+
+The frontend should receive a stable media identifier and a usable image URL or media reference through the API contract.
+
+## 9. Error Handling and API Responses
+
+Follow the existing API error-handling conventions.
+
+Ensure that expected failures are communicated clearly and consistently, including:
+
+* Validation failures.
+* Missing pages or sections.
+* Missing or invalid media references.
+* Unauthorized operations.
+* Conflicting concurrent updates.
+* Failed uploads.
+* Database or persistence failures.
+
+Use appropriate HTTP status codes through the existing API conventions.
+
+Validation failures should provide enough structured information for the frontend to associate errors with the relevant fields.
+
+Do not expose internal exception details, SQL statements, credentials, or sensitive infrastructure information to the client.
+
+Unexpected exceptions should be handled by the existing centralized exception-handling mechanism wherever possible.
+
+The frontend must preserve unsaved content when a request fails and must not display a successful-save state until the backend confirms that the operation succeeded.
+
+## 10. Authorization and Security
+
+All content-management commands must be protected by the application's existing authentication and authorization mechanisms.
+
+Do not rely on the frontend hiding an editing control as a security measure.
+
+The backend must verify that the current user is permitted to perform the requested operation.
+
+Validate all identifiers and relationships supplied by the client. A user must not be able to modify content belonging to another page or section simply by changing an identifier in an API request.
+
+Validate and sanitize content appropriately for its intended rendering context. If rich text is supported, use the application's established safe-rendering and sanitization strategy.
+
+Do not introduce unrestricted generic update endpoints that allow arbitrary entity properties to be modified.
+
+## 11. Performance and Maintainability
+
+Design the queries and commands for maintainability and appropriate performance.
+
+* Retrieve only the data needed for the selected editing view.
+* Avoid unnecessary loading of every gallery image's full metadata when only a section list is required.
+* Avoid N+1 query patterns when loading section content and associated image metadata.
+* Use asynchronous database and I/O operations following existing project conventions.
+* Use cancellation tokens where supported by the application's MediatR and persistence patterns.
+* Reuse established dependency injection, logging, and error-handling mechanisms.
+* Keep handlers focused on their intended operations.
+* Avoid embedding business logic in API controllers.
+* Avoid direct database access from controllers or frontend code.
+* Avoid unnecessary abstractions and additional dependencies.
+
+Do not change the existing persistence technology or repository approach merely because another approach is available. Follow the existing implementation unless there is a demonstrated reason to change it.
+
+## 12. Testing Requirements
+
+Implement tests following the existing solution's testing conventions.
+
+At minimum, cover the following behavior:
+
+* Retrieving available pages and sections.
+* Retrieving content for a selected section.
+* Updating text fields.
+* Replacing a primary image reference.
+* Adding and removing gallery images.
+* Replacing gallery images while preserving their positions.
+* Reordering gallery images and verifying persistence.
+* Rejecting invalid identifiers and invalid gallery orders.
+* Ensuring a section cannot be modified through an unrelated page reference.
+* Ensuring unauthorized users cannot modify content.
+* Handling persistence failures without silently reporting success.
+* Ensuring that one gallery's changes do not affect another gallery.
+
+Test validators independently where appropriate and test handler behavior using the project's existing unit-testing and integration-testing patterns.
+
+Use integration tests against an appropriate test database when database constraints, transactions, relationships, or ordering behavior need verification.
+
+Do not claim that functionality is verified unless the relevant tests have actually been executed.
+
+## 13. Implementation Workflow
+
+Implement this functionality in the following order:
+
+1. Inspect the current backend and frontend architecture.
+2. Identify existing page, section, content, image, gallery, and enum-table structures.
+3. Document any missing backend capabilities required by the admin interface.
+4. Define the necessary DTOs, queries, commands, and API contracts.
+5. Implement the required validation using `AbstractValidator<T>` and the existing MediatR validation pipeline.
+6. Extend the MySQL schema only where required, using the established migration strategy.
+7. Implement the relevant handlers and persistence operations.
+8. Implement and verify the API endpoints and authorization rules.
+9. Connect the frontend selectors, text editors, primary-image editor, and gallery editor to the API.
+10. Verify that saving, reloading, and navigating between pages preserve the correct content.
+11. Run the relevant tests and existing build checks.
+12. Report the changes made, any migrations required, and any remaining limitations.
+
+Do not implement a frontend that depends on backend endpoints that do not exist without identifying and implementing those endpoints.
+
+Do not create placeholder API calls and claim the content-management workflow is complete.
+
+## Final Architectural Principle
+
+The existing C# backend remains the authoritative layer for content validation, authorization, business rules, and persistence.
+
+The frontend provides the editing experience. MediatR and CQRS organize application operations. FluentValidation validates incoming requests and commands. MySQL persists the content and its relationships.
+
+The result should be a maintainable extension of the existing application, with clear API contracts, reliable gallery ordering, secure content management, and a frontend that can manage the website without bypassing the backend architecture.

@@ -1,0 +1,658 @@
+# Development Specification: Specialized Masonry Showcase Page
+
+## 1. Project Objective
+
+Create a dedicated subpage for showcasing specialized masonry services and complex masonry projects. The target audience is larger companies, commercial clients, property developers, contractors, and other clients with substantial budgets and high expectations regarding craftsmanship, technical execution, durability, and quality.
+
+The purpose of the page is to demonstrate the company's experience with demanding masonry work, communicate the complexity and quality of its solutions, and establish trust with potential high-value clients.
+
+This page should not feel like a basic service list, a standard portfolio grid, or a generic landing page. It should feel like a carefully designed, premium project showcase that demonstrates expertise through a combination of high-quality photography, informative descriptions, elegant typography, and refined animations.
+
+The page should communicate three things immediately:
+
+* **Expertise:** The company has experience handling specialized and technically demanding masonry projects.
+* **Quality:** The work is performed with precision, attention to detail, and professional standards.
+* **Trust:** The company is capable of handling projects with high requirements, substantial budgets, and complex execution.
+
+The overall experience should be modern, minimal, professional, visually engaging, and easy to navigate.
+
+## 2. General Design Direction
+
+Use a predominantly white visual theme with subtle variations in white, off-white, and light grey. The design should feel bright, spacious, architectural, and sophisticated.
+
+The visual direction should take inspiration from premium architecture studios, established construction companies, high-end design agencies, and modern editorial websites.
+
+Avoid the appearance of a generic construction website based on stock templates.
+
+### Color palette
+
+Use a restrained color palette:
+
+* Primary background: white (#FFFFFF).
+* Secondary background: a very light grey, such as #F7F7F5.
+* Primary text: near-black or charcoal, such as #202020.
+* Secondary text: medium grey, such as #666666.
+* Borders and separators: subtle light grey, such as #E7E7E7.
+* Accent color: use the existing brand color if the website already has one. Otherwise, keep accents minimal and neutral.
+
+Use contrast and whitespace to establish hierarchy instead of relying on bright colors, gradients, shadows, or decorative elements.
+
+### Typography
+
+Use modern, professional typography with a clear distinction between headings, descriptions, labels, and supporting information.
+
+* Main page heading: large, confident, and easy to read.
+* Section headings: prominent but restrained.
+* Body text: comfortably readable with generous line height.
+* Small labels or project categories: understated, potentially uppercase with slight letter spacing.
+
+Avoid excessively bold typography, unnecessary decorative fonts, and oversized text that compromises readability.
+
+### Spacing and composition
+
+Use generous whitespace around sections, headings, images, and descriptions.
+
+The page should feel deliberately composed rather than crowded. Use consistent horizontal margins, a clear content width, and predictable vertical spacing between sections.
+
+Images should be large enough to demonstrate the quality and detail of the masonry work. They are a primary part of the content, not merely decorative additions.
+
+Avoid excessive rounded corners, heavy drop shadows, unnecessary borders, and too many cards. Prefer clean rectangular image layouts, subtle separators, and carefully aligned content.
+
+## 3. Page Structure and Content Hierarchy
+
+Build the page as a sequence of distinct masonry categories. Each category should occupy its own clearly separated section.
+
+Each section represents a particular type of specialized masonry work and explains what the work involves, why it requires expertise, and what the company can deliver.
+
+The exact categories and their descriptions should be based on the company's actual services and projects. Do not invent specific services, certifications, technical capabilities, or completed projects that have not been provided.
+
+### Section A: Page introduction
+
+At the top of the page, create an introductory section that establishes the purpose and quality of the specialized masonry offering.
+
+Include:
+
+* A clear page heading, for example, "Specialized masonry solutions".
+* A concise introductory paragraph explaining that the company undertakes demanding masonry work requiring experience, precision, and professional execution.
+* Optionally, a small eyebrow label above the heading, such as "SPECIALIZED MASONRY".
+* Optionally, a high-quality introductory image or a restrained architectural visual, if this fits the existing website.
+
+The introduction should be relatively compact. It should establish confidence without pushing the actual masonry showcases too far down the page.
+
+Use a subtle entrance animation for the heading and paragraph.
+
+### Section B: Individual masonry showcases
+
+Create one substantial section for every masonry category.
+
+Each section must have two principal content areas:
+
+1. A large image area on one side.
+2. A text and description area beside the image.
+
+Below the main image, place a small gallery of additional images belonging to the same category.
+
+**Important layout requirement:** The text must sit beside the primary image, while the additional gallery images must sit directly underneath the primary image. The gallery must not be positioned underneath the description or span the entire page width.
+
+On desktop, the intended composition is:
+
+* Left column: one large primary image, followed immediately by a smaller gallery of supporting images.
+* Right column: category heading, descriptive text, and optional supporting information.
+
+The text column should align naturally with the top of the primary image. Both columns should have balanced proportions, with the primary image receiving substantial visual space.
+
+Use a CSS Grid or an equivalent layout system to achieve this composition. Do not implement the main showcase as a conventional image card with the text placed below it.
+
+A starting desktop proportion could be approximately 58% for the image column and 42% for the text column, adjusted to suit the existing site width and image aspect ratios.
+
+Use a generous gap between the image and text columns.
+
+### Section C: Repetition and visual rhythm
+
+Repeat the same overall structure for each masonry category, maintaining consistent typography, spacing, image sizes, and gallery behavior.
+
+To avoid making the page feel repetitive, alternate the layout direction between selected sections if it improves the composition.
+
+For example:
+
+* Section 1: image and gallery on the left, text on the right.
+* Section 2: text on the left, image and gallery on the right.
+* Section 3: image and gallery on the left, text on the right.
+
+When alternating the layout, the gallery must always remain directly underneath its corresponding primary image.
+
+Alternating the layout is optional; consistency and readability take priority. Do not alternate individual image positions in a way that makes the page difficult to scan.
+
+Separate the sections using generous vertical spacing and, where appropriate, a subtle horizontal divider or a slight variation in background tone.
+
+Each section should feel like an independent case study while still belonging to one cohesive page.
+
+## 4. Masonry Section Content
+
+Each masonry category should support the following content:
+
+* Category title.
+* Main descriptive paragraph.
+* Optional secondary paragraph providing additional context.
+* Optional short list of relevant technical considerations, project requirements, or areas of expertise.
+* One primary image.
+* A gallery of supporting images.
+* Optional project-specific details, if actual information is available.
+
+The descriptions should explain more than just what the service is called.
+
+They should communicate the nature of the task, what makes it demanding, the considerations involved in execution, and the value of professional experience.
+
+Use clear, professional language suitable for commercial clients and larger organizations. Avoid exaggerated marketing claims and vague statements such as "we always deliver the best quality".
+
+Keep paragraphs reasonably short and scannable. Use supporting lists only when they add genuine value.
+
+The text must remain the primary source of information. Do not force visitors to interact with the images or open a gallery simply to understand the service.
+
+If actual service descriptions and project photographs have not yet been supplied, use clearly identified placeholders during development rather than presenting fictional projects or capabilities as facts.
+
+## 5. Primary Image and Supporting Gallery
+
+Each masonry section must have a prominent primary image and a compact gallery directly beneath it.
+
+### Primary image
+
+The primary image should be the visual focal point of its section.
+
+Requirements:
+
+* Use a large, high-resolution photograph relevant to the specific masonry category.
+* Preserve the original image proportions where possible, using a consistent aspect ratio when appropriate.
+* Use object-fit: cover only where cropping is visually acceptable.
+* Ensure that important construction details are not accidentally cropped.
+* Apply a subtle image-reveal animation when the image enters the viewport.
+* Keep the image visually clean, without unnecessary text overlays or decorative effects.
+
+### Supporting gallery
+
+Place the supporting gallery immediately beneath the primary image, with a small, consistent gap between thumbnails.
+
+Display the thumbnails in a compact horizontal row or a responsive grid. Three thumbnails are a reasonable starting point, but the implementation should support a different number of images without breaking the layout.
+
+Requirements:
+
+* All thumbnails must belong to the same masonry category as the primary image.
+* Maintain consistent thumbnail sizing and spacing.
+* Use suitable object-fit behavior to create a tidy gallery.
+* Make each thumbnail interactive.
+* Clearly indicate which image is currently selected, using a subtle border, opacity adjustment, or another restrained visual cue.
+
+### Gallery interaction
+
+When a visitor clicks a thumbnail, update the primary image to display the selected photograph.
+
+The change should feel smooth and polished, using a short crossfade or equivalent transition.
+
+The gallery must update only the images within its own masonry section. Interacting with one section must never change the images in another section.
+
+If appropriate, clicking the primary image may open a larger lightbox gallery. The lightbox should support closing, navigating between images, and keyboard interaction where practical.
+
+Ensure that the gallery remains accessible and usable on touchscreens.
+
+## 6. Animation and Motion Design
+
+Animations are an essential part of the design. They should make the page feel refined, modern, and responsive without distracting from the masonry work.
+
+The desired experience is subtle and controlled. Avoid excessive movement, bouncing, spinning, exaggerated zooming, or animations that delay access to content.
+
+Implement the following animation behaviors.
+
+### A. Scroll-triggered fade-in
+
+As each section enters the viewport, its content should gradually fade into view.
+
+Apply this behavior to:
+
+* Masonry section headings.
+* Descriptive text.
+* Supporting lists or metadata.
+* Other relevant content elements.
+
+Expected behavior:
+
+1. Before entering the viewport, an element may begin slightly transparent and shifted downward.
+2. As it enters the viewport, its opacity transitions to fully visible.
+3. It moves upward a small distance into its final position.
+4. Once the animation finishes, the element remains fully visible.
+
+Suggested initial values:
+
+* Starting opacity: 0.
+* Starting vertical offset: 16–24 px.
+* Duration: approximately 600–800 ms.
+* Easing: a smooth ease-out curve.
+* Trigger: when approximately 10–20% of the element or section becomes visible.
+* Once-only behavior: animate each element when it first enters the viewport, rather than replaying the animation every time the visitor scrolls past it.
+
+Use an Intersection Observer or the animation library already present in the project. Avoid introducing a large dependency solely for a simple fade-in effect.
+
+### B. Text reveal and staggered animations
+
+Headings and text should not all appear simultaneously.
+
+Use a restrained staggered sequence to create a polished entrance:
+
+1. Small category label, if present.
+2. Main heading.
+3. Main description.
+4. Secondary description or supporting list.
+
+Use a short delay between elements, typically around 80–120 ms.
+
+The heading may use a more distinctive reveal effect, such as a subtle upward movement combined with a masked text reveal. However, keep it readable and avoid elaborate letter-by-letter animations unless they fit the existing visual identity.
+
+The text should remain in the normal document flow. Do not use animation techniques that create overlapping text, layout shifts, or inaccessible hidden content.
+
+### C. Image reveal on scroll
+
+Images should reveal themselves smoothly as the relevant section enters the viewport.
+
+Preferred effect:
+
+* The image container clips its contents.
+* The image gradually fades into view.
+* The image moves upward slightly or scales very subtly from approximately 1.03 to 1.00.
+* The reveal completes smoothly without changing the surrounding layout.
+
+Suggested duration: approximately 800–1,000 ms.
+
+The image animation should begin when the image is approaching the viewport, not only after the visitor has scrolled past most of it.
+
+Use overflow clipping only on the image container where necessary. Do not clip the gallery, section content, or interactive controls accidentally.
+
+The animation should enhance the photography without making the images look like they are moving independently of the page.
+
+### D. Thumbnail transitions
+
+When a thumbnail is selected, crossfade between the current primary image and the newly selected image.
+
+Keep this interaction faster than the scroll-reveal animation, typically around 250–400 ms.
+
+Avoid unnecessary layout shifts while images change.
+
+### E. Smooth page transitions
+
+When navigating between internal pages, the transition should feel seamless and consistent with the rest of the website.
+
+If the application framework supports native view transitions or an existing page-transition system, use that where appropriate.
+
+Otherwise, use a restrained route-level transition:
+
+* Fade out or transition the outgoing page content.
+* Transition to the new page.
+* Fade in the incoming content.
+* Keep the overall transition short, approximately 200–350 ms.
+
+Do not implement navigation transitions by forcing full-page reloads or delaying navigation unnecessarily.
+
+Preserve normal browser navigation behavior, including back and forward navigation. Ensure direct URLs, refreshes, and internal links continue to work correctly.
+
+If the existing project uses a client-side router, integrate the transitions with that router rather than replacing its navigation logic.
+
+### F. Hover and interaction states
+
+Use subtle interaction feedback throughout the page:
+
+* Thumbnail images may slightly increase in opacity or scale on hover.
+* Interactive thumbnails should have a clear selected state.
+* Links may change color or opacity smoothly.
+* Any calls to action should have understated hover and focus states.
+
+Use transitions of approximately 150–250 ms for ordinary hover interactions.
+
+Do not add hover effects to static content purely for decoration. Interactive elements must look and behave interactively, and keyboard users must receive equivalent focus feedback.
+
+## 7. Responsive Design
+
+The page must work well on desktop, tablet, and mobile devices.
+
+### Desktop
+
+* Display the primary image and text side by side.
+* Place the gallery directly underneath the primary image.
+* Use generous whitespace and large photography.
+* Maintain clear alignment between headings, images, and section boundaries.
+
+### Tablet
+
+* Retain the two-column layout where the available width permits.
+* Reduce column gaps and outer margins gradually.
+* Prevent the text column from becoming too narrow.
+* Switch to a stacked layout when necessary rather than compressing the content excessively.
+
+### Mobile
+
+Stack the content vertically in this order:
+
+1. Category label and heading.
+2. Primary image.
+3. Supporting gallery.
+4. Description and supporting information.
+
+Alternatively, retain the description above the image only if that ordering is more appropriate for the existing website's mobile design. The essential requirement is that the primary image and its supporting gallery remain together.
+
+Use responsive typography, fluid image widths, and comfortable touch targets.
+
+The gallery should remain usable on small screens. If there are too many thumbnails to fit, allow horizontal scrolling or use a responsive grid rather than shrinking them to an unusable size.
+
+Disable or simplify nonessential motion on devices or browsers that request reduced motion.
+
+## 8. Accessibility and Performance
+
+The visual quality must not come at the expense of accessibility or loading performance.
+
+Implement the following:
+
+* Respect the prefers-reduced-motion setting by reducing or removing nonessential transitions.
+* Ensure that content remains readable if animations fail or JavaScript is unavailable.
+* Provide descriptive alternative text for meaningful masonry photographs.
+* Give gallery thumbnails accessible labels and keyboard support.
+* Maintain sufficient text contrast.
+* Ensure keyboard focus is clearly visible.
+* Avoid layout shifts when images load by defining suitable dimensions or aspect ratios.
+* Lazy-load below-the-fold photographs where appropriate.
+* Optimize image sizes and formats for modern browsers.
+* Avoid loading every large gallery image eagerly.
+* Ensure page transitions do not interfere with focus management or screen-reader navigation.
+
+Animations must progressively enhance the experience rather than determine whether the content can be accessed.
+
+## 9. Technical Implementation Requirements
+
+Before making changes, inspect the existing project and identify:
+
+* The framework and rendering approach.
+* The current routing and navigation system.
+* Existing global styles, fonts, color variables, and design tokens.
+* Existing animation libraries or reusable animation components.
+* The existing header, footer, and page-width conventions.
+* Available masonry photographs and their associated categories.
+
+Reuse the existing architecture and conventions wherever possible.
+
+Do not rebuild the entire website, replace the routing system, or introduce unnecessary dependencies to implement this subpage.
+
+Create reusable components where appropriate. For example:
+
+* A page introduction component.
+* A reusable masonry showcase section.
+* A primary-image and thumbnail-gallery component.
+* A reusable scroll-reveal animation component.
+
+Each masonry section should be driven by structured data where practical, so new categories and images can be added without duplicating large amounts of markup.
+
+Keep each gallery's selection state independent. Ensure that changing the selected image in one section cannot affect another section.
+
+Use semantic HTML, responsive CSS, and the project's existing conventions.
+
+Avoid hardcoding layout dimensions in a way that breaks when descriptions vary in length or when additional masonry categories are added.
+
+If the project already has a design system, follow it instead of introducing competing styles.
+
+## 10. Integration With the Existing Website
+
+This is a subpage, not a standalone replacement website.
+
+Preserve the existing site's:
+
+* Header and navigation.
+* Footer.
+* Brand identity and logo.
+* Font choices, unless there is a compelling reason to extend them.
+* Navigation behavior.
+* Shared spacing and design conventions.
+* Existing responsive behavior.
+
+The new page should feel like a natural extension of the existing website while presenting specialized masonry with a more editorial, premium, and project-focused layout.
+
+Do not introduce a completely different visual identity that makes the page feel disconnected from the rest of the site.
+
+## 11. Quality Expectations and Acceptance Criteria
+
+The implementation is complete only when the following conditions are satisfied:
+
+1. The page clearly introduces the company's specialized masonry capabilities.
+2. Each masonry category has a distinct, well-structured showcase section.
+3. On desktop, the primary image and text appear side by side.
+4. The supporting gallery is directly beneath the primary image, not beneath the text.
+5. Clicking a thumbnail updates only its corresponding primary image.
+6. Image transitions are smooth and do not cause layout shifts.
+7. Section content fades into view as the visitor scrolls.
+8. Headings and supporting text use a subtle staggered reveal.
+9. Primary images use a smooth scroll-triggered reveal.
+10. Internal page navigation has polished transitions where supported by the existing architecture.
+11. The page remains professional and visually coherent without excessive animation or decoration.
+12. The layout adapts properly to desktop, tablet, and mobile screens.
+13. The page respects reduced-motion preferences and remains accessible.
+14. Existing navigation, shared components, and other website pages continue to function correctly.
+15. No unrelated parts of the website are modified unnecessarily.
+
+## 12. Final Design Intent
+
+The final result should resemble a premium architectural or specialist construction portfolio, not a generic service page.
+
+Visitors should be able to scroll through the page and immediately understand the range of specialized masonry work the company undertakes. Large, carefully presented photographs should demonstrate the craftsmanship, while the accompanying descriptions explain the technical nature and requirements of each category.
+
+The interaction design should be quiet and sophisticated: subtle fade-ins, staggered typography, carefully revealed photography, responsive image galleries, and smooth transitions between pages.
+
+Prioritize visual clarity, craftsmanship, professionalism, and trust.
+
+## 13. Critical Requirement: Admin-Managed Content and Future Customization
+
+### Core principle
+
+This page must be designed and implemented with content customization as a fundamental requirement from the beginning.
+
+The website has a dedicated admin page that allows administrators to manage the content displayed on the public-facing website. The intended users are the masons themselves, who must be able to maintain and update the specialized masonry showcase as their projects, services, images, and descriptions evolve.
+
+**Every content element displayed on the specialized masonry page must be designed so that it can be replaced, edited, added, removed, or reordered through the existing admin interface wherever applicable.**
+
+The public-facing page must not depend on hardcoded project descriptions, fixed image paths, or manually written HTML for individual masonry categories.
+
+The goal is to separate the presentation layer from the content layer completely enough that administrators can change the content without requiring changes to the frontend code.
+
+### 13.1. Inspect the Existing Admin System First
+
+Before implementing the page, inspect the existing administration interface, backend, database schema, API endpoints, and content-management functionality.
+
+Determine how the current system stores and updates:
+
+* Text content and descriptions.
+* Images and image paths.
+* Gallery images and their relationships to individual sections.
+* Section titles and ordering.
+* Existing page content and reusable content-management components.
+
+Reuse the existing infrastructure wherever possible.
+
+Do not create a separate content-management system, duplicate existing database structures, or introduce a new admin page unless the current architecture genuinely cannot support the required functionality.
+
+If additional backend functionality or database changes are necessary, implement them in a way that follows the existing project's conventions and remains compatible with its current functionality.
+
+Do not assume the existing admin system supports features without verifying them.
+
+### 13.2. Every Masonry Section Must Be Data-Driven
+
+Each masonry showcase must be represented as an independently manageable content entry.
+
+The frontend must render the masonry sections dynamically from the content retrieved from the existing backend or content-management system.
+
+Each entry should support the following fields where applicable:
+
+* **Section title:** The name of the masonry category.
+* **Short introduction:** An optional short description or introductory statement.
+* **Main description:** The primary explanatory text.
+* **Additional description:** Optional supporting text.
+* **Supporting details:** Optional lists or other structured information.
+* **Primary image:** The main photograph displayed in the showcase.
+* **Gallery images:** A collection of additional photographs associated with that specific section.
+* **Display order:** The position in which the section appears on the page.
+* **Publication status:** Whether the section is visible on the public-facing page, if this fits the existing admin system.
+* **Optional metadata:** Additional project details or labels, provided they are supported by the existing system or genuinely required.
+
+These fields should be stored as structured content, not embedded directly into the page's component markup.
+
+The exact field names and data structures should follow the conventions of the existing application.
+
+### 13.3. Images Must Be Replaceable Through the Admin Interface
+
+The primary image and gallery images are essential content, and their management must be considered in the implementation.
+
+Administrators must be able to replace the primary image without changing any frontend code.
+
+They must also be able to manage the supporting gallery for each individual masonry section.
+
+Where supported by the existing admin system, the functionality should include:
+
+* Uploading new images.
+* Replacing existing images.
+* Removing images.
+* Adding multiple gallery images.
+* Reordering gallery images.
+* Selecting or replacing the primary image.
+* Previewing images before saving changes.
+* Displaying suitable image previews in the administration interface.
+
+Each gallery must be associated with its own masonry section. Images must never accidentally appear in the gallery of another section because of shared state, incorrect associations, or hardcoded image references.
+
+Use the existing image-storage solution and upload workflow wherever possible. If the current system stores image URLs or media references in the database, follow that established approach.
+
+Do not store uploaded image binary data directly in database text fields unless that is already an intentional part of the existing architecture.
+
+### 13.4. Text Must Be Fully Editable
+
+All user-facing text associated with this page must be manageable through the admin interface.
+
+This includes:
+
+* The main page heading.
+* The introductory text.
+* Category titles.
+* Short introductions.
+* Main descriptions.
+* Additional paragraphs.
+* Supporting lists or metadata.
+* Optional calls to action and their labels, if implemented.
+* Relevant image alternative text or captions, where supported.
+
+Do not hardcode the wording of individual masonry categories into the frontend.
+
+The administrator must be able to change the wording without editing source files or redeploying the frontend.
+
+Where the existing admin interface supports rich-text editing, use the existing functionality. Otherwise, use appropriate text fields or text areas that allow the masons to enter and edit their own content easily.
+
+Ensure that variable text lengths do not break the design. Some descriptions may be significantly longer or shorter than the initial example content, and the layout must adapt naturally.
+
+### 13.5. The Admin Interface Must Support Adding and Managing Sections
+
+Do not build the frontend around a fixed number of masonry categories.
+
+The administrators should be able to manage the number of sections through the backend, provided this capability is compatible with the existing admin architecture.
+
+Where supported, they should be able to:
+
+* Create a new masonry section.
+* Edit an existing section.
+* Delete a section.
+* Change the order of sections.
+* Publish or hide a section.
+* Manage the primary image and gallery independently for each section.
+
+Adding a new section must automatically cause it to appear on the public-facing page in the appropriate position, without requiring additional frontend development.
+
+Likewise, removing or hiding a section must be reflected on the public page according to the existing publication rules.
+
+The implementation must not depend on fixed arrays of manually coded categories or conditional statements that only support a predetermined number of sections.
+
+### 13.6. Preserve the Design When Content Changes
+
+The visual design must be resilient to content changes.
+
+The admin should be free to replace the initial placeholder content with real descriptions and images without accidentally breaking the layout.
+
+Account for the following cases:
+
+* Very short or very long descriptions.
+* Different image aspect ratios.
+* Different numbers of gallery images.
+* Sections with optional supporting text.
+* Sections with no additional description.
+* Sections with fewer gallery images than others.
+* Newly added sections with different content from the original examples.
+
+Use responsive layout rules, suitable image containers, and flexible spacing to maintain a consistent appearance.
+
+Avoid fixed heights for text containers when those heights could cause content to overflow or become clipped.
+
+Where a section has no optional content, omit that content gracefully rather than displaying empty headings, blank containers, or placeholder text on the public website.
+
+If a primary image or gallery image is missing, handle the situation gracefully without causing broken-image icons, layout failures, or JavaScript errors.
+
+The design should maintain its professional appearance regardless of the content entered by the administrator.
+
+### 13.7. Animations Must Work With Dynamically Managed Content
+
+All scroll-triggered animations, text reveals, image reveals, thumbnail transitions, and page transitions must work with content loaded dynamically from the backend.
+
+The animation system must not rely on a fixed number of predefined sections, hardcoded element identifiers, or image filenames.
+
+If administrators add new sections, those sections must automatically receive the appropriate animation behavior.
+
+If the content changes, the page must still initialize its animations correctly.
+
+Avoid implementations where dynamically inserted sections remain invisible because the animation observer was initialized only once before the content was loaded.
+
+Use reusable animation components or a reliable observer-management strategy so that dynamically rendered content is handled correctly.
+
+Animations must also work when an administrator replaces an image or changes the text without requiring the animation configuration to be modified.
+
+### 13.8. Separate Content, Business Logic, and Presentation
+
+Structure the implementation so that the three responsibilities remain distinct:
+
+1. **Content management:** The backend and admin interface manage the section data, text, images, galleries, and ordering.
+2. **Presentation:** The frontend renders that content using the approved design and responsive layout.
+3. **Interactions and animation:** Reusable components handle image selection, gallery behavior, scroll reveals, and transitions.
+
+Do not duplicate the same content across the backend, frontend components, and hardcoded configuration files.
+
+Use the existing API or data-access layer to retrieve and update content. Do not expose privileged admin operations to public users.
+
+Public visitors should only see content that is intended to be published. Editing and management actions must remain protected by the application's existing authentication and authorization mechanisms.
+
+Validate uploaded images and edited content according to the existing backend's security requirements.
+
+### 13.9. Acceptance Criteria for Admin Customization
+
+The implementation is not complete until the following requirements have been verified:
+
+1. An administrator can change the page heading and introductory text through the existing admin interface.
+2. An administrator can edit the title and description of every masonry section.
+3. An administrator can replace a section's primary image.
+4. An administrator can add, remove, replace, and reorder gallery images, as supported by the existing admin architecture.
+5. Gallery changes affect only their corresponding masonry section.
+6. Administrators can add new masonry sections without requiring frontend code changes, if section management is supported or implemented.
+7. Section order on the public page follows the order configured in the admin interface.
+8. Text changes and image replacements appear on the public page according to the application's existing save, publication, and caching behavior.
+9. The layout remains functional when text lengths, image dimensions, and gallery sizes differ.
+10. Newly created or updated sections retain the intended scroll and image animations.
+11. The page handles missing optional content and images gracefully.
+12. The existing admin page and unrelated website functionality continue to work correctly.
+
+### Final Implementation Principle
+
+Treat the specialized masonry page as a reusable, content-driven showcase rather than a collection of manually built sections.
+
+The initial content is only an example of how the page can look. The actual content will be maintained by the masons through the existing admin system.
+
+The design must remain visually polished and structurally sound even when all text, images, galleries, and masonry categories are replaced.
+
+**The masons must be able to maintain the page independently through the admin interface, without needing to understand or modify the frontend code.**
+
+
+**The most important principle:** The masonry work itself is the hero of the page. The layout, typography, photography, and animations should all reinforce the quality and expertise being showcased rather than compete with it.
