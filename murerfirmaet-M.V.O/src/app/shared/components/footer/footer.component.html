@@ -1,0 +1,93 @@
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__top">
+      <section class="site-footer__brand">
+        <a routerLink="/" class="site-footer__logo" aria-label="Murerfirmaet M.V.O. - forside">
+          <img src="logo.svg" alt="Murerfirmaet M.V.O. logo"/>
+        </a>
+        <p class="site-footer__tagline">{{ 'footer.tagline' | translate }}</p>
+      </section>
+
+      <nav class="site-footer__col" aria-labelledby="footer-links-heading">
+        <h2 id="footer-links-heading" class="site-footer__heading">
+          <fa-icon [icon]="faLink" class="site-footer__heading-icon" aria-hidden="true"></fa-icon>
+          <span>{{ 'footer.quickLinks' | translate }}</span>
+        </h2>
+        <ul class="site-footer__list">
+          @for (link of quickLinks; track link.labelKey) {
+            <li>
+              <a class="site-footer__link" [routerLink]="link.path">
+                <span>{{ link.labelKey | translate }}</span>
+                <fa-icon [icon]="faChevronRight" class="site-footer__chevron" aria-hidden="true"></fa-icon>
+              </a>
+            </li>
+          }
+        </ul>
+      </nav>
+
+      <nav class="site-footer__col" aria-labelledby="footer-services-heading">
+        <h2 id="footer-services-heading" class="site-footer__heading">
+          <fa-icon [icon]="faTrowel" class="site-footer__heading-icon" aria-hidden="true"></fa-icon>
+          <span>{{ 'footer.ourServices' | translate }}</span>
+        </h2>
+        <ul class="site-footer__list">
+          @for (link of serviceLinks; track link.labelKey) {
+            <li>
+              <a class="site-footer__link" [routerLink]="link.path">
+                <span>{{ link.labelKey | translate }}</span>
+                <fa-icon [icon]="faChevronRight" class="site-footer__chevron" aria-hidden="true"></fa-icon>
+              </a>
+            </li>
+          }
+        </ul>
+      </nav>
+
+      <section class="site-footer__col" aria-labelledby="footer-contact-heading">
+        <h2 id="footer-contact-heading" class="site-footer__heading">
+          <fa-icon [icon]="faPhone" class="site-footer__heading-icon" aria-hidden="true"></fa-icon>
+          <span>{{ 'footer.contact' | translate }}</span>
+        </h2>
+        <ul class="site-footer__list site-footer__list--contact">
+          <li>
+            <a class="site-footer__contact" [href]="callHref">
+              <fa-icon [icon]="faPhone" aria-hidden="true"></fa-icon>
+              <span>{{ phoneNumber }}</span>
+            </a>
+          </li>
+          <li>
+            <a class="site-footer__contact" [href]="'mailto:' + email">
+              <fa-icon [icon]="faEnvelope" aria-hidden="true"></fa-icon>
+              <span>{{ email }}</span>
+            </a>
+          </li>
+          <li class="site-footer__contact">
+            <fa-icon [icon]="faLocationDot" aria-hidden="true"></fa-icon>
+            <span>{{ 'highlights.location.title' | translate }}</span>
+          </li>
+        </ul>
+      </section>
+
+      <div class="site-footer__actions">
+        <a class="site-footer__call" [href]="callHref">
+          <fa-icon [icon]="faPhone" aria-hidden="true"></fa-icon>
+          <span>{{ 'footer.call' | translate }} {{ phoneNumber }}</span>
+        </a>
+        <div class="site-footer__social">
+          <a class="site-footer__social-link" [href]="facebookUrl" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+            <fa-icon [icon]="faFacebook" aria-hidden="true"></fa-icon>
+          </a>
+          <a class="site-footer__social-link" [href]="instagramUrl" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <fa-icon [icon]="faInstagram" aria-hidden="true"></fa-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p>© {{ year }} {{ companyName }}</p>
+      <p>CVR: {{ cvr }}</p>
+      <p>{{ 'footer.privacy' | translate }}</p>
+      <p>{{ 'footer.cookies' | translate }}</p>
+    </div>
+  </div>
+</footer>
