@@ -2,3 +2,6 @@
   <mvo-header></mvo-header>
 }
 <router-outlet></router-outlet>
+@if (!isAdmin()) {
+  <mvo-footer></mvo-footer>
+}
