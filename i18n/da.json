@@ -103,7 +103,6 @@
       "clearCommunication": "Klar kommunikation",
       "shortReply": "Svar indenfor 24 timer"
     },
-
     "offer": {
       "heading": "Få et tilbud indenfor 24 timer",
       "description": "Udfyld formularen - så vender vi hurtigt tilbage med et uforpligtende tilbud.",
@@ -119,6 +118,21 @@
     "call": "Ring nu",
     "get_offer": "Få tilbud",
     "get_offer_extended": "Få et uforpligtende tilbud"
+  },
+  "footer": {
+    "tagline": "Vi skaber badeværelser med fokus på kvalitet, funktionalitet og stærkt håndværk – bygget til at holde.",
+    "quickLinks": "Hurtige links",
+    "ourServices": "Vores ydelser",
+    "contact": "Kontakt",
+    "call": "Ring",
+    "privacy": "Privatlivspolitik",
+    "cookies": "Cookiepolitik",
+    "links": {
+      "home": "Forside",
+      "services": "Ydelser",
+      "projects": "Projekter",
+      "about": "Om os",
+      "contact": "Kontakt"
+    }
   }
 }
-
