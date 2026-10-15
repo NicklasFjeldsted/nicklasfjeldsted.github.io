@@ -6,7 +6,7 @@
     "start": "ng serve --watch",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "deploy": "ng build && npx angular-cli-ghpages --dir=dist/murerfirmaet-M.V.O/browser"
+    "deploy": "ng build && npx angular-cli-ghpages --dir=dist/murerfirmaet-M.V.O/browser --cname=murerfirmaet-mvo.dk"
   },
   "prettier": {
     "printWidth": 100,
