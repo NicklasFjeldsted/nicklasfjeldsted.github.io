@@ -1,0 +1,31 @@
+<figure class="ba" [class.ba--dragging]="dragging()" [style.--ba-pos.%]="current()">
+  <div
+    #frame
+    class="ba__frame"
+    (pointerdown)="onPointerDown($event, frame)"
+    (pointermove)="onPointerMove($event, frame)"
+    (pointerup)="onPointerUp()"
+    (pointercancel)="onPointerUp()">
+    <img class="ba__img" [src]="after().url" [alt]="after().alt" loading="lazy" draggable="false"/>
+    <img class="ba__img ba__img--before" [src]="before().url" [alt]="before().alt" loading="lazy" draggable="false"/>
+
+    <span class="ba__label ba__label--before">{{ beforeLabel() }}</span>
+    <span class="ba__label ba__label--after">{{ afterLabel() }}</span>
+
+    <span class="ba__line" aria-hidden="true"></span>
+    <button
+      type="button"
+      class="ba__handle"
+      role="slider"
+      aria-orientation="horizontal"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      [attr.aria-valuenow]="current() | number: '1.0-0'"
+      [attr.aria-label]="beforeLabel() + ' / ' + afterLabel() + ' sammenligning'"
+      (keydown)="onKey($event)">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+        <path d="M9 6 3 12l6 6M15 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</figure>

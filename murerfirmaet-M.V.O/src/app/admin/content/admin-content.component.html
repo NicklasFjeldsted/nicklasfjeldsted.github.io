@@ -129,6 +129,9 @@
               @case ('primary') {
                 <mvo-primary-image-editor [section]="s" (sectionChange)="onSectionChange($event)" (dirtyChange)="setDirty('primary', $event)" (notify)="notice.set($event)" />
               }
+              @case ('beforeAfter') {
+                <mvo-before-after-editor [section]="s" (sectionChange)="onSectionChange($event)" (dirtyChange)="setDirty('beforeAfter', $event)" (notify)="notice.set($event)" />
+              }
               @case ('gallery') {
                 <mvo-gallery-editor [section]="s" (sectionChange)="onSectionChange($event)" (dirtyChange)="setDirty('gallery', $event)" (notify)="notice.set($event)" />
               }

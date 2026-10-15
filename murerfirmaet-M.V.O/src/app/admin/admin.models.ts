@@ -77,6 +77,7 @@ export interface IGalleryImageInput {
 export const SECTION_TYPES = [
   {id: 1, label: 'Murerarbejde med billeder'},
   {id: 2, label: 'Tekstblok'},
+  {id: 3, label: 'Før og efter (billedsammenligning)'},
 ] as const;
 
 export const ALLOWED_IMAGE_TYPES = 'image/jpeg,image/png,image/webp';

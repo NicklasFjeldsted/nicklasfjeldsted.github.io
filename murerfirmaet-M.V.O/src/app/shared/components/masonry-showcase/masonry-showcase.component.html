@@ -1,7 +1,11 @@
 @let s = section();
 <article class="showcase" [class.showcase--reversed]="reversed()" [attr.aria-labelledby]="'section-' + s.id">
   <div class="showcase__media" mvoReveal mvoRevealThreshold="0.1">
-    @if (s.primaryImage || s.gallery.length) {
+    @if (s.type === 'BeforeAfter') {
+      @if (s.primaryImage && s.gallery[0]) {
+        <mvo-before-after [before]="s.primaryImage" [after]="s.gallery[0]"/>
+      }
+    } @else if (s.primaryImage || s.gallery.length) {
       <mvo-masonry-gallery [primaryImage]="s.primaryImage" [gallery]="s.gallery" [title]="s.title"/>
     }
   </div>
