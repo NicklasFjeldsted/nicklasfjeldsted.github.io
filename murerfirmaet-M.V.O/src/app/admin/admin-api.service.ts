@@ -76,6 +76,12 @@ export class AdminApiService {
       .pipe(map(s => this.withUrls(s)), this.fail());
   }
 
+  /** Saves the whole gallery (images and order) in one go. Images already in the gallery keep their alt text. */
+  setGallery(pageId: number, sectionId: number, expectedVersion: number, images: IGalleryImageInput[]) {
+    return this.http.put<ISectionContent>(`${this.section(pageId, sectionId)}/gallery`, {expectedVersion, images})
+      .pipe(map(s => this.withUrls(s)), this.fail());
+  }
+
   replaceGalleryImage(pageId: number, sectionId: number, expectedVersion: number, galleryImageId: number, mediaId: number, altText: string | null) {
     return this.http.put<ISectionContent>(`${this.section(pageId, sectionId)}/gallery/${galleryImageId}`, {expectedVersion, mediaId, altText})
       .pipe(map(s => this.withUrls(s)), this.fail());

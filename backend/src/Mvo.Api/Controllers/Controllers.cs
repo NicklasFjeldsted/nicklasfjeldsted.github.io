@@ -22,6 +22,7 @@ public record SectionVisibilityRequest(int ExpectedVersion, bool IsPublished);
 public record PrimaryImageRequest(int ExpectedVersion, int MediaId, string? AltText);
 public record AddGalleryImagesRequest(int ExpectedVersion, IReadOnlyList<GalleryImageInput> Images);
 public record ReplaceGalleryImageRequest(int ExpectedVersion, int MediaId, string? AltText);
+public record SetGalleryRequest(int ExpectedVersion, IReadOnlyList<GalleryImageInput> Images);
 public record ReorderGalleryRequest(int ExpectedVersion, IReadOnlyList<int> OrderedGalleryImageIds);
 public record UpdateMediaRequest(string Name, string? DefaultAltText);
 
@@ -95,6 +96,10 @@ public class AdminPagesController(ISender sender) : ControllerBase
     [HttpPost("{pageId:int}/sections/{sectionId:int}/gallery")]
     public async Task<SectionContentDto> AddGalleryImages(int pageId, int sectionId, AddGalleryImagesRequest r, CancellationToken ct) =>
         await sender.Send(new AddGalleryImagesCommand(pageId, sectionId, r.ExpectedVersion, r.Images), ct);
+
+    [HttpPut("{pageId:int}/sections/{sectionId:int}/gallery")]
+    public async Task<SectionContentDto> SetGallery(int pageId, int sectionId, SetGalleryRequest r, CancellationToken ct) =>
+        await sender.Send(new SetGalleryCommand(pageId, sectionId, r.ExpectedVersion, r.Images ?? []), ct);
 
     [HttpPut("{pageId:int}/sections/{sectionId:int}/gallery/order")]
     public async Task<SectionContentDto> ReorderGallery(int pageId, int sectionId, ReorderGalleryRequest r, CancellationToken ct) =>

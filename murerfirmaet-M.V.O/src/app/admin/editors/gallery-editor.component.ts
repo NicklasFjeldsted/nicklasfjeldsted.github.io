@@ -1,22 +1,34 @@
 import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 import {Component, ElementRef, HostListener, computed, effect, inject, input, output, signal} from '@angular/core';
-import {FormsModule} from '@angular/forms';
 import {AdminApiService} from '../admin-api.service';
-import {ConfirmService} from '../shared/confirm-dialog.component';
-import {ALLOWED_IMAGE_TYPES, IApiError, IGalleryImage, IGalleryImageInput, INotice, ISectionContent} from '../admin.models';
+import {ALLOWED_IMAGE_TYPES, IApiError, IGalleryImage, INotice, ISectionContent} from '../admin.models';
 import {MediaPickerService} from '../media/media-picker.component';
 import {MediaUploadService, takeFiles} from '../media/media-upload.service';
 
+/** A gallery image as edited here: saved images keep their alt text, new ones bring the library's default text. */
+interface IDraftImage {
+  key: string;
+  mediaId: number;
+  url: string;
+  altText: string | null;
+}
+
+let nextKey = 0;
+
+/**
+ * Adds, removes, replaces and reorders gallery images locally. Nothing is saved until "Gem ændringer",
+ * which stores the whole gallery in one request.
+ */
 @Component({
   selector: 'mvo-gallery-editor',
-  imports: [CdkDropList, CdkDrag, FormsModule],
+  imports: [CdkDropList, CdkDrag],
   template: `
-    <p class="adm-hint">Træk billederne for at ændre rækkefølgen, eller brug knapperne under hvert billede. Rækkefølgen her er den, besøgende ser.</p>
+    <p class="adm-hint">Træk billederne for at ændre rækkefølgen, eller brug pilene under hvert billede. Rækkefølgen her er den, besøgende ser.</p>
 
     <div class="adm-actions" style="margin-top: 0">
       <div class="adm-menu">
         <button type="button" class="adm-btn" aria-haspopup="menu" [attr.aria-expanded]="menuOpen()" (click)="menuOpen.set(!menuOpen())"
-                [disabled]="locked()">Tilføj billeder ▾</button>
+                [disabled]="busy()">Tilføj billeder ▾</button>
         @if (menuOpen()) {
           <div class="adm-menu__list" role="menu">
             <button type="button" role="menuitem" class="adm-menu__item" (click)="addFromLibrary()">
@@ -29,89 +41,78 @@ import {MediaUploadService, takeFiles} from '../media/media-upload.service';
           </div>
         }
       </div>
-      @if (orderDirty()) {
-        <button type="button" class="adm-btn adm-btn--primary" (click)="saveOrder()" [disabled]="busy()">{{ busy() ? 'Gemmer…' : 'Gem rækkefølge' }}</button>
-        <button type="button" class="adm-btn" (click)="resetOrder()" [disabled]="busy()">Fortryd rækkefølge</button>
-        <span class="adm-badge adm-badge--unsaved">Ugemt rækkefølge</span>
-      }
-      @if (busy() && !orderDirty()) { <span class="adm-hint" role="status">Arbejder…</span> }
     </div>
-    @if (orderDirty()) { <p class="adm-hint">Gem eller fortryd rækkefølgen, før du tilføjer, fjerner eller udskifter billeder.</p> }
-    @for (e of fileErrors(); track e) { <p class="adm-error" role="alert">{{ e }}</p> }
+    @for (e of messages(); track e) { <p class="adm-error" role="alert">{{ e }}</p> }
 
     <p class="adm-visually-hidden" aria-live="polite">{{ announcement() }}</p>
 
     @if (items().length === 0) {
-      <div class="adm-empty">Galleriet er tomt. Tilføj billeder for at vise dem i sektionen.</div>
+      <div class="adm-empty" style="margin-top: 1rem">Galleriet er tomt. Tilføj billeder for at vise dem i sektionen.</div>
     } @else {
       <ol class="adm-gallery" cdkDropList cdkDropListOrientation="mixed" (cdkDropListDropped)="drop($event)">
-        @for (img of items(); track img.id; let i = $index; let first = $first; let last = $last) {
+        @for (img of items(); track img.key; let i = $index; let first = $first; let last = $last) {
           <li class="adm-gallery__item" cdkDrag [cdkDragDisabled]="busy()">
             <span class="adm-gallery__pos">{{ i + 1 }}</span>
-            <img [src]="img.url" [alt]="img.altText || 'Galleribillede ' + (i + 1) + ' uden alternativ tekst'" draggable="false">
-            @if (editingId() === img.id) {
-              <div class="adm-field">
-                <label [for]="'alt-' + img.id">Alternativ tekst</label>
-                <input [id]="'alt-' + img.id" class="adm-input" [ngModel]="editAlt()" (ngModelChange)="editAlt.set($event)" maxlength="300" autocomplete="off">
-              </div>
-              <div class="adm-actions" style="margin: 0">
-                <button type="button" class="adm-btn adm-btn--small adm-btn--primary" (click)="saveAlt(img)" [disabled]="busy()">Gem</button>
-                <button type="button" class="adm-btn adm-btn--small" (click)="editingId.set(null)">Annullér</button>
-              </div>
-            } @else {
-              <p class="adm-gallery__alt">{{ img.altText || 'Ingen alternativ tekst' }}</p>
-              <div class="adm-gallery__tools">
-                <button type="button" class="adm-btn adm-btn--small" (click)="move(i, -1)" [disabled]="first || busy()" [attr.aria-label]="'Flyt billede ' + (i + 1) + ' tidligere'">←</button>
-                <button type="button" class="adm-btn adm-btn--small" (click)="move(i, 1)" [disabled]="last || busy()" [attr.aria-label]="'Flyt billede ' + (i + 1) + ' senere'">→</button>
-                <button type="button" class="adm-btn adm-btn--small" (click)="startEdit(img)" [disabled]="locked()">Alt-tekst</button>
-                <button type="button" class="adm-btn adm-btn--small" (click)="replace(img, i)" [disabled]="locked()">Udskift</button>
-                <button type="button" class="adm-btn adm-btn--small adm-btn--danger" (click)="remove(img, i)" [disabled]="locked()">Fjern</button>
-              </div>
-            }
+            <img [src]="img.url" [alt]="'Galleribillede ' + (i + 1)" draggable="false">
+            <div class="adm-gallery__tools">
+              <button type="button" class="adm-btn adm-btn--small" (click)="move(i, -1)" [disabled]="first || busy()" [attr.aria-label]="'Flyt billede ' + (i + 1) + ' tidligere'">←</button>
+              <button type="button" class="adm-btn adm-btn--small" (click)="move(i, 1)" [disabled]="last || busy()" [attr.aria-label]="'Flyt billede ' + (i + 1) + ' senere'">→</button>
+              <button type="button" class="adm-btn adm-btn--small" (click)="replace(i)" [disabled]="busy()">Udskift</button>
+              <button type="button" class="adm-btn adm-btn--small adm-btn--danger" (click)="remove(i)" [disabled]="busy()">Fjern</button>
+            </div>
           </li>
         }
       </ol>
     }
+
+    <div class="adm-savebar">
+      <button type="button" class="adm-btn adm-btn--primary" (click)="save()" [disabled]="!dirty() || busy()">{{ busy() ? 'Gemmer…' : 'Gem ændringer' }}</button>
+      <button type="button" class="adm-btn" (click)="reset()" [disabled]="!dirty() || busy()">Fortryd</button>
+      @if (dirty()) { <span class="adm-badge adm-badge--unsaved">Ugemte ændringer</span> }
+    </div>
   `,
 })
 export class GalleryEditorComponent {
   private readonly api = inject(AdminApiService);
-  private readonly confirm = inject(ConfirmService);
   private readonly picker = inject(MediaPickerService);
   private readonly uploads = inject(MediaUploadService);
-  private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly section = input.required<ISectionContent>();
   readonly sectionChange = output<ISectionContent>();
   readonly dirtyChange = output<boolean>();
+  /** The section as it would look with the unsaved gallery, for the preview. */
+  readonly draftChange = output<ISectionContent>();
   readonly notify = output<INotice>();
 
   protected readonly accept = ALLOWED_IMAGE_TYPES;
-  protected readonly items = signal<IGalleryImage[]>([]);
+  protected readonly items = signal<IDraftImage[]>([]);
   protected readonly busy = signal(false);
-  protected readonly fileErrors = signal<string[]>([]);
+  protected readonly messages = signal<string[]>([]);
   protected readonly announcement = signal('');
-  protected readonly editingId = signal<number | null>(null);
-  protected readonly editAlt = signal('');
   protected readonly menuOpen = signal(false);
 
-  protected readonly orderDirty = computed(() => {
-    const saved = this.section().gallery.map(g => g.id).join();
-    return this.items().map(g => g.id).join() !== saved;
-  });
-  protected readonly locked = computed(() => this.busy() || this.orderDirty());
+  protected readonly dirty = computed(() =>
+    this.items().map(i => i.mediaId).join() !== this.saved().map(g => g.mediaId).join());
+  private readonly saved = computed(() => [...this.section().gallery].sort((a, b) => a.position - b.position));
 
   constructor() {
     effect(() => {
-      this.items.set([...this.section().gallery].sort((a, b) => a.position - b.position));
-      this.editingId.set(null);
+      this.section();
+      this.reset();
     });
-    effect(() => this.dirtyChange.emit(this.orderDirty() || this.editingId() !== null));
+    effect(() => this.dirtyChange.emit(this.dirty()));
+    effect(() => {
+      const gallery: IGalleryImage[] = this.items().map((i, index) => ({
+        id: -1 - index, mediaId: i.mediaId, url: i.url, altText: i.altText, position: index + 1,
+      }));
+      this.draftChange.emit({...this.section(), gallery});
+    });
   }
 
   @HostListener('document:click', ['$event'])
   protected closeMenuOutside(event: MouseEvent): void {
-    if (this.menuOpen() && !(this.host.nativeElement as HTMLElement).querySelector('.adm-menu')?.contains(event.target as Node)) this.menuOpen.set(false);
+    if (this.menuOpen() && !this.host.nativeElement.querySelector('.adm-menu')?.contains(event.target as Node)) this.menuOpen.set(false);
   }
 
   @HostListener('document:keydown.escape')
@@ -119,76 +120,39 @@ export class GalleryEditorComponent {
     this.menuOpen.set(false);
   }
 
-  protected drop(event: CdkDragDrop<IGalleryImage[]>): void {
-    this.reorderLocal(event.previousIndex, event.currentIndex);
+  protected reset(): void {
+    this.items.set(this.saved().map(g => ({key: `k${nextKey++}`, mediaId: g.mediaId, url: g.url, altText: g.altText})));
+    this.messages.set([]);
+  }
+
+  protected drop(event: CdkDragDrop<IDraftImage[]>): void {
+    this.moveTo(event.previousIndex, event.currentIndex);
   }
 
   protected move(index: number, delta: number): void {
-    this.reorderLocal(index, index + delta);
+    this.moveTo(index, index + delta);
   }
 
-  protected resetOrder(): void {
-    this.items.set([...this.section().gallery].sort((a, b) => a.position - b.position));
-    this.announcement.set('Rækkefølgen er nulstillet.');
+  protected remove(index: number): void {
+    this.items.update(items => items.filter((_, i) => i !== index));
+    this.announcement.set(`Billede ${index + 1} er fjernet. Husk at gemme.`);
   }
 
-  protected saveOrder(): void {
-    const s = this.section();
-    this.busy.set(true);
-    this.api.reorderGallery(s.pageId, s.id, s.version, this.items().map(g => g.id)).subscribe({
-      next: updated => this.done(updated, 'Galleriets rækkefølge er gemt.'),
-      error: (e: IApiError) => this.failed('Rækkefølgen blev ikke gemt.', e),
-    });
-  }
-
-  protected startEdit(img: IGalleryImage): void {
-    this.editingId.set(img.id);
-    this.editAlt.set(img.altText ?? '');
-  }
-
-  protected saveAlt(img: IGalleryImage): void {
-    const s = this.section();
-    this.busy.set(true);
-    this.api.replaceGalleryImage(s.pageId, s.id, s.version, img.id, img.mediaId, this.editAlt().trim() || null).subscribe({
-      next: updated => this.done(updated, 'Alternativ tekst er gemt.'),
-      error: (e: IApiError) => this.failed('Alternativ tekst blev ikke gemt.', e),
-    });
-  }
-
-  protected async remove(img: IGalleryImage, index: number): Promise<void> {
-    const ok = await this.confirm.ask({
-      title: 'Fjern billedet fra galleriet?',
-      message: `Billede ${index + 1} fjernes fra galleriet. Billedet bliver liggende i billedarkivet.`,
-      confirmLabel: 'Fjern fra galleri',
-      destructive: true,
-    });
-    if (!ok) return;
-    const s = this.section();
-    this.busy.set(true);
-    this.api.removeGalleryImage(s.pageId, s.id, s.version, img.id).subscribe({
-      next: updated => this.done(updated, 'Billedet er fjernet fra galleriet.'),
-      error: (e: IApiError) => this.failed('Billedet blev ikke fjernet.', e),
-    });
-  }
-
-  protected async replace(img: IGalleryImage, index: number): Promise<void> {
+  protected async replace(index: number): Promise<void> {
     const [item] = await this.picker.pick({
       title: 'Udskift billede',
       context: `Billede ${index + 1} i galleriet · Placeringen bevares`,
       multiple: false,
       confirmLabel: () => 'Udskift billede',
     });
-    if (!item || item.id === img.mediaId) return;
-    if (this.section().gallery.some(g => g.mediaId === item.id)) {
-      this.fileErrors.set([`"${item.name}" er allerede i galleriet.`]);
+    if (!item || item.id === this.items()[index]?.mediaId) return;
+    if (this.items().some(i => i.mediaId === item.id)) {
+      this.messages.set([`"${item.name}" er allerede i galleriet.`]);
       return;
     }
-    const s = this.section();
-    this.busy.set(true);
-    this.api.replaceGalleryImage(s.pageId, s.id, s.version, img.id, item.id, img.altText ?? item.defaultAltText).subscribe({
-      next: updated => this.done(updated, 'Billedet er udskiftet. Placeringen er bevaret.'),
-      error: (e: IApiError) => this.failed('Billedet blev ikke udskiftet.', e),
-    });
+    this.messages.set([]);
+    this.items.update(items => items.map((img, i) =>
+      (i === index ? {key: `k${nextKey++}`, mediaId: item.id, url: item.url, altText: item.defaultAltText} : img)));
   }
 
   protected async addFromLibrary(): Promise<void> {
@@ -199,55 +163,51 @@ export class GalleryEditorComponent {
       multiple: true,
       confirmLabel: n => (n === 1 ? 'Tilføj 1 billede' : `Tilføj ${n} billeder`),
     });
-    this.addToGallery(items.map(i => ({mediaId: i.id, altText: i.defaultAltText, name: i.name})));
+    this.append(items.map(i => ({mediaId: i.id, url: i.url, altText: i.defaultAltText, name: i.name})));
   }
 
   protected async addFromDevice(event: Event): Promise<void> {
     this.menuOpen.set(false);
     const media = await this.uploads.upload(takeFiles(event));
-    this.addToGallery(media.map(m => ({mediaId: m.id, altText: null, name: m.name})));
+    this.append(media.map(m => ({mediaId: m.id, url: m.url, altText: null, name: m.name})));
   }
 
-  /** Adds library images at the end of the gallery. Images already in this gallery are skipped. */
-  private addToGallery(images: (IGalleryImageInput & {name: string})[]): void {
-    if (!images.length) return;
-    const existing = new Set(this.section().gallery.map(g => g.mediaId));
-    const duplicates = images.filter(i => existing.has(i.mediaId)).map(i => `"${i.name}" er allerede i galleriet og blev sprunget over.`);
-    const inputs = images.filter(i => !existing.has(i.mediaId)).map(i => ({mediaId: i.mediaId, altText: i.altText}));
-    this.fileErrors.set(duplicates);
-    if (!inputs.length) return;
+  protected save(): void {
     const s = this.section();
     this.busy.set(true);
-    this.api.addGalleryImages(s.pageId, s.id, s.version, inputs).subscribe({
-      next: updated => this.done(updated, inputs.length === 1
-        ? '1 billede tilføjet sidst i galleriet.'
-        : `${inputs.length} billeder tilføjet sidst i galleriet.`),
-      error: (e: IApiError) => this.failed('Billederne blev ikke tilføjet.', e),
+    this.api.setGallery(s.pageId, s.id, s.version, this.items().map(i => ({mediaId: i.mediaId, altText: i.altText}))).subscribe({
+      next: updated => {
+        this.busy.set(false);
+        this.sectionChange.emit(updated);
+        this.notify.emit({kind: 'success', text: 'Galleriet er gemt.'});
+      },
+      error: (error: IApiError) => {
+        this.busy.set(false);
+        this.notify.emit({
+          kind: 'error',
+          text: error.status === 409
+            ? `Galleriet blev ikke gemt. ${error.message.includes('changed') ? 'Indholdet er ændret af en anden. Genindlæs sektionen og prøv igen.' : error.message}`
+            : `Galleriet blev ikke gemt. ${error.message}`,
+        });
+      },
     });
   }
 
-  private reorderLocal(from: number, to: number): void {
+  /** Adds images at the end of the gallery. Images already in it are skipped. */
+  private append(images: {mediaId: number; url: string; altText: string | null; name: string}[]): void {
+    if (!images.length) return;
+    const existing = new Set(this.items().map(i => i.mediaId));
+    this.messages.set(images.filter(i => existing.has(i.mediaId)).map(i => `"${i.name}" er allerede i galleriet og blev sprunget over.`));
+    const fresh = images.filter(i => !existing.has(i.mediaId));
+    this.items.update(items => [...items, ...fresh.map(i => ({key: `k${nextKey++}`, mediaId: i.mediaId, url: i.url, altText: i.altText}))]);
+    if (fresh.length) this.announcement.set(`${fresh.length} billede(r) tilføjet sidst i galleriet. Husk at gemme.`);
+  }
+
+  private moveTo(from: number, to: number): void {
     if (to < 0 || to >= this.items().length || from === to) return;
     const next = [...this.items()];
     moveItemInArray(next, from, to);
     this.items.set(next);
-    this.announcement.set(`Billede flyttet fra plads ${from + 1} til plads ${to + 1}. Husk at gemme rækkefølgen.`);
-  }
-
-  private done(updated: ISectionContent, text: string): void {
-    this.busy.set(false);
-    this.sectionChange.emit(updated);
-    this.announcement.set(text);
-    this.notify.emit({kind: 'success', text});
-  }
-
-  private failed(prefix: string, error: IApiError): void {
-    this.busy.set(false);
-    this.notify.emit({
-      kind: 'error',
-      text: error.status === 409
-        ? `${prefix} Indholdet er ændret af en anden. Genindlæs sektionen og prøv igen.`
-        : `${prefix} ${error.message}`,
-    });
+    this.announcement.set(`Billede flyttet fra plads ${from + 1} til plads ${to + 1}. Husk at gemme.`);
   }
 }

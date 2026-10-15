@@ -18,6 +18,8 @@ export class SectionTextEditorComponent {
   readonly section = input.required<ISectionContent>();
   readonly sectionChange = output<ISectionContent>();
   readonly dirtyChange = output<boolean>();
+  /** The section as it would look with the unsaved text, for the preview. */
+  readonly draftChange = output<ISectionContent>();
   readonly notify = output<INotice>();
 
   protected readonly saving = signal(false);
@@ -37,8 +39,12 @@ export class SectionTextEditorComponent {
     effect(() => {
       this.load(this.section());
       this.dirtyChange.emit(false);
+      this.emitDraft();
     });
-    this.form.valueChanges.pipe(takeUntilDestroyed(inject(DestroyRef))).subscribe(() => this.dirtyChange.emit(this.form.dirty));
+    this.form.valueChanges.pipe(takeUntilDestroyed(inject(DestroyRef))).subscribe(() => {
+      this.dirtyChange.emit(this.form.dirty);
+      this.emitDraft();
+    });
   }
 
   protected get details() {
@@ -97,6 +103,19 @@ export class SectionTextEditorComponent {
             : `Kunne ikke gemme. ${error.message}`,
         });
       },
+    });
+  }
+
+  private emitDraft(): void {
+    const v = this.form.getRawValue();
+    this.draftChange.emit({
+      ...this.section(),
+      title: v.title,
+      eyebrow: v.eyebrow.trim() || null,
+      introduction: v.introduction.trim() || null,
+      description: v.description,
+      additionalDescription: v.additionalDescription.trim() || null,
+      details: v.details.map(d => d.trim()).filter(d => d.length > 0),
     });
   }
 

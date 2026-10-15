@@ -99,6 +99,40 @@ public class GalleryTests(TestHost host)
     }
 
     [Fact]
+    public async Task Set_gallery_replaces_images_and_order_in_one_save()
+    {
+        var s = await WithImagesAsync(3);
+        var (a, b, c) = (s.Gallery[0], s.Gallery[1], s.Gallery[2]);
+        var added = await host.NewMediaAsync();
+
+        var updated = await host.SendAsync(new SetGalleryCommand(s.PageId, s.Id, s.Version,
+            [new GalleryImageInput(c.MediaId, "ignored"), new GalleryImageInput(added, "Ny"), new GalleryImageInput(a.MediaId, null)]));
+
+        updated.Version.Should().BeGreaterThan(s.Version);
+        updated.Gallery.Select(g => g.MediaId).Should().Equal(c.MediaId, added, a.MediaId);
+        updated.Gallery.Select(g => g.Position).Should().Equal(1, 2, 3);
+        updated.Gallery[0].Id.Should().Be(c.Id);
+        updated.Gallery[0].AltText.Should().Be(c.AltText);
+        updated.Gallery[1].AltText.Should().Be("Ny");
+        updated.Gallery.Should().NotContain(g => g.MediaId == b.MediaId);
+
+        var stale = () => host.SendAsync(new SetGalleryCommand(s.PageId, s.Id, s.Version, []));
+        await stale.Should().ThrowAsync<ConflictException>();
+
+        var cleared = await host.SendAsync(new SetGalleryCommand(s.PageId, s.Id, updated.Version, []));
+        cleared.Gallery.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Set_gallery_respects_the_before_after_limit()
+    {
+        var s = await host.NewSectionAsync(type: SectionTypeId.BeforeAfter);
+        var act = async () => await host.SendAsync(new SetGalleryCommand(s.PageId, s.Id, s.Version,
+            [new GalleryImageInput(await host.NewMediaAsync(), null), new GalleryImageInput(await host.NewMediaAsync(), null)]));
+        await act.Should().ThrowAsync<ConflictException>();
+    }
+
+    [Fact]
     public async Task Before_after_section_holds_one_before_and_one_after_image()
     {
         var s = await host.NewSectionAsync("Før og efter", SectionTypeId.BeforeAfter);

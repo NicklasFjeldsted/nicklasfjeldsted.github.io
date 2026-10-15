@@ -22,7 +22,7 @@
     @for (m of serverError('introduction'); track m) { <span class="adm-error">{{ m }}</span> }
   </div>
 
-  <div class="adm-actions">
+  <div class="adm-savebar">
     <button type="submit" class="adm-btn adm-btn--primary" [disabled]="saving() || !form.dirty">{{ saving() ? 'Gemmer…' : 'Gem ændringer' }}</button>
     <button type="button" class="adm-btn" (click)="cancel()" [disabled]="saving() || !form.dirty">Fortryd</button>
     @if (form.dirty) { <span class="adm-badge adm-badge--unsaved">Ugemte ændringer</span> }

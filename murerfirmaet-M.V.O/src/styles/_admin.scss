@@ -274,3 +274,25 @@ textarea.adm-input { min-height: 7rem; resize: vertical; }
     &--done { border-color: var(--adm-ok); }
   }
 }
+
+// One save bar per editor: always visible, enabled when something has changed
+.adm-savebar {
+  display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-top: 1.25rem; padding-top: 1rem;
+  border-top: 1px solid var(--adm-border);
+}
+
+// Before/after: each image in its own box
+.adm-pair__item { padding: 1rem; border: 1px solid var(--adm-border); border-radius: 8px; h3 { margin-top: 0; } }
+
+// Preview of the section as the public page renders it
+.adm-preview-box {
+  margin-top: 1.5rem; border: 1px solid var(--adm-border); border-radius: 8px; overflow: hidden;
+  &__head {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; padding: 0.75rem 1rem;
+    background: #f3efe9; border-bottom: 1px solid var(--adm-border);
+    h3 { margin: 0; font-size: 1rem; }
+  }
+  &__stage { padding: 1.5rem; background: var(--bg-surface, #fff); }
+  // The public page fades sections in on scroll; the preview shows them straight away.
+  .mvo-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+}

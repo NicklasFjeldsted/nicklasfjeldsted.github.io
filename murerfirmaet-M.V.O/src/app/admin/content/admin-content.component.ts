@@ -13,12 +13,14 @@ import {PageTextEditorComponent} from '../editors/page-text-editor.component';
 import {PrimaryImageEditorComponent} from '../editors/primary-image-editor.component';
 import {SectionTextEditorComponent} from '../editors/section-text-editor.component';
 import {ConfirmService} from '../shared/confirm-dialog.component';
+import {IMasonryImage, IMasonrySection, MasonrySectionType} from '../../core/interfaces/masonry-page.interface';
+import {MasonryShowcaseComponent} from '../../shared/components/masonry-showcase/masonry-showcase.component';
 import {AdminNavService, ContentTab as Tab, contentLinkParams, tabFromParam} from '../shell/admin-nav.service';
 const INTRO = 'intro';
 
 @Component({
   selector: 'mvo-admin-content',
-  imports: [FormsModule, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, GalleryEditorComponent, BeforeAfterEditorComponent],
+  imports: [FormsModule, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, GalleryEditorComponent, BeforeAfterEditorComponent, MasonryShowcaseComponent],
   templateUrl: './admin-content.component.html',
 })
 export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
@@ -41,6 +43,12 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   protected readonly notice = signal<INotice | null>(null);
   protected readonly busy = signal(false);
   protected readonly dirtyFlags = signal<Record<string, boolean>>({});
+  /** The open editor's unsaved version of the section, shown in the preview below it. */
+  protected readonly draft = signal<ISectionContent | null>(null);
+  protected readonly preview = computed(() => {
+    const s = this.draft() ?? this.section();
+    return s ? toShowcase(s) : null;
+  });
 
   protected readonly newTitle = signal('');
   protected readonly newType = signal<number>(SECTION_TYPES[0].id);
@@ -149,6 +157,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
 
   protected async selectTab(tab: Tab): Promise<void> {
     if (this.tab() === tab || !(await this.leave())) return;
+    this.draft.set(null);
     this.tab.set(tab);
   }
 
@@ -164,6 +173,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   }
 
   protected onSectionChange(section: ISectionContent): void {
+    this.draft.set(null);
     this.section.set(section);
     this.refreshPage();
   }
@@ -304,6 +314,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
     this.dirtyFlags.set({});
     this.selected.set(id);
     this.tab.set(tab);
+    this.draft.set(null);
     this.section.set(null);
     this.loadingContent.set(true);
     this.api.getSection(page.id, id).subscribe({
@@ -350,4 +361,23 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
       text: e.status === 409 ? `${prefix} Indholdet er ændret et andet sted. Genindlæs siden og prøv igen.` : `${prefix} ${e.message}`,
     });
   }
+}
+
+/** Maps the admin's section to the shape the public page renders, so the preview uses the real component. */
+function toShowcase(s: ISectionContent): IMasonrySection {
+  const image = (key: string, url: string, alt: string | null): IMasonryImage => ({id: key, url, alt: alt ?? ''});
+  return {
+    id: `preview-${s.id}`,
+    type: s.sectionType as MasonrySectionType,
+    title: s.title,
+    eyebrow: s.eyebrow ?? undefined,
+    introduction: s.introduction ?? undefined,
+    description: s.description,
+    additionalDescription: s.additionalDescription ?? undefined,
+    details: s.details,
+    primaryImage: s.primaryImage ? image('primary', s.primaryImage.url, s.primaryImage.altText) : undefined,
+    gallery: [...s.gallery].sort((a, b) => a.position - b.position).map((g, i) => image(`g${i}-${g.mediaId}`, g.url, g.altText)),
+    displayOrder: s.displayOrder,
+    published: s.isPublished,
+  };
 }
