@@ -37,6 +37,7 @@ export class ConfirmService {
       data: options,
       maxWidth: '28rem',
       autoFocus: false,
+      panelClass: ['adm-dialog-panel', 'adm'],
     });
     return firstValueFrom(ref.afterClosed()).then(result => result === true);
   }

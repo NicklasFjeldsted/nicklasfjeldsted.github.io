@@ -4,7 +4,7 @@ import {Observable, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {API_BASE_URL, mediaUrl} from '../core/config/api.config';
 import {
-  IApiError, IGalleryImageInput, IMedia, IPageDetail, IPageListItem, ISectionContent,
+  IApiError, IGalleryImageInput, IMedia, IMediaDetail, IMediaPage, IMediaQuery, IPageDetail, IPageListItem, ISectionContent,
 } from './admin.models';
 
 const BASE = `${API_BASE_URL}/api/admin`;
@@ -91,15 +91,34 @@ export class AdminApiService {
       .pipe(map(s => this.withUrls(s)), this.fail());
   }
 
-  uploadMedia(file: File): Observable<IMedia> {
+  /** Uploads one image to the image library. `name` is the display name; the server falls back to the file name. */
+  uploadMedia(file: File, name?: string | null): Observable<IMedia> {
     const form = new FormData();
     form.append('file', file, file.name);
+    if (name?.trim()) form.append('name', name.trim());
     return this.http.post<IMedia>(`${BASE}/media`, form).pipe(map(m => ({...m, url: mediaUrl(m.url)})), this.fail());
   }
 
-  /** Best-effort cleanup of an upload that was never attached to anything. */
+  listMedia(query: IMediaQuery): Observable<IMediaPage> {
+    const params = {search: query.search, filter: query.filter, sort: query.sort, skip: query.skip, take: query.take};
+    return this.http.get<IMediaPage>(`${BASE}/media`, {params}).pipe(
+      map(page => ({...page, items: page.items.map(m => ({...m, url: mediaUrl(m.url)}))})),
+      this.fail(),
+    );
+  }
+
+  getMedia(mediaId: number): Observable<IMediaDetail> {
+    return this.http.get<IMediaDetail>(`${BASE}/media/${mediaId}`).pipe(map(m => ({...m, url: mediaUrl(m.url)})), this.fail());
+  }
+
+  updateMedia(mediaId: number, name: string, defaultAltText: string | null): Observable<IMediaDetail> {
+    return this.http.put<IMediaDetail>(`${BASE}/media/${mediaId}`, {name, defaultAltText})
+      .pipe(map(m => ({...m, url: mediaUrl(m.url)})), this.fail());
+  }
+
+  /** Permanently deletes an image from the library. The server refuses while the image is used on the website. */
   deleteMedia(mediaId: number): Observable<void> {
-    return this.http.delete<void>(`${BASE}/media/${mediaId}`);
+    return this.http.delete<void>(`${BASE}/media/${mediaId}`).pipe(this.fail());
   }
 
   private section(pageId: number, sectionId: number): string {

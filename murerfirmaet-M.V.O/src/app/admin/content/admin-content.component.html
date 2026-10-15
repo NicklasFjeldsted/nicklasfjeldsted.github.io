@@ -1,14 +1,4 @@
-<div class="adm adm-shell">
-  <header class="adm-topbar">
-    <h1>Website-indhold</h1>
-    <div class="adm-actions" style="margin: 0">
-      @if (page(); as p) {
-        <a class="adm-btn adm-btn--small" [href]="'/' + p.slug" target="_blank" rel="noopener">Se siden live ↗</a>
-      }
-      <button type="button" class="adm-btn adm-btn--small" (click)="logout()">Log ud</button>
-    </div>
-  </header>
-
+<div class="adm-content">
   <nav class="adm-breadcrumb" aria-label="Du redigerer her">
     <ol>
       <li>Website-indhold</li>
@@ -22,7 +12,12 @@
         }
       }
     </ol>
-    @if (isDirty()) { <span class="adm-badge adm-badge--unsaved">Ugemte ændringer</span> }
+    <span class="adm-breadcrumb__end">
+      @if (isDirty()) { <span class="adm-badge adm-badge--unsaved">Ugemte ændringer</span> }
+      @if (page(); as p) {
+        <a class="adm-btn adm-btn--small" [href]="'/' + p.slug" target="_blank" rel="noopener">Se siden live ↗</a>
+      }
+    </span>
   </nav>
 
   @if (notice(); as n) {

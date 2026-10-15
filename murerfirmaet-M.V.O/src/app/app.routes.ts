@@ -12,9 +12,22 @@ export const routes: Routes = [
   {path: 'admin/login', loadComponent: () => import('./admin/login/login.component').then(m => m.LoginComponent)},
   {
     path: 'admin',
-    loadComponent: () => import('./admin/content/admin-content.component').then(m => m.AdminContentComponent),
+    loadComponent: () => import('./admin/shell/admin-shell.component').then(m => m.AdminShellComponent),
     canActivate: [authGuard],
-    canDeactivate: [unsavedChangesGuard],
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () => import('./admin/content/admin-content.component').then(m => m.AdminContentComponent),
+        canDeactivate: [unsavedChangesGuard],
+        runGuardsAndResolvers: 'pathParamsChange',
+      },
+      {
+        path: 'billeder',
+        loadComponent: () => import('./admin/media/media-library.component').then(m => m.MediaLibraryComponent),
+        canDeactivate: [unsavedChangesGuard],
+      },
+    ],
   },
   {
     path: '**',

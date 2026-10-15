@@ -80,34 +80,20 @@ export class BeforeAfterEditorComponent {
   }
 
   private persist(save: ISlotSave, currentMediaId: number | null, name: string, attach: (mediaId: number) => Observable<ISectionContent>): void {
-    const run = (mediaId: number, uploaded: boolean) =>
-      attach(mediaId).subscribe({
-        next: updated => {
-          this.busy.set(false);
-          this.sectionChange.emit(updated);
-          this.notify.emit({kind: 'success', text: `${name} er gemt.`});
-        },
-        error: (error: IApiError) => {
-          this.busy.set(false);
-          if (uploaded) this.api.deleteMedia(mediaId).subscribe({error: () => undefined});
-          this.notify.emit({kind: 'error', text: `${name} blev ikke gemt. ${error.message}`});
-        },
-      });
-
+    const mediaId = save.mediaId ?? currentMediaId;
+    if (mediaId === null) return;
     this.busy.set(true);
-    if (save.file) {
-      this.api.uploadMedia(save.file).subscribe({
-        next: media => run(media.id, true),
-        error: (error: IApiError) => {
-          this.busy.set(false);
-          this.notify.emit({kind: 'error', text: `Billedet kunne ikke uploades. ${error.message}`});
-        },
-      });
-    } else if (currentMediaId !== null) {
-      run(currentMediaId, false);
-    } else {
-      this.busy.set(false);
-    }
+    attach(mediaId).subscribe({
+      next: updated => {
+        this.busy.set(false);
+        this.sectionChange.emit(updated);
+        this.notify.emit({kind: 'success', text: `${name} er gemt.`});
+      },
+      error: (error: IApiError) => {
+        this.busy.set(false);
+        this.notify.emit({kind: 'error', text: `${name} blev ikke gemt. ${error.message}`});
+      },
+    });
   }
 
   private toImage(id: string, slot: ISlotImage | null): IMasonryImage | null {

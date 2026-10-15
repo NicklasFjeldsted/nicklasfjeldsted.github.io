@@ -1,17 +1,18 @@
-import {Component, OnDestroy, computed, effect, inject, input, output, signal} from '@angular/core';
+import {Component, computed, effect, inject, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {AdminApiService} from '../admin-api.service';
-import {ALLOWED_IMAGE_TYPES, IApiError, INotice, ISectionContent, MAX_IMAGE_BYTES} from '../admin.models';
+import {IApiError, INotice, ISectionContent} from '../admin.models';
+import {IChosenImage, ImageSourceButtonsComponent} from '../media/image-source-buttons.component';
 
 @Component({
   selector: 'mvo-primary-image-editor',
-  imports: [FormsModule],
+  imports: [FormsModule, ImageSourceButtonsComponent],
   template: `
     <p class="adm-hint">Hovedbilledet vises som sektionens primære billede på siden.</p>
 
-    @if (previewUrl() ?? section().primaryImage?.url; as src) {
+    @if (pending()?.url ?? section().primaryImage?.url; as src) {
       <img class="adm-preview" [src]="src" [alt]="alt() || 'Forhåndsvisning af hovedbillede'">
-      @if (pendingFile()) { <span class="adm-badge adm-badge--unsaved">Nyt billede – ikke gemt endnu</span> }
+      @if (pending()) { <span class="adm-badge adm-badge--unsaved">Nyt billede – ikke gemt endnu</span> }
     } @else {
       <div class="adm-empty">Der er endnu intet hovedbillede.</div>
     }
@@ -19,26 +20,24 @@ import {ALLOWED_IMAGE_TYPES, IApiError, INotice, ISectionContent, MAX_IMAGE_BYTE
     <div class="adm-field" style="margin-top: 1rem">
       <label for="primary-alt">Alternativ tekst</label>
       <input id="primary-alt" class="adm-input" [ngModel]="alt()" (ngModelChange)="alt.set($event)" maxlength="300" autocomplete="off"
-             [disabled]="!(previewUrl() ?? section().primaryImage)">
+             [disabled]="!(pending() ?? section().primaryImage)">
       <span class="adm-hint">Beskriv billedet kort for dem, der ikke kan se det.</span>
     </div>
 
-    @if (fileError()) { <p class="adm-error" role="alert">{{ fileError() }}</p> }
+    @if (fieldError()) { <p class="adm-error" role="alert">{{ fieldError() }}</p> }
 
     <div class="adm-actions">
-      <label class="adm-btn">
-        {{ section().primaryImage ? 'Vælg andet billede' : 'Vælg billede' }}
-        <input type="file" class="adm-visually-hidden" [accept]="accept" (change)="pick($event)">
-      </label>
+      <mvo-image-source-buttons title="Vælg hovedbillede" [context]="section().title + ' · Erstatter det nuværende hovedbillede, når du gemmer'"
+                                [hasImage]="!!section().primaryImage" [disabled]="busy()" (chosen)="choose($event)" />
       @if (dirty()) {
         <button type="button" class="adm-btn adm-btn--primary" (click)="confirm()" [disabled]="busy()">{{ busy() ? 'Gemmer…' : 'Bekræft og gem' }}</button>
-        <button type="button" class="adm-btn" (click)="cancel()" [disabled]="busy()">Annullér</button>
+        <button type="button" class="adm-btn" (click)="reset()" [disabled]="busy()">Annullér</button>
         <span class="adm-badge adm-badge--unsaved">Ugemte ændringer</span>
       }
     </div>
   `,
 })
-export class PrimaryImageEditorComponent implements OnDestroy {
+export class PrimaryImageEditorComponent {
   private readonly api = inject(AdminApiService);
 
   readonly section = input.required<ISectionContent>();
@@ -46,14 +45,12 @@ export class PrimaryImageEditorComponent implements OnDestroy {
   readonly dirtyChange = output<boolean>();
   readonly notify = output<INotice>();
 
-  protected readonly accept = ALLOWED_IMAGE_TYPES;
   protected readonly alt = signal('');
-  protected readonly pendingFile = signal<File | null>(null);
-  protected readonly previewUrl = signal<string | null>(null);
-  protected readonly fileError = signal('');
+  protected readonly pending = signal<IChosenImage | null>(null);
+  protected readonly fieldError = signal('');
   protected readonly busy = signal(false);
   protected readonly dirty = computed(() =>
-    this.pendingFile() !== null || (this.section().primaryImage !== null && this.alt().trim() !== (this.section().primaryImage?.altText ?? '')));
+    this.pending() !== null || (this.section().primaryImage !== null && this.alt().trim() !== (this.section().primaryImage?.altText ?? '')));
 
   constructor() {
     effect(() => {
@@ -63,78 +60,33 @@ export class PrimaryImageEditorComponent implements OnDestroy {
     effect(() => this.dirtyChange.emit(this.dirty()));
   }
 
-  ngOnDestroy(): void {
-    this.revoke();
-  }
-
-  protected pick(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    input.value = '';
-    if (!file) return;
-    if (!ALLOWED_IMAGE_TYPES.split(',').includes(file.type)) {
-      this.fileError.set('Filtypen understøttes ikke. Vælg et JPEG-, PNG- eller WebP-billede.');
-      return;
-    }
-    if (file.size > MAX_IMAGE_BYTES) {
-      this.fileError.set('Billedet er for stort. Maksimal størrelse er 10 MB.');
-      return;
-    }
-    this.fileError.set('');
-    this.revoke();
-    this.pendingFile.set(file);
-    this.previewUrl.set(URL.createObjectURL(file));
-  }
-
-  protected cancel(): void {
-    this.reset();
+  protected choose(image: IChosenImage): void {
+    this.pending.set(image);
+    if (!this.alt().trim() && image.defaultAltText) this.alt.set(image.defaultAltText);
   }
 
   protected confirm(): void {
     const s = this.section();
-    const altText = this.alt().trim() || null;
-    const file = this.pendingFile();
-    if (!file && !s.primaryImage) return;
+    const mediaId = this.pending()?.mediaId ?? s.primaryImage?.mediaId;
+    if (mediaId === undefined) return;
     this.busy.set(true);
-
-    const attach = (mediaId: number, uploaded: boolean) =>
-      this.api.setPrimaryImage(s.pageId, s.id, s.version, mediaId, altText).subscribe({
-        next: updated => {
-          this.busy.set(false);
-          this.sectionChange.emit(updated);
-          this.notify.emit({kind: 'success', text: 'Hovedbilledet er gemt.'});
-        },
-        error: (error: IApiError) => {
-          this.busy.set(false);
-          if (uploaded) this.api.deleteMedia(mediaId).subscribe({error: () => undefined});
-          this.fileError.set(error.fields['AltText']?.[0] ?? '');
-          this.notify.emit({kind: 'error', text: `Hovedbilledet blev ikke gemt. ${error.message}`});
-        },
-      });
-
-    if (file) {
-      this.api.uploadMedia(file).subscribe({
-        next: media => attach(media.id, true),
-        error: (error: IApiError) => {
-          this.busy.set(false);
-          this.notify.emit({kind: 'error', text: `Billedet kunne ikke uploades. ${error.message}`});
-        },
-      });
-    } else {
-      attach(s.primaryImage!.mediaId, false);
-    }
+    this.api.setPrimaryImage(s.pageId, s.id, s.version, mediaId, this.alt().trim() || null).subscribe({
+      next: updated => {
+        this.busy.set(false);
+        this.sectionChange.emit(updated);
+        this.notify.emit({kind: 'success', text: 'Hovedbilledet er gemt.'});
+      },
+      error: (error: IApiError) => {
+        this.busy.set(false);
+        this.fieldError.set(error.fields['AltText']?.[0] ?? '');
+        this.notify.emit({kind: 'error', text: `Hovedbilledet blev ikke gemt. ${error.message}`});
+      },
+    });
   }
 
-  private reset(): void {
-    this.revoke();
-    this.pendingFile.set(null);
-    this.previewUrl.set(null);
-    this.fileError.set('');
+  protected reset(): void {
+    this.pending.set(null);
+    this.fieldError.set('');
     this.alt.set(this.section().primaryImage?.altText ?? '');
-  }
-
-  private revoke(): void {
-    const url = this.previewUrl();
-    if (url) URL.revokeObjectURL(url);
   }
 }
