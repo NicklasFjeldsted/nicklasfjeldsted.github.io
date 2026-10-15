@@ -30,10 +30,21 @@ import {ButtonIconPosition} from '../../core/enums/button-icon.enum';
   standalone: true
 })
 export class HomeComponent {
+  // The last word of the hero heading is shown in gold, as in the brand design.
+  protected headingLead(heading: string): string {
+    const i = heading.trimEnd().lastIndexOf(' ');
+    return i === -1 ? '' : heading.slice(0, i + 1);
+  }
+
+  protected headingAccent(heading: string): string {
+    const i = heading.trimEnd().lastIndexOf(' ');
+    return i === -1 ? heading : heading.slice(i + 1);
+  }
+
   protected highlights: ITrustHighlight[] = [
     {icon: 'shield', titleKey: 'highlights.experience.title', descriptionKey: 'highlights.experience.description'},
     {icon: 'check', titleKey: 'highlights.free.title', descriptionKey: 'highlights.free.description'},
-    {icon: 'clock', titleKey: 'highlights.response.title', descriptionKey: 'highlights.response.description'},
+    {icon: 'user', titleKey: 'highlights.contact.title', descriptionKey: 'highlights.contact.description'},
     {icon: 'location-dot', titleKey: 'highlights.location.title', descriptionKey: 'highlights.location.description'},
   ];
 
@@ -50,7 +61,7 @@ export class HomeComponent {
     'top.specialities.bathrooms',
     'top.specialities.quality',
     'top.specialities.clearCommunication',
-    'top.specialities.shortReply',
+    'top.specialities.personalAdvice',
   ];
 
   protected readonly projectImages: string[] = [
