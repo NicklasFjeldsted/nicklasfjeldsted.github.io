@@ -3,8 +3,9 @@
 Brug denne guide, hver gang du har lavet ændringer og vil have dem på den rigtige side.
 Første opsætning af serveren står i [hetzner.md](hetzner.md). Her er det kun den daglige arbejdsgang.
 
-> Kommandoer med `PS>` køres i **PowerShell på din pc**.
-> Kommandoer med `server$` køres **på Hetzner-serveren** (efter `ssh hetzner`).
+> Kodeblokke mærket `powershell` køres i **PowerShell på din pc**.
+> Kodeblokke mærket `bash` køres **på Hetzner-serveren** (efter `ssh hetzner`).
+> Der står ingen prompt-tegn foran kommandoerne, så du kan kopiere en hel blok og indsætte den direkte.
 
 ---
 
@@ -31,14 +32,14 @@ Du ruller kun ud fra grenen `development`, efter at ændringen er merget via en 
 2. Hent den nyeste version på din pc:
 
 ```powershell
-PS> git checkout development
-PS> git pull
+git checkout development
+git pull
 ```
 
 Tjek, at der ikke står "uncommitted changes":
 
 ```powershell
-PS> git status
+git status
 ```
 
 ---
@@ -48,10 +49,10 @@ PS> git status
 Frontenden ligger på GitHub Pages på **murerfirmaet-mvo.dk**. Den bygges på din pc og lægges på grenen `gh-pages`.
 
 ```powershell
-PS> cd murerfirmaet-M.V.O
-PS> npm ci
-PS> npm run build
-PS> npm run deploy
+cd murerfirmaet-M.V.O
+npm ci
+npm run build
+npm run deploy
 ```
 
 Hvad kommandoerne gør:
@@ -86,13 +87,13 @@ Backenden kører som Docker-containere (MySQL, API og Caddy) på serveren. Koden
 ### 4.1 Log ind og hent koden
 
 ```powershell
-PS> ssh hetzner
+ssh hetzner
 ```
 
 ```bash
-server$ cd ~/mvo
-server$ git pull
-server$ cd backend
+cd ~/mvo
+git pull
+cd backend
 ```
 
 Hvis `git pull` spørger om brugernavn og adgangskode, så brug dit GitHub-brugernavn og dit **fine-grained access token** (læseadgang til repoet).
@@ -100,8 +101,8 @@ Hvis `git pull` spørger om brugernavn og adgangskode, så brug dit GitHub-bruge
 ### 4.2 Tag backup af databasen (anbefalet før større ændringer)
 
 ```bash
-server$ mkdir -p ~/backups
-server$ docker compose -f docker-compose.prod.yml exec -T mysql \
+mkdir -p ~/backups
+docker compose -f docker-compose.prod.yml exec -T mysql \
   sh -c 'mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction mvo' \
   > ~/backups/mvo-$(date +%F-%H%M).sql
 ```
@@ -111,7 +112,7 @@ Tjek, at filen ikke er tom: `ls -lh ~/backups`.
 ### 4.3 Byg og start API'et igen
 
 ```bash
-server$ docker compose -f docker-compose.prod.yml up -d --build api
+docker compose -f docker-compose.prod.yml up -d --build api
 ```
 
 - `--build` bygger det nye API-image ud fra den hentede kode (første gang tager det nogle minutter på ARM).
@@ -123,14 +124,14 @@ server$ docker compose -f docker-compose.prod.yml up -d --build api
 ### 4.4 Tjek, at det virker
 
 ```bash
-server$ docker compose -f docker-compose.prod.yml ps
-server$ docker compose -f docker-compose.prod.yml logs --tail 50 api
+docker compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml logs --tail 50 api
 ```
 
 I loggen skal der stå `Application started`. Test derefter udefra (på din pc):
 
 ```powershell
-PS> curl https://api.murerfirmaet-mvo.dk/api/pages/specialiseret-murerarbejde
+curl https://api.murerfirmaet-mvo.dk/api/pages/specialiseret-murerarbejde
 ```
 
 Du skal få JSON tilbage.
@@ -138,7 +139,7 @@ Du skal få JSON tilbage.
 ### 4.5 Ryd op i gamle images (af og til)
 
 ```bash
-server$ docker image prune -f
+docker image prune -f
 ```
 
 Brug **ikke** `docker volume prune` eller `docker compose down -v`. De sletter databasen og de uploadede billeder.
@@ -149,11 +150,11 @@ Brug **ikke** `docker volume prune` eller `docker compose down -v`. De sletter d
 2. Gå tilbage til en tidligere version af koden:
 
 ```bash
-server$ cd ~/mvo
-server$ git log --oneline -10          # find den gode version
-server$ git checkout <commit-id>
-server$ cd backend
-server$ docker compose -f docker-compose.prod.yml up -d --build api
+cd ~/mvo
+git log --oneline -10          # find den gode version
+git checkout <commit-id>
+cd backend
+docker compose -f docker-compose.prod.yml up -d --build api
 ```
 
 3. Når du vil frem igen: `git checkout development && git pull`.
@@ -179,9 +180,9 @@ Rækkefølgen sikrer, at frontenden aldrig kalder en API-funktion, der endnu ikk
 Adgangskoder, JWT-nøgle, administratorlogin, domæne og CORS ligger i `~/mvo/backend/.env.production`.
 
 ```bash
-server$ cd ~/mvo/backend
-server$ nano .env.production
-server$ docker compose -f docker-compose.prod.yml up -d
+cd ~/mvo/backend
+nano .env.production
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 `up -d` opretter de containere igen, hvis konfigurationen er ændret. Bemærk:
@@ -196,7 +197,7 @@ server$ docker compose -f docker-compose.prod.yml up -d
 Ændringer i `Caddyfile` (HTTPS/domæne):
 
 ```bash
-server$ docker compose -f docker-compose.prod.yml up -d caddy
+docker compose -f docker-compose.prod.yml up -d caddy
 ```
 
 ---
@@ -206,21 +207,21 @@ server$ docker compose -f docker-compose.prod.yml up -d caddy
 Af og til (fx en gang om måneden):
 
 ```bash
-server$ sudo apt update && sudo apt upgrade -y
-server$ sudo reboot
+sudo apt update && sudo apt upgrade -y
+sudo reboot
 ```
 
 Efter genstart starter containerne selv igen (`restart: unless-stopped`). Log ind igen om et minut, og tjek:
 
 ```bash
-server$ docker compose -f ~/mvo/backend/docker-compose.prod.yml ps
+docker compose -f ~/mvo/backend/docker-compose.prod.yml ps
 ```
 
 Tjek diskplads og hukommelse:
 
 ```bash
-server$ df -h
-server$ free -h
+df -h
+free -h
 ```
 
 Husk at holde Hetzner-backups tændt (konsollen → din server → Backups).
@@ -231,21 +232,21 @@ Husk at holde Hetzner-backups tændt (konsollen → din server → Backups).
 
 **Frontend:**
 ```powershell
-PS> git checkout development
-PS> git pull
-PS> cd murerfirmaet-M.V.O
-PS> npm ci
-PS> npm run deploy
+git checkout development
+git pull
+cd murerfirmaet-M.V.O
+npm ci
+npm run deploy
 ```
 
 **Backend:**
 ```powershell
-PS> ssh hetzner
+ssh hetzner
 ```
 ```bash
-server$ cd ~/mvo && git pull && cd backend
-server$ docker compose -f docker-compose.prod.yml up -d --build api
-server$ docker compose -f docker-compose.prod.yml logs --tail 50 api
+cd ~/mvo && git pull && cd backend
+docker compose -f docker-compose.prod.yml up -d --build api
+docker compose -f docker-compose.prod.yml logs --tail 50 api
 ```
 
 **Tjek bagefter:**
