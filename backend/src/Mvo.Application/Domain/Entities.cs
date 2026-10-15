@@ -64,6 +64,10 @@ public class MediaAsset
     public int Id { get; set; }
     public string StoredFileName { get; set; } = "";
     public string OriginalFileName { get; set; } = "";
+    /// <summary>Display name shown and searched in the image library. Not the file name on disk.</summary>
+    public string Name { get; set; } = "";
+    /// <summary>Suggested alternative text when the image is used somewhere new.</summary>
+    public string? DefaultAltText { get; set; }
     public string ContentType { get; set; } = "";
     public long SizeBytes { get; set; }
     public DateTime CreatedUtc { get; set; }

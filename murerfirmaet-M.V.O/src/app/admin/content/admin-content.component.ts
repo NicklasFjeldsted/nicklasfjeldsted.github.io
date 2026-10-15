@@ -1,30 +1,35 @@
-import {Component, HostListener, computed, inject, signal} from '@angular/core';
+import {Component, HostListener, OnDestroy, computed, effect, inject, signal, untracked} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
+import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {AdminApiService} from '../admin-api.service';
 import {IHasUnsavedChanges} from '../admin.guards';
 import {
   IApiError, INotice, IPageDetail, IPageListItem, ISectionContent, ISectionListItem, SECTION_TYPES,
 } from '../admin.models';
-import {AuthService} from '../auth.service';
 import {BeforeAfterEditorComponent} from '../editors/before-after-editor.component';
 import {GalleryEditorComponent} from '../editors/gallery-editor.component';
 import {PageTextEditorComponent} from '../editors/page-text-editor.component';
 import {PrimaryImageEditorComponent} from '../editors/primary-image-editor.component';
 import {SectionTextEditorComponent} from '../editors/section-text-editor.component';
 import {ConfirmService} from '../shared/confirm-dialog.component';
-
-type Tab = 'text' | 'primary' | 'gallery' | 'beforeAfter';
+import {IMasonryImage, IMasonrySection, MasonrySectionType} from '../../core/interfaces/masonry-page.interface';
+import {MasonryShowcaseComponent} from '../../shared/components/masonry-showcase/masonry-showcase.component';
+import {AdminNavService, ContentTab as Tab, contentLinkParams, tabFromParam} from '../shell/admin-nav.service';
 const INTRO = 'intro';
 
 @Component({
   selector: 'mvo-admin-content',
-  imports: [FormsModule, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, GalleryEditorComponent, BeforeAfterEditorComponent],
+  imports: [FormsModule, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, GalleryEditorComponent, BeforeAfterEditorComponent, MasonryShowcaseComponent],
   templateUrl: './admin-content.component.html',
 })
-export class AdminContentComponent implements IHasUnsavedChanges {
+export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   private readonly api = inject(AdminApiService);
-  private readonly auth = inject(AuthService);
   private readonly confirm = inject(ConfirmService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly nav = inject(AdminNavService);
+  private readonly unregister = this.nav.registerDirtyState(() => this.isDirty(), () => this.dirtyFlags.set({}));
 
   protected readonly sectionTypes = SECTION_TYPES;
   protected readonly pages = signal<IPageListItem[]>([]);
@@ -38,6 +43,12 @@ export class AdminContentComponent implements IHasUnsavedChanges {
   protected readonly notice = signal<INotice | null>(null);
   protected readonly busy = signal(false);
   protected readonly dirtyFlags = signal<Record<string, boolean>>({});
+  /** The open editor's unsaved version of the section, shown in the preview below it. */
+  protected readonly draft = signal<ISectionContent | null>(null);
+  protected readonly preview = computed(() => {
+    const s = this.draft() ?? this.section();
+    return s ? toShowcase(s) : null;
+  });
 
   protected readonly newTitle = signal('');
   protected readonly newType = signal<number>(SECTION_TYPES[0].id);
@@ -64,6 +75,34 @@ export class AdminContentComponent implements IHasUnsavedChanges {
 
   constructor() {
     this.loadPages();
+
+    // The address bar mirrors what is open, so links from the image library and the back button land in the right place.
+    effect(() => {
+      const page = this.page();
+      const selected = this.selected();
+      const tab = this.tab();
+      if (!page || selected === null) return;
+      const params = contentLinkParams(page.id, typeof selected === 'number' ? selected : null, tab);
+      untracked(() => {
+        this.nav.contentParams.set(params);
+        if (!this.matches(this.route.snapshot.queryParamMap, params)) {
+          void this.router.navigate([], {relativeTo: this.route, queryParams: params, replaceUrl: true});
+        }
+      });
+    });
+
+    // Back/forward in the browser; the editor's own address updates are ignored.
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe(params => {
+      const page = this.page();
+      if (!page || this.loadingPages() || this.router.getCurrentNavigation()?.trigger !== 'popstate') return;
+      const selected = this.selected();
+      const current = contentLinkParams(page.id, typeof selected === 'number' ? selected : null, this.tab());
+      if (!this.matches(params, current)) void this.followLink(params);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.unregister();
   }
 
   hasUnsavedChanges(): boolean {
@@ -83,11 +122,6 @@ export class AdminContentComponent implements IHasUnsavedChanges {
     this.dirtyFlags.update(f => (f[key] === dirty ? f : {...f, [key]: dirty}));
   }
 
-  protected logout = async (): Promise<void> => {
-    if (this.isDirty() && !(await this.confirmDiscard())) return;
-    this.auth.logout();
-  };
-
   protected loadPages(): void {
     this.loadingPages.set(true);
     this.loadError.set('');
@@ -95,8 +129,7 @@ export class AdminContentComponent implements IHasUnsavedChanges {
       next: pages => {
         this.pages.set(pages);
         this.loadingPages.set(false);
-        const first = pages.find(p => p.isManaged);
-        if (first && !this.page()) void this.selectPage(first);
+        if (!this.page()) this.openFromParams(this.route.snapshot.queryParamMap);
       },
       error: (e: IApiError) => {
         this.loadingPages.set(false);
@@ -108,16 +141,7 @@ export class AdminContentComponent implements IHasUnsavedChanges {
   protected async selectPage(p: IPageListItem): Promise<void> {
     if (!p.isManaged || this.page()?.id === p.id) return;
     if (!(await this.leave())) return;
-    this.selected.set(null);
-    this.section.set(null);
-    this.page.set(null);
-    this.api.getPage(p.id).subscribe({
-      next: detail => {
-        this.page.set(detail);
-        this.selected.set(INTRO);
-      },
-      error: (e: IApiError) => this.notice.set({kind: 'error', text: `Siden kunne ikke hentes. ${e.message}`}),
-    });
+    this.openPage(p.id, null, 'text');
   }
 
   protected async selectIntro(): Promise<void> {
@@ -133,6 +157,7 @@ export class AdminContentComponent implements IHasUnsavedChanges {
 
   protected async selectTab(tab: Tab): Promise<void> {
     if (this.tab() === tab || !(await this.leave())) return;
+    this.draft.set(null);
     this.tab.set(tab);
   }
 
@@ -148,6 +173,7 @@ export class AdminContentComponent implements IHasUnsavedChanges {
   }
 
   protected onSectionChange(section: ISectionContent): void {
+    this.draft.set(null);
     this.section.set(section);
     this.refreshPage();
   }
@@ -231,11 +257,64 @@ export class AdminContentComponent implements IHasUnsavedChanges {
     });
   }
 
+  /** Opens the page, section and tab named in the address bar, or the first editable page. */
+  private openFromParams(params: ParamMap): void {
+    const pageId = Number(params.get('side'));
+    const requested = this.managedPages().find(p => p.id === pageId);
+    const target = requested ?? this.managedPages()[0];
+    if (!target) return;
+    const sectionId = requested ? Number(params.get('sektion')) || null : null;
+    this.openPage(target.id, sectionId, tabFromParam(params.get('fane')));
+  }
+
+  /** Follows a back/forward navigation that changed the address while the editor is open. */
+  private async followLink(params: ParamMap): Promise<void> {
+    if (!(await this.leave())) {
+      const page = this.page()!;
+      const selected = this.selected();
+      void this.router.navigate([], {relativeTo: this.route, replaceUrl: true,
+        queryParams: contentLinkParams(page.id, typeof selected === 'number' ? selected : null, this.tab())});
+      return;
+    }
+    const pageId = Number(params.get('side'));
+    const sectionId = Number(params.get('sektion')) || null;
+    if (pageId === this.page()?.id && sectionId !== null && this.sections().some(s => s.id === sectionId)) {
+      this.openSection(sectionId, tabFromParam(params.get('fane')));
+    } else if (pageId === this.page()?.id && sectionId === null) {
+      this.section.set(null);
+      this.selected.set(INTRO);
+    } else {
+      this.openFromParams(params);
+    }
+  }
+
+  private openPage(pageId: number, sectionId: number | null, tab: Tab): void {
+    this.dirtyFlags.set({});
+    this.selected.set(null);
+    this.section.set(null);
+    this.page.set(null);
+    this.api.getPage(pageId).subscribe({
+      next: detail => {
+        this.page.set(detail);
+        if (sectionId !== null && detail.sections.some(s => s.id === sectionId)) this.openSection(sectionId, tab);
+        else this.selected.set(INTRO);
+      },
+      error: (e: IApiError) => this.notice.set({kind: 'error', text: `Siden kunne ikke hentes. ${e.message}`}),
+    });
+  }
+
+  private matches(params: ParamMap, expected: Record<string, unknown>): boolean {
+    const keys = ['side', 'sektion', 'fane'];
+    return keys.every(k => (params.get(k) ?? '') === (expected[k] === undefined ? '' : String(expected[k])));
+  }
+
   private openSection(id: number, tab: Tab): void {
     const page = this.page();
     if (!page) return;
     this.dirtyFlags.set({});
     this.selected.set(id);
+    this.tab.set(tab);
+    this.draft.set(null);
     this.section.set(null);
     this.loadingContent.set(true);
     this.api.getSection(page.id, id).subscribe({
@@ -282,4 +361,23 @@ export class AdminContentComponent implements IHasUnsavedChanges {
       text: e.status === 409 ? `${prefix} Indholdet er ændret et andet sted. Genindlæs siden og prøv igen.` : `${prefix} ${e.message}`,
     });
   }
+}
+
+/** Maps the admin's section to the shape the public page renders, so the preview uses the real component. */
+function toShowcase(s: ISectionContent): IMasonrySection {
+  const image = (key: string, url: string, alt: string | null): IMasonryImage => ({id: key, url, alt: alt ?? ''});
+  return {
+    id: `preview-${s.id}`,
+    type: s.sectionType as MasonrySectionType,
+    title: s.title,
+    eyebrow: s.eyebrow ?? undefined,
+    introduction: s.introduction ?? undefined,
+    description: s.description,
+    additionalDescription: s.additionalDescription ?? undefined,
+    details: s.details,
+    primaryImage: s.primaryImage ? image('primary', s.primaryImage.url, s.primaryImage.altText) : undefined,
+    gallery: [...s.gallery].sort((a, b) => a.position - b.position).map((g, i) => image(`g${i}-${g.mediaId}`, g.url, g.altText)),
+    displayOrder: s.displayOrder,
+    published: s.isPublished,
+  };
 }

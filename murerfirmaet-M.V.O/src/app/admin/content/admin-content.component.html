@@ -1,14 +1,4 @@
-<div class="adm adm-shell">
-  <header class="adm-topbar">
-    <h1>Website-indhold</h1>
-    <div class="adm-actions" style="margin: 0">
-      @if (page(); as p) {
-        <a class="adm-btn adm-btn--small" [href]="'/' + p.slug" target="_blank" rel="noopener">Se siden live ↗</a>
-      }
-      <button type="button" class="adm-btn adm-btn--small" (click)="logout()">Log ud</button>
-    </div>
-  </header>
-
+<div class="adm-content">
   <nav class="adm-breadcrumb" aria-label="Du redigerer her">
     <ol>
       <li>Website-indhold</li>
@@ -22,7 +12,12 @@
         }
       }
     </ol>
-    @if (isDirty()) { <span class="adm-badge adm-badge--unsaved">Ugemte ændringer</span> }
+    <span class="adm-breadcrumb__end">
+      @if (isDirty()) { <span class="adm-badge adm-badge--unsaved">Ugemte ændringer</span> }
+      @if (page(); as p) {
+        <a class="adm-btn adm-btn--small" [href]="'/' + p.slug" target="_blank" rel="noopener">Se siden live ↗</a>
+      }
+    </span>
   </nav>
 
   @if (notice(); as n) {
@@ -124,19 +119,32 @@
           <div role="tabpanel">
             @switch (tab()) {
               @case ('text') {
-                <mvo-section-text-editor [section]="s" (sectionChange)="onSectionChange($event)" (dirtyChange)="setDirty('text', $event)" (notify)="notice.set($event)" />
+                <mvo-section-text-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('text', $event)" (notify)="notice.set($event)" />
               }
               @case ('primary') {
-                <mvo-primary-image-editor [section]="s" (sectionChange)="onSectionChange($event)" (dirtyChange)="setDirty('primary', $event)" (notify)="notice.set($event)" />
+                <mvo-primary-image-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('primary', $event)" (notify)="notice.set($event)" />
               }
               @case ('beforeAfter') {
-                <mvo-before-after-editor [section]="s" (sectionChange)="onSectionChange($event)" (dirtyChange)="setDirty('beforeAfter', $event)" (notify)="notice.set($event)" />
+                <mvo-before-after-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('beforeAfter', $event)" (notify)="notice.set($event)" />
               }
               @case ('gallery') {
-                <mvo-gallery-editor [section]="s" (sectionChange)="onSectionChange($event)" (dirtyChange)="setDirty('gallery', $event)" (notify)="notice.set($event)" />
+                <mvo-gallery-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('gallery', $event)" (notify)="notice.set($event)" />
               }
             }
           </div>
+
+          @if (preview(); as pv) {
+            <section class="adm-preview-box" aria-labelledby="preview-title">
+              <header class="adm-preview-box__head">
+                <h3 id="preview-title">Sådan ser sektionen ud på siden</h3>
+                <span class="adm-hint">{{ isDirty() ? 'Viser dine ugemte ændringer.' : 'Viser det gemte indhold.' }}</span>
+                @if (!s.isPublished) { <span class="adm-badge adm-badge--hidden">Sektionen er skjult for besøgende</span> }
+              </header>
+              <div class="adm-preview-box__stage">
+                <mvo-masonry-showcase [section]="pv" />
+              </div>
+            </section>
+          }
         } @else {
           <div class="adm-empty">Vælg en sektion i listen til venstre.</div>
         }

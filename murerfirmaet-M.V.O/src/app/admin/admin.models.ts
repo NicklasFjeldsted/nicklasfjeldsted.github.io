@@ -63,9 +63,50 @@ export interface ISectionContent {
 export interface IMedia {
   id: number;
   url: string;
+  name: string;
   originalFileName: string;
   contentType: string;
   sizeBytes: number;
+}
+
+/** An image in the image library (Billedarkiv). */
+export interface IMediaItem extends IMedia {
+  createdUtc: string;
+  defaultAltText: string | null;
+  usageCount: number;
+}
+
+export interface IMediaPage {
+  items: IMediaItem[];
+  total: number;
+}
+
+/** Where an image is shown on the website. `kind` is the section's primary image or a gallery position. */
+export interface IMediaUsage {
+  pageId: number;
+  pageName: string;
+  sectionId: number;
+  sectionTitle: string;
+  sectionType: string;
+  kind: 'Primary' | 'Gallery';
+  position: number | null;
+}
+
+export interface IMediaDetail extends IMedia {
+  createdUtc: string;
+  defaultAltText: string | null;
+  usages: IMediaUsage[];
+}
+
+export type MediaFilter = 'all' | 'used' | 'unused';
+export type MediaSort = 'newest' | 'oldest' | 'name';
+
+export interface IMediaQuery {
+  search: string;
+  filter: MediaFilter;
+  sort: MediaSort;
+  skip: number;
+  take: number;
 }
 
 export interface IGalleryImageInput {

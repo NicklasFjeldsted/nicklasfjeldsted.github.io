@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Mvo.Application.Abstractions;
 using Mvo.Application.Domain;
+using Mvo.Application.Features.Media;
+using Mvo.Application.Features.Sections;
 
 namespace Mvo.Infrastructure.Persistence;
 
@@ -61,6 +63,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasKey(x => x.Id);
             e.Property(x => x.StoredFileName).HasMaxLength(100).IsRequired();
             e.Property(x => x.OriginalFileName).HasMaxLength(255).IsRequired();
+            e.Property(x => x.Name).HasMaxLength(MediaRules.NameMaxLength).IsRequired();
+            e.Property(x => x.DefaultAltText).HasMaxLength(SectionRules.AltTextMax);
+            e.HasIndex(x => x.CreatedUtc);
             e.Property(x => x.ContentType).HasMaxLength(100).IsRequired();
             e.HasIndex(x => x.StoredFileName).IsUnique();
         });

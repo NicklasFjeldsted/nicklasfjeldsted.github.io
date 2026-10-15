@@ -208,3 +208,67 @@ public class ReorderGalleryHandler(IAppDbContext db, SectionContentLoader loader
         return await loader.LoadAsync(request.PageId, request.SectionId, cancellationToken);
     }
 }
+
+/// <summary>
+/// Replaces the whole gallery with the given images in the given order, in one transaction. Images already in the
+/// gallery keep their alternative text; new images get the text sent with them.
+/// </summary>
+public record SetGalleryCommand(int PageId, int SectionId, int ExpectedVersion, IReadOnlyList<GalleryImageInput> Images)
+    : IRequest<SectionContentDto>;
+
+public class SetGalleryValidator : AbstractValidator<SetGalleryCommand>
+{
+    public SetGalleryValidator()
+    {
+        RuleFor(x => x.PageId).RequiredId();
+        RuleFor(x => x.SectionId).RequiredId();
+        RuleFor(x => x.Images).NotNull().Must(i => i is null || i.Count <= SectionRules.GalleryMaxImages)
+            .WithMessage($"A gallery can hold at most {SectionRules.GalleryMaxImages} images.");
+        RuleFor(x => x.Images).Must(i => i is null || i.Select(x => x.MediaId).Distinct().Count() == i.Count)
+            .WithMessage("The same image cannot be in the gallery twice.");
+        RuleForEach(x => x.Images).ChildRules(image =>
+        {
+            image.RuleFor(i => i.MediaId).RequiredId();
+            image.RuleFor(i => i.AltText).OptionalText(SectionRules.AltTextMax);
+        });
+    }
+}
+
+public class SetGalleryHandler(IAppDbContext db, SectionContentLoader loader) : IRequestHandler<SetGalleryCommand, SectionContentDto>
+{
+    public async Task<SectionContentDto> Handle(SetGalleryCommand request, CancellationToken cancellationToken)
+    {
+        var section = await db.GetForUpdateAsync(request.PageId, request.SectionId, request.ExpectedVersion, true, false, cancellationToken);
+        section.EnsureHasGallery();
+
+        var max = section.MaxGalleryImages();
+        if (request.Images.Count > max)
+            throw new ConflictException($"A gallery in a section of type {section.SectionType.DisplayName} can hold at most {max} image{(max == 1 ? "" : "s")}.");
+
+        await db.EnsureMediaExistsAsync(request.Images.Select(i => i.MediaId).ToList(), cancellationToken);
+
+        // Keep the rows of images that stay (so their ids and alt text survive) and remove the rest.
+        var wanted = request.Images.Select(i => i.MediaId).ToHashSet();
+        foreach (var removed in section.Gallery.Where(g => !wanted.Contains(g.MediaAssetId)).ToList())
+        {
+            section.Gallery.Remove(removed);
+            db.GalleryImages.Remove(removed);
+        }
+
+        var position = 1;
+        foreach (var input in request.Images)
+        {
+            var row = section.Gallery.FirstOrDefault(g => g.MediaAssetId == input.MediaId);
+            if (row is null)
+            {
+                row = new GalleryImage { MediaAssetId = input.MediaId, AltText = GalleryRules.NormalizeAlt(input.AltText) };
+                section.Gallery.Add(row);
+            }
+            row.DisplayOrder = position++;
+        }
+        section.Version++;
+
+        await db.SaveWithConcurrencyAsync(cancellationToken);
+        return await loader.LoadAsync(request.PageId, request.SectionId, cancellationToken);
+    }
+}
