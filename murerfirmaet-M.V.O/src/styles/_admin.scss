@@ -296,3 +296,6 @@ textarea.adm-input { min-height: 7rem; resize: vertical; }
   // The public page fades sections in on scroll; the preview shows them straight away.
   .mvo-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
 }
+
+// The description at the top of an editor tab gets room before the images and buttons below it.
+.adm [role='tabpanel'] > * > p.adm-hint:first-child { margin: 0 0 1.25rem; }
