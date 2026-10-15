@@ -1,0 +1,58 @@
+# Produktion: MySQL + API + Caddy (HTTPS). Start med:
+#   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?sæt MYSQL_ROOT_PASSWORD i .env.production}
+      MYSQL_DATABASE: mvo
+      MYSQL_USER: mvo
+      MYSQL_PASSWORD: ${MVO_DB_PASSWORD:?sæt MVO_DB_PASSWORD i .env.production}
+    volumes:
+      - mvo-mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Ingen "ports": databasen er KUN tilgængelig for API'et i Docker-netværket.
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__Mvo: "Server=mysql;Port=3306;Database=mvo;User=mvo;Password=${MVO_DB_PASSWORD}"
+      Jwt__Key: ${JWT_KEY:?sæt JWT_KEY i .env.production}
+      Admin__Email: ${ADMIN_EMAIL:?sæt ADMIN_EMAIL i .env.production}
+      Admin__Password: ${ADMIN_PASSWORD:?sæt ADMIN_PASSWORD i .env.production}
+      Cors__Origins__0: ${CORS_ORIGIN_1:?sæt CORS_ORIGIN_1 i .env.production}
+      Cors__Origins__1: ${CORS_ORIGIN_2:?sæt CORS_ORIGIN_2 i .env.production}
+      Media__RootPath: /app/media
+    volumes:
+      - mvo-media:/app/media
+    # Ingen "ports": kun Caddy taler med API'et.
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?sæt API_DOMAIN i .env.production}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  mvo-mysql:
+  mvo-media:
+  caddy-data:
+  caddy-config:

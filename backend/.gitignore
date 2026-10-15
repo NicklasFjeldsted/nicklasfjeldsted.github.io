@@ -6,3 +6,4 @@ src/Mvo.Api/media/
 
 # Local uploaded media (dev)
 .media/
+.env.production
