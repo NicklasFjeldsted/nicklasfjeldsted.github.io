@@ -14,11 +14,11 @@ const PAGE_SIZE = 48;
   selector: 'mvo-media-browser',
   imports: [FormsModule],
   template: `
-    <div class="lib-drop" [class.lib-drop--over]="dragOver()" (dragover)="onDragOver($event)" (dragleave)="dragOver.set(false)" (drop)="onDrop($event)">
-      <strong>{{ mode() === 'pick' ? 'Upload nye billeder' : 'Upload billeder' }}</strong> – træk filer hertil eller
-      <label class="lib-drop__pick">vælg fra enheden<input type="file" class="adm-visually-hidden" multiple [accept]="accept" (change)="onPick($event)"></label>{{
+    <label class="lib-drop" [class.lib-drop--over]="dragOver()" (dragover)="onDragOver($event)" (dragleave)="dragOver.set(false)" (drop)="onDrop($event)">
+      <input type="file" class="adm-visually-hidden" multiple [accept]="accept" (change)="onPick($event)">
+      <strong>{{ mode() === 'pick' ? 'Upload nye billeder' : 'Upload billeder' }}</strong> – klik her for at vælge fra enheden, eller træk filer hertil{{
         mode() === 'pick' ? '. De lægges i arkivet og bliver valgt med det samme.' : ' (JPEG, PNG, WebP, maks. 10 MB pr. billede)' }}
-    </div>
+    </label>
 
     <div class="lib-toolbar" role="search">
       <label class="adm-visually-hidden" [for]="id() + '-search'">Søg i billedarkivet</label>

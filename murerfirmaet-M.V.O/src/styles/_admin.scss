@@ -204,11 +204,9 @@ textarea.adm-input { min-height: 7rem; resize: vertical; }
   margin-bottom: 1rem; padding: 0.9rem; text-align: center; color: var(--adm-muted);
   background: var(--adm-surface); border: 2px dashed var(--adm-border); border-radius: 8px;
   strong { color: var(--text-primary, #1d1d1d); }
-  &--over { border-color: var(--adm-accent); background: rgba(138, 90, 43, 0.06); }
-}
-.lib-drop__pick {
-  color: inherit; text-decoration: underline; cursor: pointer;
-  &:focus-within { outline: none; box-shadow: var(--adm-focus); border-radius: 2px; }
+  display: block; cursor: pointer; transition: border-color 0.15s, background 0.15s;
+  &:hover, &--over { border-color: var(--adm-accent); background: rgba(138, 90, 43, 0.06); }
+  &:focus-within { outline: none; box-shadow: var(--adm-focus); }
 }
 .lib-toolbar {
   display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-bottom: 1rem;
