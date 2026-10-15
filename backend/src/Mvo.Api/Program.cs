@@ -1,4 +1,5 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Mvo.Api;
+using Mvo.Api.Controllers;
 using Mvo.Application;
 using Mvo.Infrastructure;
 
@@ -41,10 +43,28 @@ builder.Services.AddAuthorization();
 var origins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? [];
 builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod()));
 
+// The quote form is public, so limit how often one visitor can send it. Caddy sits in front,
+// so the visitor's address is the first entry in X-Forwarded-For.
+builder.Services.AddRateLimiter(o =>
+{
+    o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    o.AddPolicy(ContactController.RateLimitPolicy, context =>
+    {
+        var forwarded = context.Request.Headers["X-Forwarded-For"].ToString().Split(',')[0].Trim();
+        var client = string.IsNullOrEmpty(forwarded) ? context.Connection.RemoteIpAddress?.ToString() ?? "unknown" : forwarded;
+        return RateLimitPartition.GetFixedWindowLimiter(client, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = builder.Configuration.GetValue("Contact:RequestsPerHour", 10),
+            Window = TimeSpan.FromHours(1),
+        });
+    });
+});
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseCors();
+app.UseRateLimiter();
 
 var media = app.Services.GetRequiredService<IOptions<MediaStorageOptions>>().Value;
 Directory.CreateDirectory(Path.GetFullPath(media.RootPath));

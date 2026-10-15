@@ -137,11 +137,13 @@ public static class DependencyInjection
         services.Configure<MediaStorageOptions>(configuration.GetSection("Media"));
         services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
         services.Configure<AdminSeedOptions>(configuration.GetSection("Admin"));
+        services.Configure<MailOptions>(configuration.GetSection("Mail"));
 
         services.AddSingleton<IMediaStorage, LocalMediaStorage>();
         services.AddSingleton<PasswordVerifier>();
         services.AddSingleton<IPasswordVerifier>(sp => sp.GetRequiredService<PasswordVerifier>());
         services.AddSingleton<ITokenIssuer, TokenIssuer>();
+        services.AddSingleton<IEmailSender, SmtpEmailSender>();
         services.AddScoped<AdminSeeder>();
         return services;
     }

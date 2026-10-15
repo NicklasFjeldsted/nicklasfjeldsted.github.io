@@ -5,3 +5,5 @@ public class NotFoundException(string message) : Exception(message);
 public class ConflictException(string message) : Exception(message);
 
 public class UnauthorizedLoginException() : Exception("Invalid email or password.");
+
+public class ServiceUnavailableException(string message) : Exception(message);

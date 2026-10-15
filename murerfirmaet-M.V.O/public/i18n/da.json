@@ -146,6 +146,19 @@
       "renovation": "Renovering",
       "repair": "Reparationer og småopgaver",
       "other": "Andet"
+    },
+    "sending": "Sender...",
+    "errors": {
+      "fields": "Udfyld navn, telefonnummer og hvad du skal have hjælp til.",
+      "files": "Du kan vedhæfte op til 5 filer på max 10 MB hver (20 MB i alt).",
+      "tooMany": "Du har sendt mange forespørgsler på kort tid. Prøv igen senere eller ring på {{phone}}.",
+      "server": "Din forespørgsel kunne ikke sendes. Prøv igen, eller ring til os på {{phone}}."
+    },
+    "sent": {
+      "heading": "Tak for din forespørgsel",
+      "description": "Vi har modtaget dine oplysninger og vender tilbage hurtigst muligt med et uforpligtende tilbud.",
+      "receipt": "Du har fået en kvittering på mail.",
+      "again": "Send en ny forespørgsel"
     }
   },
   "contact": {
