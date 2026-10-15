@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using FluentAssertions;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Mvo.Application.Abstractions;
 using Mvo.Application.Common;
@@ -12,6 +13,8 @@ using Mvo.Application.Features.Media;
 using Mvo.Application.Features.Pages;
 using Mvo.Application.Features.Public;
 using Mvo.Application.Features.Sections;
+using Mvo.Infrastructure;
+using Mvo.Infrastructure.Persistence;
 
 namespace Mvo.Tests;
 
@@ -332,6 +335,35 @@ public class MediaAndHttpTests(TestHost host)
     {
         var response = await Client().PostAsJsonAsync("/api/admin/auth/login", new { email = TestHost.AdminEmail, password = "wrong" });
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Changed_admin_settings_update_the_existing_admin_on_startup()
+    {
+        async Task SeedAsync(string email, string password)
+        {
+            await using var scope = host.Services.CreateAsyncScope();
+            var sp = scope.ServiceProvider;
+            var options = Microsoft.Extensions.Options.Options.Create(new AdminSeedOptions { Email = email, Password = password });
+            await new AdminSeeder(sp.GetRequiredService<AppDbContext>(), sp.GetRequiredService<PasswordVerifier>(), options).SeedAsync(CancellationToken.None);
+        }
+        Task<HttpResponseMessage> LoginAsync(string email, string password) =>
+            Client().PostAsJsonAsync("/api/admin/auth/login", new { email, password });
+
+        try
+        {
+            await SeedAsync(" Ny@Example.test ", "Nyt-password-456!");
+
+            (await LoginAsync("ny@example.test", "Nyt-password-456!")).StatusCode.Should().Be(HttpStatusCode.OK);
+            (await LoginAsync(TestHost.AdminEmail, TestHost.AdminPassword)).StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            await using var scope = host.Services.CreateAsyncScope();
+            (await scope.ServiceProvider.GetRequiredService<AppDbContext>().AdminUsers.CountAsync()).Should().Be(1);
+        }
+        finally
+        {
+            await SeedAsync(TestHost.AdminEmail, TestHost.AdminPassword);
+        }
+        (await LoginAsync(TestHost.AdminEmail, TestHost.AdminPassword)).StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]

@@ -94,9 +94,21 @@ public class AdminSeeder(AppDbContext db, PasswordVerifier passwords, IOptions<A
     {
         var seed = options.Value;
         if (string.IsNullOrWhiteSpace(seed.Email) || string.IsNullOrWhiteSpace(seed.Password)) return;
-        if (await db.AdminUsers.AnyAsync(cancellationToken)) return;
+        var email = seed.Email.Trim().ToLowerInvariant();
 
-        db.AdminUsers.Add(new AdminUser { Email = seed.Email.Trim().ToLowerInvariant(), PasswordHash = passwords.Hash(seed.Password) });
+        // Admin-login styres af konfigurationen: ændres e-mail eller adgangskode i .env.production,
+        // opdateres brugeren ved næste opstart. Findes der kun én admin, får den den nye e-mail.
+        var admins = await db.AdminUsers.ToListAsync(cancellationToken);
+        var user = admins.FirstOrDefault(u => u.Email == email) ?? (admins.Count == 1 ? admins[0] : null);
+        if (user is null)
+        {
+            db.AdminUsers.Add(new AdminUser { Email = email, PasswordHash = passwords.Hash(seed.Password) });
+        }
+        else
+        {
+            user.Email = email;
+            if (!passwords.Verify(user.PasswordHash, seed.Password)) user.PasswordHash = passwords.Hash(seed.Password);
+        }
         await db.SaveChangesAsync(cancellationToken);
     }
 }
