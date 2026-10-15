@@ -3,14 +3,14 @@ import {Injectable, inject} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {API_BASE_URL, mediaUrl} from '../config/api.config';
-import {IMasonryImage, ISpecializedMasonryPage} from '../interfaces/masonry-page.interface';
+import {IMasonryImage, ISpecializedMasonryPage, MasonrySectionType} from '../interfaces/masonry-page.interface';
 import {SPECIALIZED_MASONRY_PLACEHOLDER} from '../data/specialized-masonry.placeholder';
 
 const SLUG = 'specialiseret-murerarbejde';
 
 interface IPublicImage {id: string; url: string; alt: string}
 interface IPublicSection {
-  id: string; title: string; eyebrow: string | null; introduction: string | null; description: string;
+  id: string; type: MasonrySectionType; title: string; eyebrow: string | null; introduction: string | null; description: string;
   additionalDescription: string | null; details: string[]; primaryImage: IPublicImage | null;
   gallery: IPublicImage[]; displayOrder: number;
 }
@@ -48,6 +48,7 @@ export class MasonryContentService {
         .sort((a, b) => a.displayOrder - b.displayOrder)
         .map(s => ({
           id: s.id,
+          type: s.type,
           title: s.title,
           eyebrow: s.eyebrow ?? undefined,
           introduction: s.introduction ?? undefined,

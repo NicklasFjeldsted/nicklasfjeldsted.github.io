@@ -6,6 +6,7 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Mvo.Application.Abstractions;
 using Mvo.Application.Common;
+using Mvo.Application.Domain;
 using Mvo.Application.Features.Gallery;
 using Mvo.Application.Features.Pages;
 using Mvo.Application.Features.Public;
@@ -94,6 +95,35 @@ public class GalleryTests(TestHost host)
         var inputs = new List<GalleryImageInput>();
         for (var i = 0; i < count; i++) inputs.Add(new GalleryImageInput(await host.NewMediaAsync(), $"Billede {i}"));
         return await host.SendAsync(new AddGalleryImagesCommand(s.PageId, s.Id, s.Version, inputs));
+    }
+
+    [Fact]
+    public async Task Before_after_section_holds_one_before_and_one_after_image()
+    {
+        var s = await host.NewSectionAsync("Før og efter", SectionTypeId.BeforeAfter);
+        s.SectionType.Should().Be("BeforeAfter");
+        s.HasPrimaryImage.Should().BeTrue();
+
+        s = await host.SendAsync(new SetPrimaryImageCommand(s.PageId, s.Id, s.Version, await host.NewMediaAsync(), "Før"));
+        s = await host.SendAsync(new AddGalleryImagesCommand(s.PageId, s.Id, s.Version, [new GalleryImageInput(await host.NewMediaAsync(), "Efter")]));
+        s.Gallery.Should().HaveCount(1);
+
+        var second = await host.NewMediaAsync();
+        var act = () => host.SendAsync(new AddGalleryImagesCommand(s.PageId, s.Id, s.Version, [new GalleryImageInput(second, null)]));
+        await act.Should().ThrowAsync<ConflictException>();
+
+        var replacement = await host.NewMediaAsync();
+        s = await host.SendAsync(new ReplaceGalleryImageCommand(s.PageId, s.Id, s.Version, s.Gallery[0].Id, replacement, "Nyt efter"));
+        s.Gallery.Should().ContainSingle().Which.MediaId.Should().Be(replacement);
+    }
+
+    [Fact]
+    public async Task Public_page_exposes_the_section_type()
+    {
+        var s = await host.NewSectionAsync("Type i offentlig side", SectionTypeId.BeforeAfter);
+        await host.SendAsync(new SetSectionVisibilityCommand(s.PageId, s.Id, s.Version, true));
+        var page = await host.SendAsync(new GetPublicPageQuery("specialiseret-murerarbejde"));
+        page.Sections.Should().Contain(x => x.Id == s.Id.ToString() && x.Type == "BeforeAfter");
     }
 
     [Fact]

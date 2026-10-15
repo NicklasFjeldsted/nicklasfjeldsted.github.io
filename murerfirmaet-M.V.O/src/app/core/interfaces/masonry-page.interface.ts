@@ -4,8 +4,12 @@ export interface IMasonryImage {
   alt: string;
 }
 
+export type MasonrySectionType = 'MasonryShowcase' | 'TextBlock' | 'BeforeAfter';
+
 export interface IMasonrySection {
   id: string;
+  /** Which layout the section uses. Missing means the default showcase. */
+  type?: MasonrySectionType;
   title: string;
   eyebrow?: string;
   introduction?: string;

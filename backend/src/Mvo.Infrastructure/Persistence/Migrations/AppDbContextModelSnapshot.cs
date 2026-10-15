@@ -322,6 +322,14 @@ namespace Mvo.Infrastructure.Persistence.Migrations
                             HasGallery = false,
                             HasPrimaryImage = false,
                             Name = "TextBlock"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            DisplayName = "Før og efter",
+                            HasGallery = true,
+                            HasPrimaryImage = true,
+                            Name = "BeforeAfter"
                         });
                 });
 

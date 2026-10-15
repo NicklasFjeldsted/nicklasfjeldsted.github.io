@@ -50,8 +50,8 @@ public class TestHost : WebApplicationFactory<Program>, IAsyncLifetime
 
     public const int ManagedPageId = 2;
 
-    public Task<SectionContentDto> NewSectionAsync(string title = "Test") =>
-        SendAsync(new CreateSectionCommand(ManagedPageId, title, SectionTypeId.MasonryShowcase));
+    public Task<SectionContentDto> NewSectionAsync(string title = "Test", SectionTypeId type = SectionTypeId.MasonryShowcase) =>
+        SendAsync(new CreateSectionCommand(ManagedPageId, title, type));
 
     public async Task<int> NewMediaAsync()
     {

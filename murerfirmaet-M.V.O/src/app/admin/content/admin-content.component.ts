@@ -6,18 +6,19 @@ import {
   IApiError, INotice, IPageDetail, IPageListItem, ISectionContent, ISectionListItem, SECTION_TYPES,
 } from '../admin.models';
 import {AuthService} from '../auth.service';
+import {BeforeAfterEditorComponent} from '../editors/before-after-editor.component';
 import {GalleryEditorComponent} from '../editors/gallery-editor.component';
 import {PageTextEditorComponent} from '../editors/page-text-editor.component';
 import {PrimaryImageEditorComponent} from '../editors/primary-image-editor.component';
 import {SectionTextEditorComponent} from '../editors/section-text-editor.component';
 import {ConfirmService} from '../shared/confirm-dialog.component';
 
-type Tab = 'text' | 'primary' | 'gallery';
+type Tab = 'text' | 'primary' | 'gallery' | 'beforeAfter';
 const INTRO = 'intro';
 
 @Component({
   selector: 'mvo-admin-content',
-  imports: [FormsModule, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, GalleryEditorComponent],
+  imports: [FormsModule, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, GalleryEditorComponent, BeforeAfterEditorComponent],
   templateUrl: './admin-content.component.html',
 })
 export class AdminContentComponent implements IHasUnsavedChanges {
@@ -51,6 +52,10 @@ export class AdminContentComponent implements IHasUnsavedChanges {
   protected readonly tabs = computed(() => {
     const s = this.section();
     const tabs: {id: Tab; label: string}[] = [{id: 'text', label: 'Tekst'}];
+    if (s?.sectionType === 'BeforeAfter') {
+      tabs.push({id: 'beforeAfter', label: 'Før og efter'});
+      return tabs;
+    }
     if (s?.hasPrimaryImage) tabs.push({id: 'primary', label: 'Hovedbillede'});
     if (s?.hasGallery) tabs.push({id: 'gallery', label: 'Galleri'});
     return tabs;
@@ -237,13 +242,21 @@ export class AdminContentComponent implements IHasUnsavedChanges {
       next: s => {
         this.loadingContent.set(false);
         this.section.set(s);
-        this.tab.set(tab === 'primary' && !s.hasPrimaryImage || tab === 'gallery' && !s.hasGallery ? 'text' : tab);
+        this.tab.set(this.tabAllowed(tab, s) ? tab : 'text');
       },
       error: (e: IApiError) => {
         this.loadingContent.set(false);
         this.notice.set({kind: 'error', text: `Sektionen kunne ikke hentes. ${e.message}`});
       },
     });
+  }
+
+  private tabAllowed(tab: Tab, s: ISectionContent): boolean {
+    const beforeAfter = s.sectionType === 'BeforeAfter';
+    if (tab === 'beforeAfter') return beforeAfter;
+    if (tab === 'primary') return s.hasPrimaryImage && !beforeAfter;
+    if (tab === 'gallery') return s.hasGallery && !beforeAfter;
+    return true;
   }
 
   private async leave(): Promise<boolean> {

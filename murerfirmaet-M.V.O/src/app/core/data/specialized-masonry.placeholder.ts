@@ -64,5 +64,18 @@ export const SPECIALIZED_MASONRY_PLACEHOLDER: ISpecializedMasonryPage = {
       displayOrder: 3,
       published: true,
     },
+    {
+      id: 'placeholder-4',
+      type: 'BeforeAfter',
+      eyebrow: 'Før og efter',
+      title: 'Pladsholder: Før og efter',
+      description:
+        'Pladsholdertekst. Træk i skyderen for at sammenligne billedet før og efter arbejdet. Billederne erstattes via administrationen.',
+      details: [],
+      primaryImage: placeholderImage('p4-before', 'bathrooms/bathroom3.png'),
+      gallery: [placeholderImage('p4-after', 'bathrooms/bathroom4.png')],
+      displayOrder: 4,
+      published: true,
+    },
   ],
 };
