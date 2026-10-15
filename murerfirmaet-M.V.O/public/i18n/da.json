@@ -16,9 +16,9 @@
       "title": "Gratis og uforpligtende",
       "description": "Få et tilbud helt gratis – uden bindinger"
     },
-    "response": {
-      "title": "Svar indenfor 24 timer",
-      "description": "Vi vender hurtigt tilbage med et konkret tilbud"
+    "contact": {
+      "title": "Fast kontaktperson",
+      "description": "Du har den samme kontakt fra tilbud til aflevering"
     },
     "location": {
       "title": "København & omegn",
@@ -77,7 +77,7 @@
     },
     "step2": {
       "title": "Vi giver dig et tilbud",
-      "description": "Du modtager et gratis og uforpligtende tilbud indenfor 24 timer."
+      "description": "Du modtager et gratis og uforpligtende tilbud."
     },
     "step3": {
       "title": "Vi udfører opgaven",
@@ -101,10 +101,10 @@
       "bathrooms": "Speciale i badeværelser",
       "quality": "Kvalitet ned til detaljen",
       "clearCommunication": "Klar kommunikation",
-      "shortReply": "Svar indenfor 24 timer"
+      "personalAdvice": "Personlig rådgivning"
     },
     "offer": {
-      "heading": "Få et tilbud indenfor 24 timer",
+      "heading": "Få et gratis og uforpligtende tilbud",
       "description": "Udfyld formularen - så vender vi hurtigt tilbage med et uforpligtende tilbud.",
       "name": "Navn",
       "email": "Email",

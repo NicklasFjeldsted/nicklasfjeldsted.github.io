@@ -44,7 +44,7 @@ export class HomeComponent {
   protected highlights: ITrustHighlight[] = [
     {icon: 'shield', titleKey: 'highlights.experience.title', descriptionKey: 'highlights.experience.description'},
     {icon: 'check', titleKey: 'highlights.free.title', descriptionKey: 'highlights.free.description'},
-    {icon: 'clock', titleKey: 'highlights.response.title', descriptionKey: 'highlights.response.description'},
+    {icon: 'user', titleKey: 'highlights.contact.title', descriptionKey: 'highlights.contact.description'},
     {icon: 'location-dot', titleKey: 'highlights.location.title', descriptionKey: 'highlights.location.description'},
   ];
 
@@ -61,7 +61,7 @@ export class HomeComponent {
     'top.specialities.bathrooms',
     'top.specialities.quality',
     'top.specialities.clearCommunication',
-    'top.specialities.shortReply',
+    'top.specialities.personalAdvice',
   ];
 
   protected readonly projectImages: string[] = [
