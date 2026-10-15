@@ -26,7 +26,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasIndex(x => x.Name).IsUnique();
             e.HasData(
                 new SectionType { Id = SectionTypeId.MasonryShowcase, Name = nameof(SectionTypeId.MasonryShowcase), DisplayName = "Murerarbejde med billeder", HasPrimaryImage = true, HasGallery = true },
-                new SectionType { Id = SectionTypeId.TextBlock, Name = nameof(SectionTypeId.TextBlock), DisplayName = "Tekstblok", HasPrimaryImage = false, HasGallery = false });
+                new SectionType { Id = SectionTypeId.TextBlock, Name = nameof(SectionTypeId.TextBlock), DisplayName = "Tekstblok", HasPrimaryImage = false, HasGallery = false },
+                new SectionType { Id = SectionTypeId.BeforeAfter, Name = nameof(SectionTypeId.BeforeAfter), DisplayName = "Før og efter", HasPrimaryImage = true, HasGallery = true });
         });
 
         modelBuilder.Entity<ContentPage>(e =>

@@ -4,6 +4,7 @@ public enum SectionTypeId
 {
     MasonryShowcase = 1,
     TextBlock = 2,
+    BeforeAfter = 3,
 }
 
 public class SectionType

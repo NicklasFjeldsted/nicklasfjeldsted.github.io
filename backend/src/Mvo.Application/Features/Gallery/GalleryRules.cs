@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Mvo.Application.Abstractions;
 using Mvo.Application.Common;
 using Mvo.Application.Domain;
+using Mvo.Application.Features.Sections;
 
 namespace Mvo.Application.Features.Gallery;
 
@@ -14,6 +15,10 @@ public static class GalleryRules
         if (!section.SectionType.HasGallery)
             throw new ConflictException($"Sections of type {section.SectionType.DisplayName} do not have a gallery.");
     }
+
+    /// <summary>A before/after section holds exactly one "after" image in its gallery (the primary image is the "before").</summary>
+    public static int MaxGalleryImages(this ContentSection section) =>
+        section.SectionTypeId == SectionTypeId.BeforeAfter ? 1 : SectionRules.GalleryMaxImages;
 
     public static async Task EnsureMediaExistsAsync(this IAppDbContext db, IReadOnlyCollection<int> mediaIds, CancellationToken cancellationToken)
     {

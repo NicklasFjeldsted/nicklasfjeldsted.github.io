@@ -72,8 +72,9 @@ public class AddGalleryImagesHandler(IAppDbContext db, SectionContentLoader load
         var section = await db.GetForUpdateAsync(request.PageId, request.SectionId, request.ExpectedVersion, true, false, cancellationToken);
         section.EnsureHasGallery();
 
-        if (section.Gallery.Count + request.Images.Count > SectionRules.GalleryMaxImages)
-            throw new ConflictException($"A gallery can hold at most {SectionRules.GalleryMaxImages} images.");
+        var max = section.MaxGalleryImages();
+        if (section.Gallery.Count + request.Images.Count > max)
+            throw new ConflictException($"A gallery in a section of type {section.SectionType.DisplayName} can hold at most {max} image{(max == 1 ? "" : "s")}.");
 
         var mediaIds = request.Images.Select(i => i.MediaId).ToList();
         await db.EnsureMediaExistsAsync(mediaIds, cancellationToken);

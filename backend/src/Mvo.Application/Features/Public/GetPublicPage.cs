@@ -9,7 +9,7 @@ namespace Mvo.Application.Features.Public;
 public record PublicImageDto(string Id, string Url, string Alt);
 
 public record PublicSectionDto(
-    string Id, string Title, string? Eyebrow, string? Introduction, string Description, string? AdditionalDescription,
+    string Id, string Type, string Title, string? Eyebrow, string? Introduction, string Description, string? AdditionalDescription,
     IReadOnlyList<string> Details, PublicImageDto? PrimaryImage, IReadOnlyList<PublicImageDto> Gallery, int DisplayOrder);
 
 public record PublicPageDto(string? Eyebrow, string Heading, string Introduction, IReadOnlyList<PublicSectionDto> Sections);
@@ -33,7 +33,7 @@ public class GetPublicPageHandler(IAppDbContext db, IMediaStorage storage) : IRe
                 Sections = p.Sections.Where(s => s.IsPublished).OrderBy(s => s.DisplayOrder)
                     .Select(s => new
                     {
-                        s.Id, s.Title, s.Eyebrow, s.Introduction, s.Description, s.AdditionalDescription, s.DisplayOrder,
+                        s.Id, Type = s.SectionTypeId, s.Title, s.Eyebrow, s.Introduction, s.Description, s.AdditionalDescription, s.DisplayOrder,
                         s.PrimaryImageAltText,
                         PrimaryId = s.PrimaryMediaId,
                         PrimaryFile = s.PrimaryMedia != null ? s.PrimaryMedia.StoredFileName : null,
@@ -46,7 +46,7 @@ public class GetPublicPageHandler(IAppDbContext db, IMediaStorage storage) : IRe
             ?? throw new NotFoundException($"Page '{request.Slug}' was not found.");
 
         var sections = page.Sections.Select(s => new PublicSectionDto(
-            s.Id.ToString(), s.Title, s.Eyebrow, s.Introduction, s.Description, s.AdditionalDescription, s.Details,
+            s.Id.ToString(), s.Type.ToString(), s.Title, s.Eyebrow, s.Introduction, s.Description, s.AdditionalDescription, s.Details,
             s.PrimaryFile is null ? null : new PublicImageDto($"primary-{s.Id}", storage.GetUrl(s.PrimaryFile), s.PrimaryImageAltText ?? s.Title),
             s.Gallery.Select(g => new PublicImageDto(g.Id.ToString(), storage.GetUrl(g.StoredFileName), g.AltText ?? s.Title)).ToList(),
             s.DisplayOrder)).ToList();
