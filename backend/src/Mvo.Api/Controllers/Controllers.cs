@@ -23,6 +23,7 @@ public record PrimaryImageRequest(int ExpectedVersion, int MediaId, string? AltT
 public record AddGalleryImagesRequest(int ExpectedVersion, IReadOnlyList<GalleryImageInput> Images);
 public record ReplaceGalleryImageRequest(int ExpectedVersion, int MediaId, string? AltText);
 public record ReorderGalleryRequest(int ExpectedVersion, IReadOnlyList<int> OrderedGalleryImageIds);
+public record UpdateMediaRequest(string Name, string? DefaultAltText);
 
 [ApiController]
 [Route("api/pages")]
@@ -113,11 +114,24 @@ public class AdminPagesController(ISender sender) : ControllerBase
 [Route("api/admin/media")]
 public class MediaController(ISender sender) : ControllerBase
 {
+    [HttpGet]
+    public async Task<MediaLibraryPageDto> List(
+        [FromQuery] string? search, [FromQuery] MediaUsageFilter filter = MediaUsageFilter.All, [FromQuery] MediaSort sort = MediaSort.Newest,
+        [FromQuery] int skip = 0, [FromQuery] int take = 48, CancellationToken ct = default) =>
+        await sender.Send(new GetMediaLibraryQuery(search, filter, sort, skip, take), ct);
+
+    [HttpGet("{mediaId:int}")]
+    public async Task<MediaDetailDto> Get(int mediaId, CancellationToken ct) => await sender.Send(new GetMediaDetailQuery(mediaId), ct);
+
+    [HttpPut("{mediaId:int}")]
+    public async Task<MediaDetailDto> Update(int mediaId, UpdateMediaRequest r, CancellationToken ct) =>
+        await sender.Send(new UpdateMediaCommand(mediaId, r.Name, r.DefaultAltText), ct);
+
     [HttpPost]
     [RequestSizeLimit(ImageSignature.MaxBytes + 1024 * 1024)]
-    public async Task<ActionResult<MediaDto>> Upload(IFormFile file, CancellationToken ct)
+    public async Task<ActionResult<MediaDto>> Upload(IFormFile file, [FromForm] string? name, CancellationToken ct)
     {
-        var dto = await sender.Send(new UploadMediaCommand(file.FileName, file.Length, file.OpenReadStream), ct);
+        var dto = await sender.Send(new UploadMediaCommand(file.FileName, file.Length, file.OpenReadStream, name), ct);
         return StatusCode(StatusCodes.Status201Created, dto);
     }
 

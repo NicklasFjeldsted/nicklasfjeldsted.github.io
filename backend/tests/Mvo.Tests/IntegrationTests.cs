@@ -8,6 +8,7 @@ using Mvo.Application.Abstractions;
 using Mvo.Application.Common;
 using Mvo.Application.Domain;
 using Mvo.Application.Features.Gallery;
+using Mvo.Application.Features.Media;
 using Mvo.Application.Features.Pages;
 using Mvo.Application.Features.Public;
 using Mvo.Application.Features.Sections;
@@ -275,6 +276,9 @@ public class MediaAndHttpTests(TestHost host)
     [InlineData("PUT", "/api/admin/pages/2/sections/1/gallery/order")]
     [InlineData("DELETE", "/api/admin/pages/2/sections/1/gallery/1?expectedVersion=1")]
     [InlineData("POST", "/api/admin/media")]
+    [InlineData("GET", "/api/admin/media")]
+    [InlineData("GET", "/api/admin/media/1")]
+    [InlineData("PUT", "/api/admin/media/1")]
     public async Task Admin_endpoints_reject_unauthenticated_requests(string method, string url)
     {
         var response = await Client().SendAsync(new HttpRequestMessage(new HttpMethod(method), url));
@@ -340,6 +344,25 @@ public class MediaAndHttpTests(TestHost host)
     }
 
     [Fact]
+    public async Task Upload_with_a_name_is_listed_under_that_name()
+    {
+        var client = await AdminClientAsync();
+        var token = Guid.NewGuid().ToString("N")[..10];
+        var png = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 9, 9, 9, 9 };
+        using var form = new MultipartFormDataContent
+        {
+            { new ByteArrayContent(png), "file", "IMG_4821.png" },
+            { new StringContent($"Skorsten {token}"), "name" },
+        };
+
+        var response = await client.PostAsync("/api/admin/media", form);
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var list = await client.GetFromJsonAsync<MediaLibraryPageDto>($"/api/admin/media?search={token}&filter=unused&sort=name");
+        list!.Items.Should().ContainSingle().Which.Name.Should().Be($"Skorsten {token}");
+    }
+
+    [Fact]
     public async Task Upload_rejects_a_disguised_file_by_content_not_name_or_content_type()
     {
         var client = await AdminClientAsync();
@@ -375,5 +398,77 @@ public class MediaAndHttpTests(TestHost host)
 
         var act = () => host.SendAsync(new Mvo.Application.Features.Media.DeleteMediaCommand(mediaId));
         await act.Should().ThrowAsync<ConflictException>();
+    }
+}
+
+[Collection("host")]
+public class MediaLibraryTests(TestHost host)
+{
+    private static string Token() => Guid.NewGuid().ToString("N")[..10];
+
+    private Task<MediaLibraryPageDto> SearchAsync(string search, MediaUsageFilter filter = MediaUsageFilter.All, MediaSort sort = MediaSort.Newest) =>
+        host.SendAsync(new GetMediaLibraryQuery(search, filter, sort, 0, 50));
+
+    [Fact]
+    public async Task Name_defaults_to_the_file_name_without_extension()
+    {
+        var token = Token();
+        var id = await host.NewMediaAsync(fileName: $"facade-{token}.png");
+        (await host.SendAsync(new GetMediaDetailQuery(id))).Name.Should().Be($"facade-{token}");
+
+        var named = await host.NewMediaAsync(name: "  Gavl Østerbro  ");
+        (await host.SendAsync(new GetMediaDetailQuery(named))).Name.Should().Be("Gavl Østerbro");
+    }
+
+    [Fact]
+    public async Task Search_matches_every_word_ignoring_case()
+    {
+        var token = Token();
+        var match = await host.NewMediaAsync($"Skorsten Østerbro {token}");
+        await host.NewMediaAsync($"Facade Nørrebro {token}");
+
+        var result = await SearchAsync($"skorsten {token.ToUpperInvariant()}");
+        result.Items.Select(i => i.Id).Should().Equal(match);
+        result.Total.Should().Be(1);
+        (await SearchAsync(token)).Total.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task Usage_filter_count_and_detail_follow_the_sections()
+    {
+        var token = Token();
+        var used = await host.NewMediaAsync($"Brugt {token}");
+        var unused = await host.NewMediaAsync($"Ubrugt {token}");
+        var filler = await host.NewMediaAsync($"Fyld {token}");
+
+        var s = await host.NewSectionAsync("Arkivsektion");
+        s = await host.SendAsync(new SetPrimaryImageCommand(s.PageId, s.Id, s.Version, used, null));
+        await host.SendAsync(new AddGalleryImagesCommand(s.PageId, s.Id, s.Version,
+            [new GalleryImageInput(filler, null), new GalleryImageInput(used, null)]));
+
+        (await SearchAsync(token, MediaUsageFilter.Unused)).Items.Select(i => i.Id).Should().Equal(unused);
+        var usedItems = (await SearchAsync(token, MediaUsageFilter.Used, MediaSort.Name)).Items;
+        usedItems.Select(i => i.Id).Should().Equal(used, filler);
+        usedItems[0].UsageCount.Should().Be(2);
+
+        var detail = await host.SendAsync(new GetMediaDetailQuery(used));
+        detail.Usages.Should().HaveCount(2);
+        detail.Usages.Should().Contain(u => u.SectionId == s.Id && u.Kind == "Primary" && u.Position == null);
+        detail.Usages.Should().Contain(u => u.SectionId == s.Id && u.Kind == "Gallery" && u.Position == 2);
+        detail.Usages.Should().OnlyContain(u => u.PageName == "Specialiseret murerarbejde" && u.SectionTitle == "Arkivsektion");
+    }
+
+    [Fact]
+    public async Task Name_and_default_alt_text_can_be_updated()
+    {
+        var id = await host.NewMediaAsync();
+        var updated = await host.SendAsync(new UpdateMediaCommand(id, " Ny facade ", "  "));
+        updated.Name.Should().Be("Ny facade");
+        updated.DefaultAltText.Should().BeNull();
+
+        var blank = () => host.SendAsync(new UpdateMediaCommand(id, "   ", null));
+        await blank.Should().ThrowAsync<ValidationException>();
+        var missing = () => host.SendAsync(new UpdateMediaCommand(999_999, "x", null));
+        await missing.Should().ThrowAsync<NotFoundException>();
     }
 }

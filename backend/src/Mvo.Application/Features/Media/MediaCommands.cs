@@ -7,7 +7,22 @@ using Mvo.Application.Domain;
 
 namespace Mvo.Application.Features.Media;
 
-public record MediaDto(int Id, string Url, string OriginalFileName, string ContentType, long SizeBytes);
+public record MediaDto(int Id, string Url, string Name, string OriginalFileName, string ContentType, long SizeBytes);
+
+public static class MediaRules
+{
+    public const int NameMaxLength = 200;
+
+    /// <summary>Fallback display name: the uploaded file name without its extension.</summary>
+    public static string NameFromFileName(string fileName)
+    {
+        var name = Path.GetFileNameWithoutExtension(fileName).Trim();
+        return name.Length > NameMaxLength ? name[..NameMaxLength] : name;
+    }
+
+    public static string NormalizeName(string? name, string fileName) =>
+        string.IsNullOrWhiteSpace(name) ? NameFromFileName(fileName) : name.Trim();
+}
 
 public static class ImageSignature
 {
@@ -28,7 +43,7 @@ public static class ImageSignature
     }
 }
 
-public record UploadMediaCommand(string FileName, long Length, Func<Stream> OpenStream) : IRequest<MediaDto>;
+public record UploadMediaCommand(string FileName, long Length, Func<Stream> OpenStream, string? Name = null) : IRequest<MediaDto>;
 
 public class UploadMediaValidator : AbstractValidator<UploadMediaCommand>
 {
@@ -38,6 +53,7 @@ public class UploadMediaValidator : AbstractValidator<UploadMediaCommand>
             .Must(ImageSignature.IsAllowedExtension).WithMessage("Only JPEG, PNG and WebP images are allowed.");
         RuleFor(x => x.Length).GreaterThan(0).LessThanOrEqualTo(ImageSignature.MaxBytes)
             .WithMessage("Images must be between 1 byte and 10 MB.");
+        RuleFor(x => x.Name).MaximumLength(MediaRules.NameMaxLength);
     }
 }
 
@@ -60,6 +76,7 @@ public class UploadMediaHandler(IAppDbContext db, IMediaStorage storage) : IRequ
         {
             StoredFileName = storedFileName,
             OriginalFileName = Path.GetFileName(request.FileName),
+            Name = MediaRules.NormalizeName(request.Name, request.FileName),
             ContentType = detected.ContentType,
             SizeBytes = request.Length,
             CreatedUtc = DateTime.UtcNow,
@@ -76,7 +93,7 @@ public class UploadMediaHandler(IAppDbContext db, IMediaStorage storage) : IRequ
             throw;
         }
 
-        return new MediaDto(asset.Id, storage.GetUrl(asset.StoredFileName), asset.OriginalFileName, asset.ContentType, asset.SizeBytes);
+        return new MediaDto(asset.Id, storage.GetUrl(asset.StoredFileName), asset.Name, asset.OriginalFileName, asset.ContentType, asset.SizeBytes);
     }
 }
 

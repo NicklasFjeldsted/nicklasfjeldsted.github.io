@@ -53,10 +53,10 @@ public class TestHost : WebApplicationFactory<Program>, IAsyncLifetime
     public Task<SectionContentDto> NewSectionAsync(string title = "Test", SectionTypeId type = SectionTypeId.MasonryShowcase) =>
         SendAsync(new CreateSectionCommand(ManagedPageId, title, type));
 
-    public async Task<int> NewMediaAsync()
+    public async Task<int> NewMediaAsync(string? name = null, string fileName = "billede.png")
     {
         var png = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 1, 2, 3, 4, 5, 6 };
-        var media = await SendAsync(new UploadMediaCommand("billede.png", png.Length, () => new MemoryStream(png)));
+        var media = await SendAsync(new UploadMediaCommand(fileName, png.Length, () => new MemoryStream(png), name));
         return media.Id;
     }
 }

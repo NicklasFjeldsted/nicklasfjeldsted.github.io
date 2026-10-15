@@ -231,6 +231,15 @@ namespace Mvo.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedUtc")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("DefaultAltText")
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
                     b.Property<string>("OriginalFileName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -245,6 +254,8 @@ namespace Mvo.Infrastructure.Persistence.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedUtc");
 
                     b.HasIndex("StoredFileName")
                         .IsUnique();

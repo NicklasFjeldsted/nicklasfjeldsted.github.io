@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Mvo.Application.Common;
+using Mvo.Application.Features.Media;
 using Mvo.Application.Features.Sections;
 
 namespace Mvo.Application;
@@ -14,6 +15,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(assembly);
         services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddScoped<SectionContentLoader>();
+        services.AddScoped<MediaDetailLoader>();
         return services;
     }
 }
