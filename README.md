@@ -6,3 +6,4 @@ Website for a masonry company, with an admin page so the masons can maintain the
 - `backend/` — .NET 9 API with MySQL; see [backend/README.md](backend/README.md)
 - `docs/tasks/` — task specifications; see [docs/tasks/README.md](docs/tasks/README.md)
 - `docs/deployment/hetzner.md` — vejledning til at sætte backenden op på Hetzner (Docker, MySQL, Caddy)
+- `docs/deployment/deploy-changes.md` — sådan ruller du ændringer ud (frontend og backend)
