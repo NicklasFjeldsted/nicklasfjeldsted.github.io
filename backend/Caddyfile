@@ -1,0 +1,5 @@
+# Caddy henter og fornyer automatisk et gratis HTTPS-certifikat til domænet.
+{$API_DOMAIN} {
+	encode gzip
+	reverse_proxy api:8080
+}
