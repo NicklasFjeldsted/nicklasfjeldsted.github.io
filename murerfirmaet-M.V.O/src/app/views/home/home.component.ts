@@ -1,4 +1,4 @@
-import {Component, signal} from '@angular/core';
+import {Component} from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
 import {ServiceGridComponent} from '../../shared/components/service-grid/service-grid.component';
 import {ITrustHighlight} from '../../core/interfaces/trust-highlight.interface';
@@ -16,15 +16,13 @@ import {WorkStepComponent} from '../../shared/components/work-step/work-step.com
 import {IWorkStep} from '../../core/interfaces/work-step.interface';
 import {ProjectCarouselComponent} from '../../shared/components/project-carousel/project-carousel.component';
 import {FaIconComponent} from '@fortawesome/angular-fontawesome';
-import {InputComponent} from '../../shared/components/input/input.component';
-import {SelectComponent} from '../../shared/components/select/select.component';
-import {TextareaComponent} from '../../shared/components/textarea/textarea.component';
-import {UploadComponent} from '../../shared/components/upload/upload.component';
+import {RouterLink} from '@angular/router';
+import {QuoteFormComponent} from '../../shared/components/quote-form/quote-form.component';
 import {ButtonIconPosition} from '../../core/enums/button-icon.enum';
 
 @Component({
   selector: 'mvo-home',
-  imports: [ServiceGridComponent, TrustHighlightComponent, FeatureHighlightComponent, WorkStepComponent, ProjectCarouselComponent, ButtonComponent, TranslatePipe, UpperCasePipe, FaIconComponent, InputComponent, SelectComponent, TextareaComponent, UploadComponent],
+  imports: [ServiceGridComponent, TrustHighlightComponent, FeatureHighlightComponent, WorkStepComponent, ProjectCarouselComponent, ButtonComponent, TranslatePipe, UpperCasePipe, FaIconComponent, RouterLink, QuoteFormComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   standalone: true
@@ -55,7 +53,7 @@ export class HomeComponent {
     {icon: faShield, titleKey: 'features.insurance.title', descriptionKey: 'features.insurance.description'},
   ];
 
-  protected readonly callHref = `tel:+${ContactConstants.PHONE_NUMBER}`;
+  protected readonly callHref = `tel:+45${ContactConstants.PHONE_NUMBER.replace(/\s/g, '')}`;
 
   protected readonly specialities: string[] = [
     'top.specialities.bathrooms',
@@ -90,8 +88,6 @@ export class HomeComponent {
     {index: 3, titleKey: 'howWeWork.step3.title', descriptionKey: 'howWeWork.step3.description', icon: faHammer},
     {index: 4, titleKey: 'howWeWork.step4.title', descriptionKey: 'howWeWork.step4.description', icon: faCircleCheck},
   ];
-
-  protected uploadedFiles = signal<File[]>([]);
 
 
   protected readonly faClipboardList = faClipboardList;

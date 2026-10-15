@@ -78,3 +78,52 @@
     padding-left: 1.5rem;
   }
 }
+
+// ── Mobile hero shortcuts ─────────────────────────────────────────────────────
+// Replace the quote form on small screens: one gold button to the contact page
+// and one outlined call button, side by side.
+.hero-cta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+.hero-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  height: 3.25rem;
+  padding: 0 1rem;
+  border-radius: 0.5rem;
+  font-family: "Inter", Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: filter 160ms ease, background-color 160ms ease;
+
+  &--primary {
+    background: linear-gradient(180deg, var(--color-primary-light), var(--color-primary));
+    border: 1px solid var(--color-primary-active);
+    color: var(--text-on-primary);
+
+    &:active { filter: brightness(0.9); }
+  }
+
+  &--outline {
+    background-color: rgba(0, 0, 0, 0.55);
+    border: 1px solid var(--color-primary);
+    color: var(--text-inverse);
+
+    fa-icon { color: var(--color-primary); }
+
+    &:active { background-color: rgba(0, 0, 0, 0.75); }
+  }
+}

@@ -1,0 +1,49 @@
+<form [formGroup]="form" class="u-bg-secondary bg-opacity-10 u-border u-border-card rounded-lg p-4 shadow">
+  <div class="flex flex-col gap-3">
+    <h3 class="u-text-dark-heading uppercase">Få et gratis og<br>uforpligtende tilbud</h3>
+    <p class="u-text-dark-body text-sm">{{ 'top.offer.description' | translate }}</p>
+    <div class="flex flex-col gap-2">
+      <mvo-input
+        label="{{ 'top.offer.name' | translate }}"
+        placeholder="{{ 'top.offer.name' | translate }}*"
+        [control]="form.controls.name"
+        [required]="true"
+      ></mvo-input>
+      <mvo-input
+        label="{{ 'top.offer.phone' | translate }}"
+        placeholder="{{ 'top.offer.phone' | translate }}*"
+        type="tel"
+        [control]="form.controls.phone"
+        [required]="true"
+      ></mvo-input>
+      <mvo-input
+        label="{{ 'top.offer.email' | translate }}"
+        placeholder="{{ 'top.offer.email' | translate }}"
+        type="email"
+        [control]="form.controls.email"
+      ></mvo-input>
+      <mvo-select
+        label="{{ 'top.offer.task' | translate }}"
+        placeholder="{{ 'top.offer.task' | translate }}*"
+        [options]="categoryOptions()"
+        [control]="form.controls.category"
+        [required]="true"
+      ></mvo-select>
+      <mvo-textarea
+        label="{{ 'top.offer.message' | translate }}"
+        placeholder="{{ 'top.offer.message_placeholder' | translate }}"
+        [control]="form.controls.message"
+      ></mvo-textarea>
+    </div>
+
+    <mvo-upload [(files)]="files"/>
+
+    <mvo-button
+      label="{{ 'top.offer.submit' | translate | uppercase }}"
+      [variant]="ButtonVariant.Primary"
+      [size]="ButtonSize.Lg"
+      [fullWidth]="true"
+    ></mvo-button>
+    <p class="u-text-dark-body text-xs text-center">{{ 'top.offer.confidentially' | translate }}</p>
+  </div>
+</form>

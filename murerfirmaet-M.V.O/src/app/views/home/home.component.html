@@ -19,47 +19,19 @@
               </div>
             }
           </div>
-        </div>
-        <form class="u-bg-secondary bg-opacity-10 u-border u-border-card rounded-lg p-4 shadow lg:max-w-80">
-          <div class="flex flex-col gap-3">
-            <h3 class="u-text-dark-heading uppercase">Få et gratis og<br>uforpligtende tilbud</h3>
-            <p class="u-text-dark-body text-sm">Udfyld formularen - så vender vi hurtigt tilbage tilbage med et uforpligtende tilbud</p>
-            <!-- Fields -->
-            <div class="flex flex-col gap-2">
-              <mvo-input
-                label="{{ 'top.offer.name' | translate }}"
-                placeholder="{{ 'top.offer.name' | translate }}*"
-              ></mvo-input>
-              <mvo-input
-                label="{{ 'top.offer.phone' | translate }}"
-                placeholder="{{ 'top.offer.phone' | translate }}*"
-              ></mvo-input>
-              <mvo-input
-                label="{{ 'top.offer.email' | translate }}"
-                placeholder="{{ 'top.offer.email' | translate }}"
-              ></mvo-input>
-              <mvo-select
-                label="{{ 'top.offer.task' | translate }}"
-                placeholder="{{ 'top.offer.task' | translate }}*"
-              ></mvo-select>
-              <mvo-textarea
-                label="{{ 'top.offer.message' | translate }}"
-                placeholder="{{ 'top.offer.message_placeholder' | translate }}"
-              ></mvo-textarea>
-            </div>
-
-            <!-- Upload -->
-            <mvo-upload [(files)]="uploadedFiles"/>
-
-            <mvo-button
-              label="{{ 'top.offer.submit' | translate | uppercase }}"
-              [variant]="ButtonVariant.Primary"
-              [size]="ButtonSize.Lg"
-              [fullWidth]="true"
-            ></mvo-button>
-
+          <!-- On mobile the quote form lives on the contact page; the hero offers shortcuts instead. -->
+          <div class="hero-cta">
+            <a routerLink="/kontakt" class="hero-cta__btn hero-cta__btn--primary">
+              <span>{{ 'top.get_offer_mobile' | translate }}</span>
+              <fa-icon [icon]="faArrowRightLong" aria-hidden="true"></fa-icon>
+            </a>
+            <a [href]="callHref" class="hero-cta__btn hero-cta__btn--outline">
+              <fa-icon [icon]="faPhone" aria-hidden="true"></fa-icon>
+              <span>{{ 'top.call' | translate }}</span>
+            </a>
           </div>
-        </form>
+        </div>
+        <mvo-quote-form class="hidden lg:block lg:max-w-80"/>
       </div>
     </section>
   </div>

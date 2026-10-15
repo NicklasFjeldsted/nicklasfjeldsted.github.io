@@ -36,9 +36,10 @@ export class HeaderComponent {
   protected readonly navItems: INavItem[] = [
     {labelKey: 'nav.home', path: '/', exact: true},
     {labelKey: 'nav.specializedMasonry', path: '/specialiseret-murerarbejde', exact: false},
+    {labelKey: 'nav.contact', path: '/kontakt', exact: false},
   ];
 
-  protected readonly callHref = `tel:+${ContactConstants.PHONE_NUMBER}`;
+  protected readonly callHref = `tel:+45${ContactConstants.PHONE_NUMBER.replace(/\s/g, '')}`;
   protected readonly phoneNumber = ContactConstants.PHONE_NUMBER;
   protected readonly faPhone = faPhone;
   protected readonly faBars = faBars;
