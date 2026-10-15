@@ -257,7 +257,7 @@ docker compose -f docker-compose.prod.yml ps
 docker compose -f docker-compose.prod.yml logs -f api     # Ctrl+C for at stoppe visningen
 ```
 
-API'et opretter selv databasetabellerne og administratorbrugeren ved første opstart. Caddy henter certifikatet, så snart DNS peger på serveren.
+API'et opretter selv databasetabellerne og administratorbrugeren ved første opstart. Ændrer du senere `ADMIN_EMAIL` eller `ADMIN_PASSWORD`, opdateres administratorbrugeren, næste gang API'et starter (se afsnit 12). Caddy henter certifikatet, så snart DNS peger på serveren.
 
 **Test fra din computer:**
 
@@ -339,6 +339,7 @@ Data i databasen og billeder bevares, fordi de ligger i Docker-volumer.
 | `Access denied for user` | Databasens adgangskode er ændret efter første start. Volumet husker den gamle. Vil du nulstille, så kør `docker compose ... down -v` (sletter data!) og start igen. |
 | Browseren viser CORS-fejl | `CORS_ORIGIN_1/2` matcher ikke den adresse, siden kører på (husk `https://`, og ingen `/` til sidst). |
 | API'et stopper ved opstart | Se `logs api`. Typisk: `JWT_KEY` er for kort (kræver mindst 32 tegn) eller en variabel mangler. |
+| Kan ikke logge ind efter ændring af `ADMIN_EMAIL`/`ADMIN_PASSWORD` | Husk `--env-file .env.production`, ellers læser Docker Compose ikke filen. Kør `docker compose -f docker-compose.prod.yml --env-file .env.production up -d --force-recreate api`, så API'et starter med de nye værdier og opdaterer administratorbrugeren. |
 | `permission denied` ved Docker | Du er ikke logget ind igen, efter `usermod -aG docker`. Log ud og ind. |
 | Kan ikke SSH'e ind | Tjek, at port 22 er åben i firewallen, og at du bruger den rigtige nøgle (`ssh -i`). |
 
