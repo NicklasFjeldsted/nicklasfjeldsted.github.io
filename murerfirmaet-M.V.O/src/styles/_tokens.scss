@@ -9,6 +9,7 @@ $color-primary-light:  tone(gold, 300);
 $color-primary-soft:   tone(gold, 100);
 $color-primary-hover:  tone(gold, 300);
 $color-primary-active: tone(gold, 500);
+$color-primary-on-light: tone(gold, 600); // the bright gold is too pale on light backgrounds
 
 $color-secondary:        tone(neutral, 900);
 $color-secondary-light:  tone(neutral, 800);
@@ -32,6 +33,8 @@ $bg-dark-deep:     tone(neutral, 875); // #191a1b — form/card background on da
 
 $bg-overlay-dark: rgba(tone(neutral, 950), 0.72);
 
+$divider-dark:    rgba(tone(neutral, 0), 0.14); // thin separators on dark bg
+
 
 // =============================================================================
 // TEXT COLORS
@@ -45,7 +48,7 @@ $text-inverse:           tone(neutral, 50);
 $text-inverse-secondary: tone(neutral, 300);
 
 $text-accent:       tone(gold, 700);
-$text-on-primary:   #ffffff;
+$text-on-primary:   tone(neutral, 950); // dark text on gold fill
 $text-on-secondary: #ffffff;
 
 // Dark-section specific text tokens
@@ -60,7 +63,7 @@ $text-field:     tone(neutral, 200);  // #dfdcd7  — input typed text
 
 $border-default: tone(neutral, 200);
 $border-strong:  tone(neutral, 300);
-$border-dark:    #383b40;
+$border-dark:    #333333;
 $border-accent:  $color-primary;
 $border-card:    rgba(tone(gold, 500), 0.40); // card borders on dark bg
 $border-input:   rgba(tone(gold, 500), 0.32); // input borders (default)

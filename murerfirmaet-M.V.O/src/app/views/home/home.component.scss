@@ -70,3 +70,11 @@
   position: relative;
   z-index: 1;
 }
+
+// Thin vertical dividers between the trust highlights on desktop
+.trust-strip > mvo-trust-highlight + mvo-trust-highlight {
+  @media (min-width: 1024px) {
+    border-left: 1px solid var(--divider-dark);
+    padding-left: 1.5rem;
+  }
+}
