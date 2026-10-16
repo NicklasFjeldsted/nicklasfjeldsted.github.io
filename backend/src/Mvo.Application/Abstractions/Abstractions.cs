@@ -33,3 +33,20 @@ public interface ITokenIssuer
 }
 
 public record TokenResult(string Token, DateTime ExpiresUtc);
+
+public record EmailAttachment(string FileName, string ContentType, byte[] Content);
+
+public record EmailMessage(string Subject, string TextBody, string HtmlBody, string? ReplyTo, IReadOnlyList<EmailAttachment> Attachments);
+
+/// <summary>Sends mail through the configured SMTP server.</summary>
+public interface IEmailSender
+{
+    /// <summary>False when no SMTP server is configured; mails are then only logged.</summary>
+    bool IsConfigured { get; }
+
+    /// <summary>The company's own inbox address, used as reply-to on mails to customers.</summary>
+    string? CompanyAddress { get; }
+
+    Task SendToCompanyAsync(EmailMessage message, CancellationToken cancellationToken);
+    Task SendAsync(string to, string toName, EmailMessage message, CancellationToken cancellationToken);
+}

@@ -242,6 +242,32 @@ chmod 600 .env.production
 
 > **Hvorfor `CORS`?** Browseren tillader kun, at `murerfirmaet-mvo.dk` henter data fra API'et, hvis API'et udtrykkeligt tillader den adresse.
 
+### 7.1 Mail fra tilbudsformularen
+
+Når en kunde udfylder formularen på forsiden eller kontaktsiden, sender API'et to mails: én til firmaet med alle oplysninger og de vedhæftede billeder, og en kvittering til kunden (kun hvis kunden har skrevet sin e-mail). Mail er valgfri: står `SMTP_HOST` tom, virker formularen stadig, men henvendelsen skrives kun i API'ets log (`logs api`, søg efter `quote request`).
+
+| Variabel | Indhold |
+| --- | --- |
+| `SMTP_HOST` | mailserveren, fx `smtp.gmail.com` (tom = mail slået fra) |
+| `SMTP_PORT` | `587` |
+| `SMTP_SECURITY` | `StartTls` (til port 587). Andre muligheder: `SslOnConnect`, `None`, `Auto` |
+| `SMTP_USERNAME` / `SMTP_PASSWORD` | login til mailkontoen |
+| `MAIL_FROM_ADDRESS` | afsenderen, typisk samme konto som `SMTP_USERNAME` |
+| `MAIL_FROM_NAME` | navnet kunden ser som afsender, fx `Murerfirmaet MVO` |
+| `MAIL_COMPANY_ADDRESS` | hvor nye forespørgsler sendes hen (tom = `MAIL_FROM_ADDRESS`) |
+
+**Gmail:** Kontoen skal have totrinsbekræftelse slået til. Opret derefter en *app-adgangskode* under Google-konto → Sikkerhed → App-adgangskoder, og brug den som `SMTP_PASSWORD` (ikke den almindelige adgangskode). `SMTP_USERNAME` og `MAIL_FROM_ADDRESS` er Gmail-adressen.
+
+> **Port 587:** Hetzner blokerer som standard udgående port 25 og 465 på nye servere, så brug port 587 med `StartTls`.
+
+Mailen til firmaet har kundens e-mail som svaradresse, så I kan trykke "Svar" og skrive direkte til kunden. Formularen kan sendes 10 gange i timen fra samme adresse.
+
+Efter en ændring i mail-variablerne genstartes API'et:
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d --force-recreate api
+```
+
 ---
 
 ## 8. Start alt
@@ -340,6 +366,8 @@ Data i databasen og billeder bevares, fordi de ligger i Docker-volumer.
 | Browseren viser CORS-fejl | `CORS_ORIGIN_1/2` matcher ikke den adresse, siden kører på (husk `https://`, og ingen `/` til sidst). |
 | API'et stopper ved opstart | Se `logs api`. Typisk: `JWT_KEY` er for kort (kræver mindst 32 tegn) eller en variabel mangler. |
 | Kan ikke logge ind efter ændring af `ADMIN_EMAIL`/`ADMIN_PASSWORD` | Husk `--env-file .env.production`, ellers læser Docker Compose ikke filen. Kør `docker compose -f docker-compose.prod.yml --env-file .env.production up -d --force-recreate api`, så API'et starter med de nye værdier og opdaterer administratorbrugeren. |
+| Formularen siger "kunne ikke sendes" | API'et kunne ikke sende mailen til firmaet. Se `logs api`: henvendelsen står i loggen sammen med fejlen. Typisk forkert `SMTP_PASSWORD` (Gmail kræver en app-adgangskode) eller port 465/25, som Hetzner blokerer. |
+| Ingen mails, men formularen siger tak | `SMTP_HOST` eller `MAIL_FROM_ADDRESS` er tom, så mail er slået fra. Henvendelserne står i `logs api`. |
 | `permission denied` ved Docker | Du er ikke logget ind igen, efter `usermod -aG docker`. Log ud og ind. |
 | Kan ikke SSH'e ind | Tjek, at port 22 er åben i firewallen, og at du bruger den rigtige nøgle (`ssh -i`). |
 

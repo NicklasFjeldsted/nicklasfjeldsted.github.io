@@ -32,6 +32,15 @@ services:
       Cors__Origins__0: ${CORS_ORIGIN_1:?sæt CORS_ORIGIN_1 i .env.production}
       Cors__Origins__1: ${CORS_ORIGIN_2:?sæt CORS_ORIGIN_2 i .env.production}
       Media__RootPath: /app/media
+      # Mail er valgfri: uden SMTP_HOST logges henvendelser fra tilbudsformularen kun.
+      Mail__Host: ${SMTP_HOST:-}
+      Mail__Port: ${SMTP_PORT:-587}
+      Mail__Security: ${SMTP_SECURITY:-StartTls}
+      Mail__Username: ${SMTP_USERNAME:-}
+      Mail__Password: ${SMTP_PASSWORD:-}
+      Mail__FromAddress: ${MAIL_FROM_ADDRESS:-}
+      Mail__FromName: ${MAIL_FROM_NAME:-Murerfirmaet MVO}
+      Mail__CompanyAddress: ${MAIL_COMPANY_ADDRESS:-}
     volumes:
       - mvo-media:/app/media
     # Ingen "ports": kun Caddy taler med API'et.

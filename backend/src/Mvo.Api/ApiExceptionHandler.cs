@@ -14,6 +14,7 @@ public class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) : IExcepti
             ValidationException v => ValidationProblem(v),
             NotFoundException n => new ProblemDetails { Status = 404, Title = "Not found", Detail = n.Message },
             ConflictException c => new ProblemDetails { Status = 409, Title = "Conflict", Detail = c.Message },
+            ServiceUnavailableException s => new ProblemDetails { Status = 503, Title = "Service unavailable", Detail = s.Message },
             UnauthorizedLoginException u => new ProblemDetails { Status = 401, Title = "Unauthorized", Detail = u.Message },
             _ => null,
         };

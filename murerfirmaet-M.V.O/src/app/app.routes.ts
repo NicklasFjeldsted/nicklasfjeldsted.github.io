@@ -1,6 +1,7 @@
 import {Routes} from '@angular/router';
 import {HomeComponent} from './views/home/home.component';
 import {SpecializedMasonryComponent} from './views/specialized-masonry/specialized-masonry.component';
+import {ContactComponent} from './views/contact/contact.component';
 import {authGuard, unsavedChangesGuard} from './admin/admin.guards';
 
 export const routes: Routes = [
@@ -9,6 +10,7 @@ export const routes: Routes = [
     component: SpecializedMasonryComponent,
     data: {headerTheme: 'light'}
   },
+  {path: 'kontakt', component: ContactComponent},
   {path: 'admin/login', loadComponent: () => import('./admin/login/login.component').then(m => m.LoginComponent)},
   {
     path: 'admin',

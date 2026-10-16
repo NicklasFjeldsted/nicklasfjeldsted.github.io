@@ -2,7 +2,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mvo.Application.Domain;
+using Microsoft.AspNetCore.RateLimiting;
 using Mvo.Application.Features.Auth;
+using Mvo.Application.Features.Contact;
 using Mvo.Application.Features.Gallery;
 using Mvo.Application.Features.Media;
 using Mvo.Application.Features.Pages;
@@ -144,6 +146,30 @@ public class MediaController(ISender sender) : ControllerBase
     public async Task<IActionResult> Delete(int mediaId, CancellationToken ct)
     {
         await sender.Send(new DeleteMediaCommand(mediaId), ct);
+        return NoContent();
+    }
+}
+
+[ApiController]
+[Route("api/contact")]
+public class ContactController(ISender sender) : ControllerBase
+{
+    public const string RateLimitPolicy = "quote-requests";
+
+    /// <summary>The quote form on the website. Emails the firm and sends the customer a receipt.</summary>
+    [HttpPost("quote")]
+    [EnableRateLimiting(RateLimitPolicy)]
+    [RequestSizeLimit(QuoteLimits.MaxTotalBytes + 1024 * 1024)]
+    [RequestFormLimits(MultipartBodyLengthLimit = QuoteLimits.MaxTotalBytes + 1024 * 1024)]
+    public async Task<IActionResult> RequestQuote(
+        [FromForm] string? name, [FromForm] string? phone, [FromForm] string? email, [FromForm] string? category,
+        [FromForm] string? message, [FromForm] string? website, [FromForm] List<IFormFile>? files, CancellationToken ct)
+    {
+        // "website" is a hidden field people never see; bots fill it in. Pretend it worked.
+        if (!string.IsNullOrEmpty(website)) return NoContent();
+
+        var attachments = (files ?? []).Select(f => new QuoteAttachment(f.FileName, f.Length, f.OpenReadStream)).ToList();
+        await sender.Send(new SubmitQuoteRequestCommand(name ?? "", phone ?? "", email, category ?? "", message, attachments), ct);
         return NoContent();
     }
 }

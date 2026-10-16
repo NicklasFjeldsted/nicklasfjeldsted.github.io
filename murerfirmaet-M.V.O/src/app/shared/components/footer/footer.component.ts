@@ -32,7 +32,7 @@ export class FooterComponent {
     {labelKey: 'footer.links.services', path: '/'},
     {labelKey: 'footer.links.projects', path: '/'},
     {labelKey: 'footer.links.about', path: '/'},
-    {labelKey: 'footer.links.contact', path: '/'},
+    {labelKey: 'footer.links.contact', path: '/kontakt'},
   ];
 
   protected readonly serviceLinks: IFooterLink[] = [

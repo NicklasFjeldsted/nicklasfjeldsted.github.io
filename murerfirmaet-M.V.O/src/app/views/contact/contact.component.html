@@ -1,0 +1,47 @@
+<main class="contact-page u-bg-dark">
+  <div class="contact-page__inner">
+    <header class="contact-page__intro">
+      <h5 class="u-text-brand uppercase">{{ 'contact.eyebrow' | translate }}</h5>
+      <h1 class="u-text-dark-heading">{{ 'contact.heading' | translate }}</h1>
+      <p class="u-text-dark-body">{{ 'contact.lead' | translate }}</p>
+    </header>
+
+    <div class="contact-page__grid">
+      <mvo-quote-form class="contact-page__form"/>
+
+      <aside class="contact-page__info" aria-label="Kontaktoplysninger">
+        <a class="contact-card" [href]="callHref">
+          <span class="contact-card__icon"><fa-icon [icon]="faPhone"/></span>
+          <span class="contact-card__text">
+            <span class="contact-card__label">{{ 'contact.phone' | translate }}</span>
+            <span class="contact-card__value">{{ ContactConstants.PHONE_NUMBER }}</span>
+          </span>
+        </a>
+        <a class="contact-card" [href]="mailHref">
+          <span class="contact-card__icon"><fa-icon [icon]="faEnvelope"/></span>
+          <span class="contact-card__text">
+            <span class="contact-card__label">{{ 'contact.email' | translate }}</span>
+            <span class="contact-card__value contact-card__value--wrap">{{ ContactConstants.EMAIL_ADDRESS }}</span>
+          </span>
+        </a>
+        <div class="contact-card">
+          <span class="contact-card__icon"><fa-icon [icon]="faLocationDot"/></span>
+          <span class="contact-card__text">
+            <span class="contact-card__label">{{ 'contact.area' | translate }}</span>
+            <span class="contact-card__value">{{ 'contact.areaValue' | translate }}</span>
+          </span>
+        </div>
+
+        <p class="contact-page__note">{{ 'contact.responseNote' | translate }}</p>
+
+        <div class="contact-page__meta">
+          <span>{{ ContactConstants.COMPANY_NAME }} · {{ 'contact.cvr' | translate }} {{ ContactConstants.CVR }}</span>
+          <span class="contact-page__social">
+            <a [href]="ContactConstants.FACEBOOK_URL" target="_blank" rel="noopener" aria-label="Facebook"><fa-icon [icon]="faFacebookF"/></a>
+            <a [href]="ContactConstants.INSTAGRAM_URL" target="_blank" rel="noopener" aria-label="Instagram"><fa-icon [icon]="faInstagram"/></a>
+          </span>
+        </div>
+      </aside>
+    </div>
+  </div>
+</main>
