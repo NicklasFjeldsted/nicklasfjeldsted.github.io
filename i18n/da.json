@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "Forside",
-    "specializedMasonry": "Specialiseret murerarbejde"
+    "specializedMasonry": "Specialiseret murerarbejde",
+    "contact": "Kontakt"
   },
   "home": {
     "call": "Ring",
@@ -16,9 +17,9 @@
       "title": "Gratis og uforpligtende",
       "description": "Få et tilbud helt gratis – uden bindinger"
     },
-    "response": {
-      "title": "Svar indenfor 24 timer",
-      "description": "Vi vender hurtigt tilbage med et konkret tilbud"
+    "contact": {
+      "title": "Fast kontaktperson",
+      "description": "Du har den samme kontakt fra tilbud til aflevering"
     },
     "location": {
       "title": "København & omegn",
@@ -77,7 +78,7 @@
     },
     "step2": {
       "title": "Vi giver dig et tilbud",
-      "description": "Du modtager et gratis og uforpligtende tilbud indenfor 24 timer."
+      "description": "Du modtager et gratis og uforpligtende tilbud."
     },
     "step3": {
       "title": "Vi udfører opgaven",
@@ -101,10 +102,10 @@
       "bathrooms": "Speciale i badeværelser",
       "quality": "Kvalitet ned til detaljen",
       "clearCommunication": "Klar kommunikation",
-      "shortReply": "Svar indenfor 24 timer"
+      "personalAdvice": "Personlig rådgivning"
     },
     "offer": {
-      "heading": "Få et tilbud indenfor 24 timer",
+      "heading": "Få et gratis og uforpligtende tilbud",
       "description": "Udfyld formularen - så vender vi hurtigt tilbage med et uforpligtende tilbud.",
       "name": "Navn",
       "email": "Email",
@@ -117,7 +118,8 @@
     },
     "call": "Ring nu",
     "get_offer": "Få tilbud",
-    "get_offer_extended": "Få et uforpligtende tilbud"
+    "get_offer_extended": "Få et uforpligtende tilbud",
+    "get_offer_mobile": "Få et tilbud"
   },
   "footer": {
     "tagline": "Vi skaber badeværelser med fokus på kvalitet, funktionalitet og stærkt håndværk – bygget til at holde.",
@@ -134,5 +136,41 @@
       "about": "Om os",
       "contact": "Kontakt"
     }
+  },
+  "quote": {
+    "categories": {
+      "bathroom": "Badeværelse",
+      "tiles": "Fliser og klinker",
+      "masonry": "Murerarbejde",
+      "plaster": "Puds og facade",
+      "renovation": "Renovering",
+      "repair": "Reparationer og småopgaver",
+      "other": "Andet"
+    },
+    "sending": "Sender...",
+    "errors": {
+      "fields": "Udfyld navn, telefonnummer og hvad du skal have hjælp til.",
+      "files": "Du kan vedhæfte op til 5 filer på max 10 MB hver (20 MB i alt).",
+      "tooMany": "Du har sendt mange forespørgsler på kort tid. Prøv igen senere eller ring på {{phone}}.",
+      "server": "Din forespørgsel kunne ikke sendes. Prøv igen, eller ring til os på {{phone}}."
+    },
+    "sent": {
+      "heading": "Tak for din forespørgsel",
+      "description": "Vi har modtaget dine oplysninger og vender tilbage hurtigst muligt med et uforpligtende tilbud.",
+      "receipt": "Du har fået en kvittering på mail.",
+      "again": "Send en ny forespørgsel"
+    }
+  },
+  "contact": {
+    "eyebrow": "Kontakt os",
+    "heading": "Lad os tale om din opgave",
+    "lead": "Fortæl os kort hvad du skal have lavet, så vender vi tilbage med et gratis og uforpligtende tilbud.",
+    "phone": "Ring til os",
+    "email": "Skriv til os",
+    "area": "Vi dækker",
+    "areaValue": "København og omegn",
+    "cvr": "CVR",
+    "follow": "Følg os",
+    "responseNote": "Vi ringer eller skriver tilbage hurtigst muligt på hverdage."
   }
 }
