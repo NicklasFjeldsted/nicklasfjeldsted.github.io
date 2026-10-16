@@ -2,6 +2,8 @@
   "nav": {
     "home": "Forside",
     "specializedMasonry": "Specialiseret murerarbejde",
+    "services": "Ydelser",
+    "about": "Om os",
     "contact": "Kontakt"
   },
   "home": {

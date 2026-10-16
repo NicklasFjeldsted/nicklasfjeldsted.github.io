@@ -36,6 +36,8 @@ export class HeaderComponent {
   protected readonly navItems: INavItem[] = [
     {labelKey: 'nav.home', path: '/', exact: true},
     {labelKey: 'nav.specializedMasonry', path: '/specialiseret-murerarbejde', exact: false},
+    {labelKey: 'nav.services', path: '/ydelser', exact: false},
+    {labelKey: 'nav.about', path: '/om-os', exact: false},
     {labelKey: 'nav.contact', path: '/kontakt', exact: false},
   ];
 

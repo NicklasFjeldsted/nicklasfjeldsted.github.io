@@ -1,0 +1,51 @@
+<main class="services-page">
+  <section class="services-hero u-bg-dark">
+    <div class="services-hero__inner">
+      <h5 class="u-text-brand uppercase">Vores ydelser</h5>
+      <h1 class="u-text-dark-heading">Murerarbejde fra <span class="u-text-brand">bad</span> til facade</h1>
+      <p class="services-hero__lead">Vi løser opgaver i alle størrelser i København og omegn. Du får altid et gratis og uforpligtende tilbud, før vi går i gang.</p>
+      <nav class="services-hero__chips" aria-label="Gå til ydelse">
+        @for (s of services; track s.id) {
+          <a [routerLink]="[]" [fragment]="s.id" class="services-chip">{{ s.title }}</a>
+        }
+      </nav>
+    </div>
+  </section>
+
+  <section class="services-list u-bg-section">
+    <div class="services-list__inner">
+      @for (s of services; track s.id; let i = $index) {
+        <article class="service-row" [class.service-row--reversed]="i % 2 === 1" [id]="s.id">
+          <img class="service-row__image" [src]="s.image" [alt]="s.title"/>
+          <div class="service-row__body">
+            <span class="service-row__number">{{ (i + 1).toString().padStart(2, '0') }}</span>
+            <h2>{{ s.title }}</h2>
+            <p class="service-row__description">{{ s.description }}</p>
+            <ul class="service-row__points">
+              @for (p of s.points; track p) {
+                <li><fa-icon [icon]="faCheck"/><span>{{ p }}</span></li>
+              }
+            </ul>
+            <a routerLink="/kontakt" class="service-row__link">
+              <span>Få tilbud på {{ s.title.toLowerCase() }}</span>
+              <fa-icon [icon]="faArrowRightLong"/>
+            </a>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="services-cta u-bg-dark">
+    <div class="services-cta__inner">
+      <div>
+        <h2 class="u-text-dark-heading">Kan du ikke finde din opgave?</h2>
+        <p class="u-text-dark-body">Ring eller skriv, så finder vi ud af det sammen.</p>
+      </div>
+      <div class="services-cta__buttons">
+        <a routerLink="/kontakt" class="services-btn services-btn--primary"><span>Få et tilbud</span><fa-icon [icon]="faArrowRightLong"/></a>
+        <a [href]="callHref" class="services-btn services-btn--outline"><fa-icon [icon]="faPhone"/><span>Ring nu</span></a>
+      </div>
+    </div>
+  </section>
+</main>

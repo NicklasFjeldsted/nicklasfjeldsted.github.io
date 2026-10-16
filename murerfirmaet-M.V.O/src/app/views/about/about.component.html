@@ -1,0 +1,53 @@
+<main class="about-page">
+  <section class="about-hero u-bg-dark">
+    <div class="about-hero__inner">
+      <div class="about-hero__text">
+        <h5 class="u-text-brand uppercase">Om os</h5>
+        <h1 class="u-text-dark-heading">Håndværk med <span class="u-text-brand">stolthed</span></h1>
+        <p class="about-hero__lead">Murerfirmaet MVO er et lille, lokalt murerfirma i København med speciale i badeværelser, fliser og reparationer.</p>
+        <div class="about-hero__story">
+          <p>Jeg startede MVO, fordi jeg ville lave murerarbejde på den måde, jeg selv ville have det lavet derhjemme: ordentligt, til tiden og uden smuts. Hver opgave får den samme opmærksomhed, uanset om det er et helt nyt badeværelse eller en revne i facaden.</p>
+          <p>Når du vælger MVO, er det mig, der kommer ud og ser på opgaven, giver dig prisen og står for arbejdet. Så ved du altid, hvem du taler med.</p>
+        </div>
+        <p class="about-hero__signature">
+          <span class="about-hero__name">Mike Osbeck</span>
+          <span class="about-hero__role">Murer og indehaver</span>
+        </p>
+        <div class="about-hero__cta">
+          <a routerLink="/kontakt" class="about-btn about-btn--primary"><span>Få et tilbud</span><fa-icon [icon]="faArrowRightLong"/></a>
+          <a [href]="callHref" class="about-btn about-btn--outline"><fa-icon [icon]="faPhone"/><span>Ring til mig</span></a>
+        </div>
+      </div>
+      <figure class="about-hero__photo">
+        <img src="hero-mvo.jpg" alt="Mureren fra Murerfirmaet MVO"/>
+        <figcaption class="about-hero__badge"><strong>+5 år</strong><span>som murer</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="about-values u-bg-section">
+    <div class="about-values__inner">
+      <h4 class="u-text-accent uppercase">Det står vi for</h4>
+      <h2 class="u-text-body">Tre ting, du altid kan regne med</h2>
+      <div class="about-values__grid">
+        @for (v of values; track v.title) {
+          <article class="about-value">
+            <span class="about-value__icon"><fa-icon [icon]="v.icon"/></span>
+            <h5>{{ v.title }}</h5>
+            <p>{{ v.text }}</p>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="about-cta u-bg-dark">
+    <div class="about-cta__inner">
+      <div>
+        <h2 class="u-text-dark-heading">Skal vi kigge på din opgave?</h2>
+        <p class="u-text-dark-body">Gratis og uforpligtende tilbud i København og omegn.</p>
+      </div>
+      <a routerLink="/kontakt" class="about-btn about-btn--primary"><span>Kontakt os</span><fa-icon [icon]="faArrowRightLong"/></a>
+    </div>
+  </section>
+</main>
