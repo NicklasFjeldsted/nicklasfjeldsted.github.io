@@ -12,10 +12,10 @@ import {ServiceCardComponent} from '../service-card/service-card.component';
 })
 export class ServiceGridComponent {
   providedServices: IProvidedService[] = [
-    {titleKey: 'services.bathrooms.title', descriptionKey: 'services.bathrooms.description', image: 'bathrooms/bathroom4.png'},
-    {titleKey: 'services.tiling.title', descriptionKey: 'services.tiling.description', image: 'tile-work/image4.png'},
-    {titleKey: 'services.repairs.title', descriptionKey: 'services.repairs.description', image: 'reparations/reparation0.jpeg'},
-    {titleKey: 'services.facade.title', descriptionKey: 'services.facade.description', image: 'tile-work/image9.jpeg'},
-    {titleKey: 'services.minor.title', descriptionKey: 'services.minor.description', image: 'minor-solutions/solution0.png'},
+    {serviceId: 'badevaerelser', titleKey: 'services.bathrooms.title', descriptionKey: 'services.bathrooms.description', image: 'bathrooms/bathroom4.png'},
+    {serviceId: 'fliser', titleKey: 'services.tiling.title', descriptionKey: 'services.tiling.description', image: 'tile-work/image4.png'},
+    {serviceId: 'reparationer', titleKey: 'services.repairs.title', descriptionKey: 'services.repairs.description', image: 'reparations/reparation0.jpeg'},
+    {serviceId: 'facade', titleKey: 'services.facade.title', descriptionKey: 'services.facade.description', image: 'tile-work/image9.jpeg'},
+    {serviceId: 'mindre-opgaver', titleKey: 'services.minor.title', descriptionKey: 'services.minor.description', image: 'minor-solutions/solution0.png'},
   ];
 }

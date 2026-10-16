@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
@@ -6,7 +7,7 @@ import { IProvidedService } from '../../../core/interfaces/provided-service.inte
 
 @Component({
   selector: 'mvo-service-card',
-  imports: [FaIconComponent, TranslatePipe],
+  imports: [FaIconComponent, TranslatePipe, RouterLink],
   templateUrl: './service-card.component.html',
   styleUrl: './service-card.component.scss',
   standalone: true

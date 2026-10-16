@@ -7,7 +7,7 @@ import {IChosenImage, ImageSourceButtonsComponent} from '../media/image-source-b
   selector: 'mvo-primary-image-editor',
   imports: [ImageSourceButtonsComponent],
   template: `
-    <p class="adm-hint">Hovedbilledet vises som sektionens primære billede på siden.</p>
+    <p class="adm-hint">{{ section().sectionType === 'Profile' ? 'Billedet af mureren vises ved siden af teksten. Vælg et billede fra billedarkivet eller upload et nyt.' : 'Hovedbilledet vises som sektionens primære billede på siden.' }}</p>
 
     @if (pending()?.url ?? section().primaryImage?.url; as src) {
       <img class="adm-preview" [src]="src" alt="Hovedbillede">

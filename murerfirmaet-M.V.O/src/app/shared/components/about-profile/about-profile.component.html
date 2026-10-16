@@ -1,0 +1,25 @@
+@let p = profile();
+<div class="about-profile">
+  <div class="about-profile__text">
+    @if (p.eyebrow) { <h5 class="u-text-brand uppercase">{{ p.eyebrow }}</h5> }
+    <h1 class="u-text-dark-heading">{{ headingLead(p.heading) }}<span class="u-text-brand">{{ headingAccent(p.heading) }}</span></h1>
+    <p class="about-profile__lead">{{ p.introduction }}</p>
+    @if (p.story.length) {
+      <div class="about-profile__story">
+        @for (paragraph of p.story; track $index) { <p>{{ paragraph }}</p> }
+      </div>
+    }
+    <p class="about-profile__signature">
+      <span class="about-profile__name">{{ p.name }}</span>
+      @if (p.role) { <span class="about-profile__role">{{ p.role }}</span> }
+    </p>
+    <div class="about-profile__cta">
+      <a routerLink="/kontakt" class="about-btn about-btn--primary"><span>{{ 'about.getOffer' | translate }}</span><fa-icon [icon]="faArrowRightLong"/></a>
+      <a [href]="callHref" class="about-btn about-btn--outline"><fa-icon [icon]="faPhone"/><span>{{ 'about.call' | translate }}</span></a>
+    </div>
+  </div>
+  <figure class="about-profile__photo">
+    <img [src]="p.imageUrl" [alt]="p.name"/>
+    <figcaption class="about-profile__badge"><strong>{{ 'about.badgeValue' | translate }}</strong><span>{{ 'about.badgeLabel' | translate }}</span></figcaption>
+  </figure>
+</div>

@@ -70,6 +70,7 @@ public class SetSectionVisibilityHandler(IAppDbContext db, SectionContentLoader 
 {
     public async Task<SectionContentDto> Handle(SetSectionVisibilityCommand request, CancellationToken cancellationToken)
     {
+        await db.EnsureLayoutCanChangeAsync(request.PageId, cancellationToken);
         var section = await db.GetForUpdateAsync(request.PageId, request.SectionId, request.ExpectedVersion, false, false, cancellationToken);
         section.IsPublished = request.IsPublished;
         section.Version++;

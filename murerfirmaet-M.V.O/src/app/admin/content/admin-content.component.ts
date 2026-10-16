@@ -1,5 +1,6 @@
 import {Component, HostListener, OnDestroy, computed, effect, inject, signal, untracked} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {NgTemplateOutlet} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {AdminApiService} from '../admin-api.service';
@@ -15,12 +16,14 @@ import {SectionTextEditorComponent} from '../editors/section-text-editor.compone
 import {ConfirmService} from '../shared/confirm-dialog.component';
 import {IMasonryImage, IMasonrySection, MasonrySectionType} from '../../core/interfaces/masonry-page.interface';
 import {MasonryShowcaseComponent} from '../../shared/components/masonry-showcase/masonry-showcase.component';
+import {AboutProfileComponent} from '../../shared/components/about-profile/about-profile.component';
+import {ABOUT_FALLBACK_IMAGE, IAboutProfile, toParagraphs} from '../../core/interfaces/about-page.interface';
 import {AdminNavService, ContentTab as Tab, contentLinkParams, tabFromParam} from '../shell/admin-nav.service';
 const INTRO = 'intro';
 
 @Component({
   selector: 'mvo-admin-content',
-  imports: [FormsModule, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, GalleryEditorComponent, BeforeAfterEditorComponent, MasonryShowcaseComponent],
+  imports: [FormsModule, NgTemplateOutlet, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, GalleryEditorComponent, BeforeAfterEditorComponent, MasonryShowcaseComponent, AboutProfileComponent],
   templateUrl: './admin-content.component.html',
 })
 export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
@@ -49,6 +52,18 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
     const s = this.draft() ?? this.section();
     return s ? toShowcase(s) : null;
   });
+  /** Unsaved page text from the intro editor, shown in the "Om os" preview. */
+  protected readonly pageDraft = signal<IPageDetail | null>(null);
+  /** The saved profile section of a fixed-layout page, so the intro preview can show the whole layout. */
+  protected readonly profileSection = signal<ISectionContent | null>(null);
+  protected readonly isFixed = computed(() => this.page()?.hasFixedLayout ?? false);
+  protected readonly aboutPreview = computed<IAboutProfile | null>(() => {
+    const page = this.pageDraft() ?? this.page();
+    if (!page?.hasFixedLayout) return null;
+    const open = this.section();
+    const profile = open?.sectionType === 'Profile' ? this.draft() ?? open : this.profileSection();
+    return toAboutProfile(page, profile);
+  });
 
   protected readonly newTitle = signal('');
   protected readonly newType = signal<number>(SECTION_TYPES[0].id);
@@ -67,7 +82,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
       tabs.push({id: 'beforeAfter', label: 'Før og efter'});
       return tabs;
     }
-    if (s?.hasPrimaryImage) tabs.push({id: 'primary', label: 'Hovedbillede'});
+    if (s?.hasPrimaryImage) tabs.push({id: 'primary', label: s.sectionType === 'Profile' ? 'Billede' : 'Hovedbillede'});
     if (s?.hasGallery) tabs.push({id: 'gallery', label: 'Galleri'});
     return tabs;
   });
@@ -147,6 +162,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   protected async selectIntro(): Promise<void> {
     if (this.selected() === INTRO || !(await this.leave())) return;
     this.section.set(null);
+    this.draft.set(null);
     this.selected.set(INTRO);
   }
 
@@ -168,6 +184,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   }
 
   protected onPageChange(page: IPageDetail): void {
+    this.pageDraft.set(null);
     this.page.set(page);
     this.pages.update(list => list.map(p => (p.id === page.id ? {...p, name: page.name} : p)));
   }
@@ -175,6 +192,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   protected onSectionChange(section: ISectionContent): void {
     this.draft.set(null);
     this.section.set(section);
+    if (section.sectionType === 'Profile') this.profileSection.set(section);
     this.refreshPage();
   }
 
@@ -293,9 +311,15 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
     this.selected.set(null);
     this.section.set(null);
     this.page.set(null);
+    this.pageDraft.set(null);
+    this.profileSection.set(null);
     this.api.getPage(pageId).subscribe({
       next: detail => {
         this.page.set(detail);
+        const profile = detail.sections.find(s => s.sectionType === 'Profile');
+        if (detail.hasFixedLayout && profile) {
+          this.api.getSection(detail.id, profile.id).subscribe({next: s => this.profileSection.set(s)});
+        }
         if (sectionId !== null && detail.sections.some(s => s.id === sectionId)) this.openSection(sectionId, tab);
         else this.selected.set(INTRO);
       },
@@ -361,6 +385,19 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
       text: e.status === 409 ? `${prefix} Indholdet er ændret et andet sted. Genindlæs siden og prøv igen.` : `${prefix} ${e.message}`,
     });
   }
+}
+
+/** Maps the page text and profile section to what the public "Om os" page renders. */
+function toAboutProfile(page: IPageDetail, profile: ISectionContent | null): IAboutProfile {
+  return {
+    eyebrow: page.eyebrow ?? undefined,
+    heading: page.heading,
+    introduction: page.introduction,
+    name: profile?.title ?? '',
+    role: profile?.eyebrow ?? undefined,
+    story: toParagraphs(profile?.description ?? ''),
+    imageUrl: profile?.primaryImage?.url ?? ABOUT_FALLBACK_IMAGE,
+  };
 }
 
 /** Maps the admin's section to the shape the public page renders, so the preview uses the real component. */

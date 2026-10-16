@@ -16,6 +16,8 @@ export class PageTextEditorComponent {
   readonly page = input.required<IPageDetail>();
   readonly pageChange = output<IPageDetail>();
   readonly dirtyChange = output<boolean>();
+  /** The page as it would look with the unsaved text, for the preview. */
+  readonly draftChange = output<IPageDetail>();
   readonly notify = output<INotice>();
 
   protected readonly saving = signal(false);
@@ -33,8 +35,17 @@ export class PageTextEditorComponent {
       this.form.reset({eyebrow: page.eyebrow ?? '', heading: page.heading, introduction: page.introduction});
       this.serverFields.set({});
       this.dirtyChange.emit(false);
+      this.emitDraft();
     });
-    this.form.valueChanges.pipe(takeUntilDestroyed(inject(DestroyRef))).subscribe(() => this.dirtyChange.emit(this.form.dirty));
+    this.form.valueChanges.pipe(takeUntilDestroyed(inject(DestroyRef))).subscribe(() => {
+      this.dirtyChange.emit(this.form.dirty);
+      this.emitDraft();
+    });
+  }
+
+  private emitDraft(): void {
+    const v = this.form.getRawValue();
+    this.draftChange.emit({...this.page(), eyebrow: v.eyebrow.trim() || null, heading: v.heading, introduction: v.introduction});
   }
 
   protected serverError(name: string): string[] {

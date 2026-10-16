@@ -16,6 +16,7 @@ import {ContactConstants} from '../../../core/constants/contact.constants';
 interface IFooterLink {
   labelKey: string;
   path: string;
+  fragment?: string;
 }
 
 @Component({
@@ -26,21 +27,21 @@ interface IFooterLink {
   standalone: true,
 })
 export class FooterComponent {
-  // Pages that do not exist yet point to the home page until they are built.
+  // "Projekter" has no page yet, so it points to the home page until one is built.
   protected readonly quickLinks: IFooterLink[] = [
     {labelKey: 'footer.links.home', path: '/'},
-    {labelKey: 'footer.links.services', path: '/'},
+    {labelKey: 'footer.links.services', path: '/ydelser'},
     {labelKey: 'footer.links.projects', path: '/'},
-    {labelKey: 'footer.links.about', path: '/'},
+    {labelKey: 'footer.links.about', path: '/om-os'},
     {labelKey: 'footer.links.contact', path: '/kontakt'},
   ];
 
   protected readonly serviceLinks: IFooterLink[] = [
-    {labelKey: 'services.bathrooms.title', path: '/'},
-    {labelKey: 'services.tiling.title', path: '/'},
-    {labelKey: 'services.repairs.title', path: '/'},
-    {labelKey: 'services.facade.title', path: '/'},
-    {labelKey: 'services.minor.title', path: '/'},
+    {labelKey: 'services.bathrooms.title', path: '/ydelser', fragment: 'badevaerelser'},
+    {labelKey: 'services.tiling.title', path: '/ydelser', fragment: 'fliser'},
+    {labelKey: 'services.repairs.title', path: '/ydelser', fragment: 'reparationer'},
+    {labelKey: 'services.facade.title', path: '/ydelser', fragment: 'facade'},
+    {labelKey: 'services.minor.title', path: '/ydelser', fragment: 'mindre-opgaver'},
   ];
 
   protected readonly companyName = ContactConstants.COMPANY_NAME;

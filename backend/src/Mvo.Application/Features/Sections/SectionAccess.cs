@@ -24,6 +24,13 @@ public static class SectionAccess
         return section;
     }
 
+    /// <summary>Pages with a fixed design keep their sections: none can be added, removed, hidden or moved.</summary>
+    public static async Task EnsureLayoutCanChangeAsync(this IAppDbContext db, int pageId, CancellationToken cancellationToken)
+    {
+        if (await db.Pages.AnyAsync(p => p.Id == pageId && p.HasFixedLayout, cancellationToken))
+            throw new ConflictException("This page has a fixed layout. Its sections can be edited but not added, removed, hidden or moved.");
+    }
+
     public static async Task<MediaAsset> GetMediaAsync(this IAppDbContext db, int mediaId, CancellationToken cancellationToken) =>
         await db.MediaAssets.FirstOrDefaultAsync(m => m.Id == mediaId, cancellationToken)
         ?? throw new NotFoundException($"Media {mediaId} was not found.");

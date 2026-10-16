@@ -16,7 +16,8 @@ public class CreateSectionValidator : AbstractValidator<CreateSectionCommand>
     {
         RuleFor(x => x.PageId).RequiredId();
         RuleFor(x => x.Title).RequiredText(SectionRules.TitleMax);
-        RuleFor(x => x.SectionType).IsInEnum();
+        RuleFor(x => x.SectionType).IsInEnum()
+            .NotEqual(SectionTypeId.Profile).WithMessage("Profile sections belong to pages with a fixed layout and cannot be created.");
     }
 }
 
@@ -28,6 +29,7 @@ public class CreateSectionHandler(IAppDbContext db, SectionContentLoader loader)
         var page = await db.Pages.FirstOrDefaultAsync(p => p.Id == request.PageId, cancellationToken)
             ?? throw new NotFoundException($"Page {request.PageId} was not found.");
         if (!page.IsManaged) throw new ConflictException("This page is not managed by the content system.");
+        await db.EnsureLayoutCanChangeAsync(page.Id, cancellationToken);
 
         var lastOrder = await db.Sections.Where(s => s.PageId == page.Id)
             .Select(s => (int?)s.DisplayOrder).MaxAsync(cancellationToken) ?? 0;
@@ -64,6 +66,7 @@ public class DeleteSectionHandler(IAppDbContext db) : IRequestHandler<DeleteSect
 {
     public async Task Handle(DeleteSectionCommand request, CancellationToken cancellationToken)
     {
+        await db.EnsureLayoutCanChangeAsync(request.PageId, cancellationToken);
         var section = await db.GetForUpdateAsync(request.PageId, request.SectionId, request.ExpectedVersion, true, true, cancellationToken);
 
         db.GalleryImages.RemoveRange(section.Gallery);
@@ -100,6 +103,7 @@ public class ReorderSectionsHandler(IAppDbContext db, IMediator mediator)
     {
         var page = await db.Pages.Include(p => p.Sections).FirstOrDefaultAsync(p => p.Id == request.PageId, cancellationToken)
             ?? throw new NotFoundException($"Page {request.PageId} was not found.");
+        if (page.HasFixedLayout) await db.EnsureLayoutCanChangeAsync(page.Id, cancellationToken);
         if (page.Version != request.ExpectedPageVersion)
             throw new ConflictException("The page was changed by someone else. Reload it and try again.");
 

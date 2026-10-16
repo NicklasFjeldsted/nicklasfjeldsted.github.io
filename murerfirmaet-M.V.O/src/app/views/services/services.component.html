@@ -1,0 +1,52 @@
+<main class="services-page">
+  <section class="services-hero u-bg-dark">
+    <div class="services-hero__inner">
+      <h5 class="u-text-brand uppercase">{{ 'servicesPage.eyebrow' | translate }}</h5>
+      <h1 class="u-text-dark-heading">{{ 'servicesPage.heading.before' | translate }}<span class="u-text-brand">{{ 'servicesPage.heading.accent' | translate }}</span>{{ 'servicesPage.heading.after' | translate }}</h1>
+      <p class="services-hero__lead">{{ 'servicesPage.lead' | translate }}</p>
+      <nav class="services-hero__chips" [attr.aria-label]="'servicesPage.jumpTo' | translate">
+        @for (s of services; track s.id) {
+          <a routerLink="/ydelser" [fragment]="s.id" class="services-chip">{{ 'servicesPage.items.' + s.id + '.title' | translate }}</a>
+        }
+      </nav>
+    </div>
+  </section>
+
+  <section class="services-list u-bg-section">
+    <div class="services-list__inner">
+      @for (s of services; track s.id; let i = $index) {
+        @let title = 'servicesPage.items.' + s.id + '.title' | translate;
+        <article class="service-row" [class.service-row--reversed]="i % 2 === 1" [id]="s.id">
+          <img class="service-row__image" [src]="s.image" [alt]="title" loading="lazy"/>
+          <div class="service-row__body">
+            <span class="service-row__number">{{ (i + 1).toString().padStart(2, '0') }}</span>
+            <h2>{{ title }}</h2>
+            <p class="service-row__description">{{ 'servicesPage.items.' + s.id + '.description' | translate }}</p>
+            <ul class="service-row__points">
+              @for (point of $any('servicesPage.items.' + s.id + '.points' | translate); track point) {
+                <li><fa-icon [icon]="faCheck"/><span>{{ point }}</span></li>
+              }
+            </ul>
+            <a routerLink="/kontakt" class="service-row__link">
+              <span>{{ 'servicesPage.getOffer' | translate: {service: title.toLowerCase()} }}</span>
+              <fa-icon [icon]="faArrowRightLong"/>
+            </a>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="services-cta u-bg-dark">
+    <div class="services-cta__inner">
+      <div>
+        <h2 class="u-text-dark-heading">{{ 'servicesPage.cta.heading' | translate }}</h2>
+        <p class="u-text-dark-body">{{ 'servicesPage.cta.description' | translate }}</p>
+      </div>
+      <div class="services-cta__buttons">
+        <a routerLink="/kontakt" class="services-btn services-btn--primary"><span>{{ 'servicesPage.cta.getOffer' | translate }}</span><fa-icon [icon]="faArrowRightLong"/></a>
+        <a [href]="callHref" class="services-btn services-btn--outline"><fa-icon [icon]="faPhone"/><span>{{ 'servicesPage.cta.call' | translate }}</span></a>
+      </div>
+    </div>
+  </section>
+</main>

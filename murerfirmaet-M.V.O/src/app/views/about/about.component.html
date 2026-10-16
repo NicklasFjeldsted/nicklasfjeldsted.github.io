@@ -1,0 +1,33 @@
+<main class="about-page">
+  <section class="about-hero u-bg-dark">
+    @if (profile(); as p) {
+      <mvo-about-profile [profile]="p"/>
+    }
+  </section>
+
+  <section class="about-values u-bg-section">
+    <div class="about-values__inner">
+      <h4 class="u-text-accent uppercase">{{ 'about.values.heading' | translate }}</h4>
+      <h2 class="u-text-body">{{ 'about.values.subheading' | translate }}</h2>
+      <div class="about-values__grid">
+        @for (v of values; track v.key) {
+          <article class="about-value">
+            <span class="about-value__icon"><fa-icon [icon]="v.icon"/></span>
+            <h5>{{ v.key + '.title' | translate }}</h5>
+            <p>{{ v.key + '.description' | translate }}</p>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="about-cta u-bg-dark">
+    <div class="about-cta__inner">
+      <div>
+        <h2 class="u-text-dark-heading">{{ 'about.cta.heading' | translate }}</h2>
+        <p class="u-text-dark-body">{{ 'about.cta.description' | translate }}</p>
+      </div>
+      <a routerLink="/kontakt" class="about-btn about-btn--primary"><span>{{ 'about.cta.button' | translate }}</span><fa-icon [icon]="faArrowRightLong"/></a>
+    </div>
+  </section>
+</main>
