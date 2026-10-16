@@ -11,19 +11,20 @@
   height: 480px;
   z-index: 0;
 
+  // The photo has the mason a little right of centre; keep him in frame on phones.
+  background-image: url("/hero-mvo.jpg");
+  background-size: cover;
+  background-position: 58% top;
+  background-repeat: no-repeat;
+
   @media (min-width: 1024px) {
     height: 85dvh;
-    background-position: center 35%;
+    // Darken the left side so the heading stays readable over the bright sunset.
+    background-image:
+      linear-gradient(to right, rgba(12, 12, 12, 0.8) 0%, rgba(12, 12, 12, 0.45) 26%, rgba(12, 12, 12, 0) 45%),
+      url("/hero-mvo.jpg");
+    background-position: center, center 40%;
   }
-
-  @media (min-width: 1600px) {
-    background-position: center 60%;
-  }
-
-  background-image: url("/mvo-image.png");
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
 
   // Fade the left and right edges
   // Fade in from the top and fade out towards the bottom
