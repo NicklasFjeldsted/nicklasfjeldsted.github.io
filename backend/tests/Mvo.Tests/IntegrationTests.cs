@@ -538,3 +538,68 @@ public class MediaLibraryTests(TestHost host)
         await missing.Should().ThrowAsync<NotFoundException>();
     }
 }
+
+[Collection("host")]
+public class AboutPageTests(TestHost host)
+{
+    private async Task<(PageDetailDto Page, SectionContentDto Profile)> LoadAsync()
+    {
+        var pages = await host.SendAsync(new GetPagesQuery());
+        var about = pages.Single(p => p.Slug == AboutPage.Slug);
+        var page = await host.SendAsync(new GetPageQuery(about.Id));
+        var profile = await host.SendAsync(new GetSectionContentQuery(page.Id, page.Sections.Single().Id));
+        return (page, profile);
+    }
+
+    [Fact]
+    public async Task About_page_starts_with_one_profile_section_and_a_fixed_layout()
+    {
+        var (page, profile) = await LoadAsync();
+        page.HasFixedLayout.Should().BeTrue();
+        profile.SectionType.Should().Be(nameof(SectionTypeId.Profile));
+        profile.HasPrimaryImage.Should().BeTrue();
+
+        var pub = await host.SendAsync(new GetPublicPageQuery(AboutPage.Slug));
+        pub.Sections.Should().ContainSingle(s => s.Type == nameof(SectionTypeId.Profile));
+    }
+
+    [Fact]
+    public async Task Sections_on_a_fixed_page_cannot_be_added_removed_hidden_or_moved()
+    {
+        var (page, profile) = await LoadAsync();
+
+        var add = () => host.SendAsync(new CreateSectionCommand(page.Id, "Ekstra", SectionTypeId.TextBlock));
+        await add.Should().ThrowAsync<ConflictException>();
+        var delete = () => host.SendAsync(new DeleteSectionCommand(page.Id, profile.Id, profile.Version));
+        await delete.Should().ThrowAsync<ConflictException>();
+        var hide = () => host.SendAsync(new SetSectionVisibilityCommand(page.Id, profile.Id, profile.Version, false));
+        await hide.Should().ThrowAsync<ConflictException>();
+        var reorder = () => host.SendAsync(new ReorderSectionsCommand(page.Id, page.Version, [profile.Id]));
+        await reorder.Should().ThrowAsync<ConflictException>();
+
+        (await LoadAsync()).Page.Sections.Should().ContainSingle(s => s.IsPublished);
+    }
+
+    [Fact]
+    public async Task Profile_sections_cannot_be_created_on_other_pages()
+    {
+        var act = () => host.SendAsync(new CreateSectionCommand(TestHost.ManagedPageId, "Profil", SectionTypeId.Profile));
+        await act.Should().ThrowAsync<ValidationException>();
+    }
+
+    [Fact]
+    public async Task Profile_text_and_photo_can_be_changed_and_are_public()
+    {
+        var (page, profile) = await LoadAsync();
+        var updated = await host.SendAsync(new UpdateSectionTextCommand(
+            page.Id, profile.Id, profile.Version, "Ny murer", "Svend", null, "Første afsnit.\n\nAndet afsnit.", null, []));
+        var mediaId = await host.NewMediaAsync("Mureren");
+        await host.SendAsync(new SetPrimaryImageCommand(page.Id, profile.Id, updated.Version, mediaId, null));
+
+        var pub = await host.SendAsync(new GetPublicPageQuery(AboutPage.Slug));
+        var section = pub.Sections.Single();
+        section.Title.Should().Be("Ny murer");
+        section.Eyebrow.Should().Be("Svend");
+        section.PrimaryImage.Should().NotBeNull();
+    }
+}

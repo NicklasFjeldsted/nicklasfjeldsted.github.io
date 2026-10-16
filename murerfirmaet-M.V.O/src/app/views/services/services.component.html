@@ -1,12 +1,12 @@
 <main class="services-page">
   <section class="services-hero u-bg-dark">
     <div class="services-hero__inner">
-      <h5 class="u-text-brand uppercase">Vores ydelser</h5>
-      <h1 class="u-text-dark-heading">Murerarbejde fra <span class="u-text-brand">bad</span> til facade</h1>
-      <p class="services-hero__lead">Vi løser opgaver i alle størrelser i København og omegn. Du får altid et gratis og uforpligtende tilbud, før vi går i gang.</p>
-      <nav class="services-hero__chips" aria-label="Gå til ydelse">
+      <h5 class="u-text-brand uppercase">{{ 'servicesPage.eyebrow' | translate }}</h5>
+      <h1 class="u-text-dark-heading">{{ 'servicesPage.heading.before' | translate }}<span class="u-text-brand">{{ 'servicesPage.heading.accent' | translate }}</span>{{ 'servicesPage.heading.after' | translate }}</h1>
+      <p class="services-hero__lead">{{ 'servicesPage.lead' | translate }}</p>
+      <nav class="services-hero__chips" [attr.aria-label]="'servicesPage.jumpTo' | translate">
         @for (s of services; track s.id) {
-          <a [routerLink]="[]" [fragment]="s.id" class="services-chip">{{ s.title }}</a>
+          <a routerLink="/ydelser" [fragment]="s.id" class="services-chip">{{ 'servicesPage.items.' + s.id + '.title' | translate }}</a>
         }
       </nav>
     </div>
@@ -15,19 +15,20 @@
   <section class="services-list u-bg-section">
     <div class="services-list__inner">
       @for (s of services; track s.id; let i = $index) {
+        @let title = 'servicesPage.items.' + s.id + '.title' | translate;
         <article class="service-row" [class.service-row--reversed]="i % 2 === 1" [id]="s.id">
-          <img class="service-row__image" [src]="s.image" [alt]="s.title"/>
+          <img class="service-row__image" [src]="s.image" [alt]="title" loading="lazy"/>
           <div class="service-row__body">
             <span class="service-row__number">{{ (i + 1).toString().padStart(2, '0') }}</span>
-            <h2>{{ s.title }}</h2>
-            <p class="service-row__description">{{ s.description }}</p>
+            <h2>{{ title }}</h2>
+            <p class="service-row__description">{{ 'servicesPage.items.' + s.id + '.description' | translate }}</p>
             <ul class="service-row__points">
-              @for (p of s.points; track p) {
-                <li><fa-icon [icon]="faCheck"/><span>{{ p }}</span></li>
+              @for (point of $any('servicesPage.items.' + s.id + '.points' | translate); track point) {
+                <li><fa-icon [icon]="faCheck"/><span>{{ point }}</span></li>
               }
             </ul>
             <a routerLink="/kontakt" class="service-row__link">
-              <span>Få tilbud på {{ s.title.toLowerCase() }}</span>
+              <span>{{ 'servicesPage.getOffer' | translate: {service: title.toLowerCase()} }}</span>
               <fa-icon [icon]="faArrowRightLong"/>
             </a>
           </div>
@@ -39,12 +40,12 @@
   <section class="services-cta u-bg-dark">
     <div class="services-cta__inner">
       <div>
-        <h2 class="u-text-dark-heading">Kan du ikke finde din opgave?</h2>
-        <p class="u-text-dark-body">Ring eller skriv, så finder vi ud af det sammen.</p>
+        <h2 class="u-text-dark-heading">{{ 'servicesPage.cta.heading' | translate }}</h2>
+        <p class="u-text-dark-body">{{ 'servicesPage.cta.description' | translate }}</p>
       </div>
       <div class="services-cta__buttons">
-        <a routerLink="/kontakt" class="services-btn services-btn--primary"><span>Få et tilbud</span><fa-icon [icon]="faArrowRightLong"/></a>
-        <a [href]="callHref" class="services-btn services-btn--outline"><fa-icon [icon]="faPhone"/><span>Ring nu</span></a>
+        <a routerLink="/kontakt" class="services-btn services-btn--primary"><span>{{ 'servicesPage.cta.getOffer' | translate }}</span><fa-icon [icon]="faArrowRightLong"/></a>
+        <a [href]="callHref" class="services-btn services-btn--outline"><fa-icon [icon]="faPhone"/><span>{{ 'servicesPage.cta.call' | translate }}</span></a>
       </div>
     </div>
   </section>

@@ -5,6 +5,7 @@ public enum SectionTypeId
     MasonryShowcase = 1,
     TextBlock = 2,
     BeforeAfter = 3,
+    Profile = 4,
 }
 
 public class SectionType
@@ -22,6 +23,8 @@ public class ContentPage
     public string Slug { get; set; } = "";
     public string Name { get; set; } = "";
     public bool IsManaged { get; set; }
+    /// <summary>The page has a fixed design: its sections can be edited but not added, removed, hidden or reordered.</summary>
+    public bool HasFixedLayout { get; set; }
     public string? Eyebrow { get; set; }
     public string Heading { get; set; } = "";
     public string Introduction { get; set; } = "";

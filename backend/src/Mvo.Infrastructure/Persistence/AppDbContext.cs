@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Mvo.Application.Abstractions;
 using Mvo.Application.Domain;
 using Mvo.Application.Features.Media;
+using Mvo.Application.Features.Pages;
 using Mvo.Application.Features.Sections;
 
 namespace Mvo.Infrastructure.Persistence;
@@ -29,7 +30,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasData(
                 new SectionType { Id = SectionTypeId.MasonryShowcase, Name = nameof(SectionTypeId.MasonryShowcase), DisplayName = "Murerarbejde med billeder", HasPrimaryImage = true, HasGallery = true },
                 new SectionType { Id = SectionTypeId.TextBlock, Name = nameof(SectionTypeId.TextBlock), DisplayName = "Tekstblok", HasPrimaryImage = false, HasGallery = false },
-                new SectionType { Id = SectionTypeId.BeforeAfter, Name = nameof(SectionTypeId.BeforeAfter), DisplayName = "Før og efter", HasPrimaryImage = true, HasGallery = true });
+                new SectionType { Id = SectionTypeId.BeforeAfter, Name = nameof(SectionTypeId.BeforeAfter), DisplayName = "Før og efter", HasPrimaryImage = true, HasGallery = true },
+                new SectionType { Id = SectionTypeId.Profile, Name = nameof(SectionTypeId.Profile), DisplayName = "Profil med billede", HasPrimaryImage = true, HasGallery = false });
         });
 
         modelBuilder.Entity<ContentPage>(e =>
@@ -54,6 +56,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                     Eyebrow = "Specialiseret murerarbejde",
                     Heading = "Pladsholder: Overskrift til siden",
                     Introduction = "Pladsholdertekst. Her beskriver murerne kort, hvilke krævende opgaver de påtager sig, og hvad der kendetegner deres håndværk. Teksten erstattes via administrationen.",
+                },
+                new ContentPage
+                {
+                    Id = 3,
+                    Slug = AboutPage.Slug,
+                    Name = "Om os",
+                    IsManaged = true,
+                    HasFixedLayout = true,
+                    Eyebrow = "Om os",
+                    Heading = AboutPage.Heading,
+                    Introduction = AboutPage.Introduction,
                 });
         });
 

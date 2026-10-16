@@ -33,7 +33,7 @@
         <ul class="site-footer__list">
           @for (link of serviceLinks; track link.labelKey) {
             <li>
-              <a class="site-footer__link" [routerLink]="link.path">
+              <a class="site-footer__link" [routerLink]="link.path" [fragment]="link.fragment">
                 <span>{{ link.labelKey | translate }}</span>
                 <fa-icon [icon]="faChevronRight" class="site-footer__chevron" aria-hidden="true"></fa-icon>
               </a>

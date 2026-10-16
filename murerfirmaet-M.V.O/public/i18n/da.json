@@ -12,7 +12,7 @@
   },
   "highlights": {
     "experience": {
-      "title": "+5 års erfaring",
+      "title": "15+ års erfaring",
       "description": "Solidt håndværk og mange tilfredse kunder"
     },
     "free": {
@@ -174,5 +174,114 @@
     "cvr": "CVR",
     "follow": "Følg os",
     "responseNote": "Vi ringer eller skriver tilbage hurtigst muligt på hverdage."
+  },
+  "about": {
+    "getOffer": "Få et tilbud",
+    "call": "Ring til mig",
+    "badgeValue": "15+ år",
+    "badgeLabel": "erfaring",
+    "values": {
+      "heading": "Det står vi for",
+      "subheading": "Tre ting, du altid kan regne med",
+      "quality": {
+        "title": "Kvalitet ned til detaljen",
+        "description": "Lige fuger, korrekt opbygning og et resultat, der holder i mange år."
+      },
+      "honest": {
+        "title": "Ærlige aftaler",
+        "description": "Du får en klar pris og en klar plan, før vi går i gang. Ingen overraskelser."
+      },
+      "direct": {
+        "title": "Du taler med mureren",
+        "description": "Den samme person fra første besøg til aflevering, og altid til at få fat på."
+      }
+    },
+    "cta": {
+      "heading": "Skal vi kigge på din opgave?",
+      "description": "Gratis og uforpligtende tilbud i København og omegn.",
+      "button": "Kontakt os"
+    }
+  },
+  "servicesPage": {
+    "eyebrow": "Vores ydelser",
+    "heading": {
+      "before": "Murerarbejde fra ",
+      "accent": "bad",
+      "after": " til facade"
+    },
+    "lead": "Vi løser opgaver i alle størrelser i København og omegn. Du får altid et gratis og uforpligtende tilbud, før vi går i gang.",
+    "jumpTo": "Gå til ydelse",
+    "getOffer": "Få tilbud på {{service}}",
+    "cta": {
+      "heading": "Kan du ikke finde din opgave?",
+      "description": "Ring eller skriv, så finder vi ud af det sammen.",
+      "getOffer": "Få et tilbud",
+      "call": "Ring nu"
+    },
+    "items": {
+      "badevaerelser": {
+        "title": "Badeværelser",
+        "description": "Vores speciale. Vi renoverer hele badeværelset fra rå væg til færdigt rum, så du kun har én håndværker at holde styr på.",
+        "points": [
+          "Nedrivning og opbygning af vægge og gulv",
+          "Vådrumssikring med membran efter gældende regler",
+          "Gulv med korrekt fald mod afløb"
+        ]
+      },
+      "fliser": {
+        "title": "Fliser og klinker",
+        "description": "Fliser på gulv og væg i bad, køkken, bryggers og entré, lagt med lige fuger og sans for detaljen.",
+        "points": [
+          "Store formater, mosaik og mønstre",
+          "Fliser bag køkkenbordet",
+          "Udskiftning af revnede fliser og omfugning"
+        ]
+      },
+      "reparationer": {
+        "title": "Murerreparationer",
+        "description": "Revner, skader og nedslidt murværk bliver udbedret, så det ser pænt ud og holder igen.",
+        "points": [
+          "Revner i vægge, lofter og sokkel",
+          "Udskiftning af ødelagte sten",
+          "Reparation af puds inde og ude"
+        ]
+      },
+      "facade": {
+        "title": "Facade og puds",
+        "description": "En facade i god stand beskytter huset. Vi pudser, filtser og fuger, så huset står flot i mange år.",
+        "points": [
+          "Pudsning og filtsning af facader",
+          "Omfugning af murværk",
+          "Sokkelpuds og reparation af sokkel"
+        ]
+      },
+      "gulve": {
+        "title": "Gulve og afretning",
+        "description": "Et plant og stærkt undergulv er grundlaget for et godt resultat, uanset om der skal fliser, klinker eller trægulv ovenpå.",
+        "points": [
+          "Støbning af betongulve",
+          "Afretning før nyt gulv",
+          "Forberedelse til gulvvarme"
+        ]
+      },
+      "forsikringssager": {
+        "title": "Forsikringssager",
+        "description": "Har du haft en vand-, frost- eller rørskade, hjælper vi med at udbedre den og taler gerne med dit forsikringsselskab.",
+        "points": [
+          "Gennemgang og vurdering af skaden",
+          "Billeder og beskrivelse til forsikringen",
+          "Genopbygning til samme stand som før"
+        ]
+      },
+      "mindre-opgaver": {
+        "title": "Mindre mureropgaver",
+        "description": "Intet er for lille. Vi tager også de små opgaver i hjem og erhverv, som ofte bliver skubbet foran sig.",
+        "points": [
+          "Huller og gennembrydninger i vægge",
+          "Lukning af døre og vinduesåbninger",
+          "Opmuring af mindre vægge"
+        ]
+      }
+    }
   }
 }

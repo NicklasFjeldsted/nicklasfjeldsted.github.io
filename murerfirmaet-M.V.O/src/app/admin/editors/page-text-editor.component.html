@@ -10,6 +10,7 @@
     <label for="page-heading">Hovedoverskrift</label>
     <input id="page-heading" class="adm-input" formControlName="heading" maxlength="200" autocomplete="off"
            [attr.aria-invalid]="form.controls.heading.invalid && form.controls.heading.touched">
+    @if (page().hasFixedLayout) { <span class="adm-hint">Det sidste ord i overskriften vises med guld.</span> }
     @if (form.controls.heading.invalid && form.controls.heading.touched) { <span class="adm-error">Skriv en overskrift.</span> }
     @for (m of serverError('heading'); track m) { <span class="adm-error">{{ m }}</span> }
   </div>

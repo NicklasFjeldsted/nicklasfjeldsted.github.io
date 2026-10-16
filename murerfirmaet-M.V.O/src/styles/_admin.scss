@@ -291,6 +291,7 @@ textarea.adm-input { min-height: 7rem; resize: vertical; }
     h3 { margin: 0; font-size: 1rem; }
   }
   &__stage { padding: 1.5rem; background: var(--bg-surface, #fff); }
+  &__stage--dark { background: var(--bg-dark); }
   // The public page fades sections in on scroll; the preview shows them straight away.
   .mvo-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
 }

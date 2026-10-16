@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject, input, output, signal} from '@angular/core';
+import {Component, DestroyRef, computed, effect, inject, input, output, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AdminApiService} from '../admin-api.service';
@@ -25,6 +25,8 @@ export class SectionTextEditorComponent {
   protected readonly saving = signal(false);
   protected readonly serverFields = signal<Record<string, string[]>>({});
   protected readonly maxDetails = MAX_DETAILS;
+  /** The "Om os" profile only uses name, role and story, with labels to match. */
+  protected readonly isProfile = computed(() => this.section().sectionType === 'Profile');
 
   protected readonly form = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.maxLength(200)]],

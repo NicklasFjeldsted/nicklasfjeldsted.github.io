@@ -60,6 +60,9 @@ namespace Mvo.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
+                    b.Property<bool>("HasFixedLayout")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Heading")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -98,6 +101,7 @@ namespace Mvo.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 1,
+                            HasFixedLayout = false,
                             Heading = "Forside",
                             Introduction = "",
                             IsManaged = false,
@@ -109,11 +113,24 @@ namespace Mvo.Infrastructure.Persistence.Migrations
                         {
                             Id = 2,
                             Eyebrow = "Specialiseret murerarbejde",
+                            HasFixedLayout = false,
                             Heading = "Pladsholder: Overskrift til siden",
                             Introduction = "Pladsholdertekst. Her beskriver murerne kort, hvilke krævende opgaver de påtager sig, og hvad der kendetegner deres håndværk. Teksten erstattes via administrationen.",
                             IsManaged = true,
                             Name = "Specialiseret murerarbejde",
                             Slug = "specialiseret-murerarbejde",
+                            Version = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Eyebrow = "Om os",
+                            HasFixedLayout = true,
+                            Heading = "Håndværk med stolthed",
+                            Introduction = "Murerfirmaet MVO er et lille, lokalt murerfirma i København med speciale i badeværelser, fliser og reparationer.",
+                            IsManaged = true,
+                            Name = "Om os",
+                            Slug = "om-os",
                             Version = 1
                         });
                 });
@@ -341,6 +358,14 @@ namespace Mvo.Infrastructure.Persistence.Migrations
                             HasGallery = true,
                             HasPrimaryImage = true,
                             Name = "BeforeAfter"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            DisplayName = "Profil med billede",
+                            HasGallery = false,
+                            HasPrimaryImage = true,
+                            Name = "Profile"
                         });
                 });
 

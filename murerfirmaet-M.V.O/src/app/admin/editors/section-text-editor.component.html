@@ -1,33 +1,37 @@
 <form [formGroup]="form" (ngSubmit)="save()" novalidate>
   <div class="adm-field">
-    <label for="sec-title">Titel</label>
+    <label for="sec-title">{{ isProfile() ? 'Navn' : 'Titel' }}</label>
     <input id="sec-title" class="adm-input" formControlName="title" maxlength="200" autocomplete="off"
            [attr.aria-invalid]="form.controls.title.invalid && form.controls.title.touched">
-    @if (form.controls.title.invalid && form.controls.title.touched) { <span class="adm-error">Skriv en titel.</span> }
+    @if (form.controls.title.invalid && form.controls.title.touched) { <span class="adm-error">{{ isProfile() ? 'Skriv et navn.' : 'Skriv en titel.' }}</span> }
     @for (m of serverError('title'); track m) { <span class="adm-error">{{ m }}</span> }
   </div>
 
   <div class="adm-field">
-    <label for="sec-eyebrow">Overtekst (valgfri)</label>
+    <label for="sec-eyebrow">{{ isProfile() ? 'Titel under navnet (valgfri)' : 'Overtekst (valgfri)' }}</label>
     <input id="sec-eyebrow" class="adm-input" formControlName="eyebrow" maxlength="500" autocomplete="off">
-    <span class="adm-hint">Vises over titlen. Lad feltet stå tomt, hvis den ikke skal vises.</span>
+    <span class="adm-hint">{{ isProfile() ? 'For eksempel "Murer og indehaver".' : 'Vises over titlen. Lad feltet stå tomt, hvis den ikke skal vises.' }}</span>
     @for (m of serverError('eyebrow'); track m) { <span class="adm-error">{{ m }}</span> }
   </div>
 
+  @if (!isProfile()) {
   <div class="adm-field">
     <label for="sec-intro">Kort introduktion (valgfri)</label>
     <textarea id="sec-intro" class="adm-input" formControlName="introduction" maxlength="4000"></textarea>
     @for (m of serverError('introduction'); track m) { <span class="adm-error">{{ m }}</span> }
   </div>
+  }
 
   <div class="adm-field">
-    <label for="sec-desc">Hovedbeskrivelse</label>
-    <textarea id="sec-desc" class="adm-input" formControlName="description" maxlength="4000"
+    <label for="sec-desc">{{ isProfile() ? 'Historien' : 'Hovedbeskrivelse' }}</label>
+    <textarea id="sec-desc" class="adm-input" formControlName="description" maxlength="4000" [rows]="isProfile() ? 10 : null"
               [attr.aria-invalid]="form.controls.description.invalid && form.controls.description.touched"></textarea>
+    @if (isProfile()) { <span class="adm-hint">Lav en tom linje mellem afsnittene.</span> }
     @if (form.controls.description.invalid && form.controls.description.touched) { <span class="adm-error">Skriv en beskrivelse.</span> }
     @for (m of serverError('description'); track m) { <span class="adm-error">{{ m }}</span> }
   </div>
 
+  @if (!isProfile()) {
   <div class="adm-field">
     <label for="sec-more">Yderligere beskrivelse (valgfri)</label>
     <textarea id="sec-more" class="adm-input" formControlName="additionalDescription" maxlength="4000"></textarea>
@@ -47,6 +51,7 @@
     @for (m of serverError('details'); track m) { <span class="adm-error">{{ m }}</span> }
     <div><button type="button" class="adm-btn adm-btn--small" (click)="addDetail()" [disabled]="details.length >= maxDetails">Tilføj punkt</button></div>
   </fieldset>
+  }
 
   <div class="adm-savebar">
     <button type="submit" class="adm-btn adm-btn--primary" [disabled]="saving() || !form.dirty">{{ saving() ? 'Gemmer…' : 'Gem ændringer' }}</button>

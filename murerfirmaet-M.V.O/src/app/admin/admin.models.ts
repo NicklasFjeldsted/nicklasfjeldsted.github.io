@@ -3,6 +3,8 @@ export interface IPageListItem {
   slug: string;
   name: string;
   isManaged: boolean;
+  /** Fixed design: sections can be edited but not added, removed, hidden or moved. */
+  hasFixedLayout: boolean;
   sectionCount: number;
 }
 
@@ -19,6 +21,7 @@ export interface IPageDetail {
   id: number;
   slug: string;
   name: string;
+  hasFixedLayout: boolean;
   eyebrow: string | null;
   heading: string;
   introduction: string;
@@ -114,7 +117,7 @@ export interface IGalleryImageInput {
   altText: string | null;
 }
 
-/** Values mirror the SectionType lookup table seeded by the backend. */
+/** Section types an administrator can create; mirror the SectionType lookup table seeded by the backend. The "Profile" type only exists on the fixed "Om os" page. */
 export const SECTION_TYPES = [
   {id: 1, label: 'Murerarbejde med billeder'},
   {id: 2, label: 'Tekstblok'},

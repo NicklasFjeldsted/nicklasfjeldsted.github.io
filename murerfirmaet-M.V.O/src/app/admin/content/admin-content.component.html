@@ -63,16 +63,21 @@
                 <button type="button" class="adm-list__btn" [attr.aria-current]="selected() === s.id ? 'true' : null" (click)="selectSection(s)">
                   {{ s.title }} @if (!s.isPublished) { <span class="adm-badge adm-badge--hidden">Skjult</span> }
                 </button>
+                @if (!isFixed()) {
                 <span class="adm-list__move">
                   <button type="button" class="adm-btn adm-btn--small" (click)="move(i, -1)" [disabled]="first || busy() || isDirty()" [attr.aria-label]="'Flyt ' + s.title + ' op'">↑</button>
                   <button type="button" class="adm-btn adm-btn--small" (click)="move(i, 1)" [disabled]="last || busy() || isDirty()" [attr.aria-label]="'Flyt ' + s.title + ' ned'">↓</button>
                 </span>
+                }
               </li>
             } @empty {
               <li class="adm-hint">Siden har ingen sektioner endnu.</li>
             }
           </ul>
 
+          @if (isFixed()) {
+            <p class="adm-hint">Siden har et fast design. Du kan ændre tekster og billede, men ikke tilføje eller flytte sektioner.</p>
+          } @else {
           <form class="adm-add" (ngSubmit)="addSection()">
             <h3>Ny sektion</h3>
             <div class="adm-field">
@@ -87,6 +92,7 @@
             </div>
             <button type="submit" class="adm-btn adm-btn--small" [disabled]="adding() || !newTitle().trim()">{{ adding() ? 'Opretter…' : 'Opret sektion' }}</button>
           </form>
+          }
         }
       </aside>
 
@@ -95,7 +101,10 @@
           <div class="adm-empty">{{ managedPages().length ? 'Vælg en side for at komme i gang.' : 'Der er ingen redigerbare sider.' }}</div>
         } @else if (isIntro()) {
           <h2>Sideindledning</h2>
-          <mvo-page-text-editor [page]="page()!" (pageChange)="onPageChange($event)" (dirtyChange)="setDirty('page', $event)" (notify)="notice.set($event)" />
+          <mvo-page-text-editor [page]="page()!" (pageChange)="onPageChange($event)" (draftChange)="pageDraft.set($event)" (dirtyChange)="setDirty('page', $event)" (notify)="notice.set($event)" />
+          @if (aboutPreview(); as ap) {
+            <ng-container *ngTemplateOutlet="aboutPreviewBox; context: {$implicit: ap}" />
+          }
         } @else if (loadingContent()) {
           <p role="status">Henter sektion…</p>
         } @else if (section(); as s) {
@@ -105,9 +114,13 @@
             <span class="adm-hint">{{ s.sectionTypeName }}</span>
           </div>
           <div class="adm-actions" style="margin-top: 0">
-            <button type="button" class="adm-btn adm-btn--small" (click)="toggleVisibility()" [disabled]="busy() || isDirty()">{{ s.isPublished ? 'Skjul sektion' : 'Gør synlig' }}</button>
+            @if (!isFixed()) {
+              <button type="button" class="adm-btn adm-btn--small" (click)="toggleVisibility()" [disabled]="busy() || isDirty()">{{ s.isPublished ? 'Skjul sektion' : 'Gør synlig' }}</button>
+            }
             <button type="button" class="adm-btn adm-btn--small" (click)="reloadSection()">Genindlæs</button>
-            <button type="button" class="adm-btn adm-btn--small adm-btn--danger" (click)="deleteSection()" [disabled]="busy()">Slet sektion</button>
+            @if (!isFixed()) {
+              <button type="button" class="adm-btn adm-btn--small adm-btn--danger" (click)="deleteSection()" [disabled]="busy()">Slet sektion</button>
+            }
           </div>
 
           <div class="adm-tabs" role="tablist" aria-label="Del af sektionen">
@@ -133,7 +146,9 @@
             }
           </div>
 
-          @if (preview(); as pv) {
+          @if (aboutPreview(); as ap) {
+            <ng-container *ngTemplateOutlet="aboutPreviewBox; context: {$implicit: ap}" />
+          } @else if (preview(); as pv) {
             <section class="adm-preview-box" aria-labelledby="preview-title">
               <header class="adm-preview-box__head">
                 <h3 id="preview-title">Sådan ser sektionen ud på siden</h3>
@@ -152,3 +167,15 @@
     </div>
   }
 </div>
+
+<ng-template #aboutPreviewBox let-profile>
+  <section class="adm-preview-box" aria-labelledby="about-preview-title">
+    <header class="adm-preview-box__head">
+      <h3 id="about-preview-title">Sådan ser toppen af siden ud</h3>
+      <span class="adm-hint">{{ isDirty() ? 'Viser dine ugemte ændringer.' : 'Viser det gemte indhold.' }}</span>
+    </header>
+    <div class="adm-preview-box__stage adm-preview-box__stage--dark">
+      <mvo-about-profile [profile]="profile" />
+    </div>
+  </section>
+</ng-template>
