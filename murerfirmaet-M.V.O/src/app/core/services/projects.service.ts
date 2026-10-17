@@ -1,23 +1,33 @@
-import {Injectable} from '@angular/core';
-import {Observable, of} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {HttpClient} from '@angular/common/http';
+import {Injectable, inject} from '@angular/core';
+import {Observable} from 'rxjs';
+import {map, shareReplay} from 'rxjs/operators';
+import {API_BASE_URL, mediaUrl} from '../config/api.config';
+import {QuoteCategory} from '../constants/quote-categories.constants';
 import {IProject} from '../interfaces/project.interface';
-import {PROJECTS_PLACEHOLDER} from '../data/projects.placeholder';
 
 const FEATURED_COUNT = 3;
 
+interface IPublicProject {
+  id: string; slug: string; title: string; category: QuoteCategory; location: string; completedOn: string; summary: string;
+  description: string[]; images: {id: string; url: string; alt: string}[]; featured: boolean;
+}
+
 @Injectable({providedIn: 'root'})
 export class ProjectsService {
-  /** All projects, newest first. Uses the bundled example projects until the admin part exists. */
+  private readonly http = inject(HttpClient);
+
+  /** The visible projects, newest first. Fetched once and shared by the Projekter page and the project pages. */
+  private readonly projects$ = this.http.get<IPublicProject[]>(`${API_BASE_URL}/api/projects`).pipe(
+    map(list => list.map(p => ({...p, images: p.images.map(i => ({...i, url: mediaUrl(i.url)}))}))),
+    shareReplay({bufferSize: 1, refCount: false}),
+  );
+
   getProjects(): Observable<IProject[]> {
-    return of([...PROJECTS_PLACEHOLDER].sort((a, b) => b.completedOn.localeCompare(a.completedOn)));
+    return this.projects$;
   }
 
-  getProject(slug: string): Observable<IProject | undefined> {
-    return this.getProjects().pipe(map(projects => projects.find(p => p.slug === slug)));
-  }
-
-  /** Always three: the featured projects first, topped up with the newest ones. */
+  /** Always three when there are enough: the featured projects first, topped up with the newest ones. */
   static pickFeatured(projects: IProject[]): IProject[] {
     const featured = projects.filter(p => p.featured);
     const rest = projects.filter(p => !p.featured);

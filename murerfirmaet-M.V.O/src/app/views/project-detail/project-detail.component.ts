@@ -4,7 +4,8 @@ import {ActivatedRoute, RouterLink} from '@angular/router';
 import {TranslatePipe} from '@ngx-translate/core';
 import {FaIconComponent} from '@fortawesome/angular-fontawesome';
 import {faArrowLeftLong, faArrowRightLong, faCalendar, faLocationDot, faPhone} from '@fortawesome/free-solid-svg-icons';
-import {map} from 'rxjs/operators';
+import {of} from 'rxjs';
+import {catchError, map} from 'rxjs/operators';
 import {ContactConstants} from '../../core/constants/contact.constants';
 import {ProjectsService} from '../../core/services/projects.service';
 import {MonthYearPipe} from '../../shared/pipes/month-year.pipe';
@@ -22,9 +23,13 @@ const OTHER_COUNT = 3;
 export class ProjectDetailComponent {
   private readonly service = inject(ProjectsService);
   private readonly slug = toSignal(inject(ActivatedRoute).paramMap.pipe(map(params => params.get('slug'))));
-  private readonly projects = toSignal(this.service.getProjects(), {initialValue: []});
+  /** Undefined while loading, null when the projects could not be fetched. */
+  private readonly loaded = toSignal(this.service.getProjects().pipe(catchError(() => of(null))));
+  private readonly projects = computed(() => this.loaded() ?? []);
 
   protected readonly project = computed(() => this.projects().find(p => p.slug === this.slug()));
+  protected readonly missing = computed(() => this.loaded() !== undefined && !this.project());
+  protected readonly failed = computed(() => this.loaded() === null);
 
   /** Same category first, so a customer keeps seeing jobs like their own. */
   protected readonly others = computed(() => {

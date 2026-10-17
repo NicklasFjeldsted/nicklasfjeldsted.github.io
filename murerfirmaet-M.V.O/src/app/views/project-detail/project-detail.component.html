@@ -68,4 +68,13 @@
       </section>
     }
   </main>
+} @else if (missing()) {
+  <main class="project-page">
+    <section class="project-hero u-bg-dark">
+      <div class="project-hero__inner">
+        <a routerLink="/projekter" class="project-hero__back"><fa-icon [icon]="faArrowLeftLong"/><span>{{ 'projectsPage.allProjects' | translate }}</span></a>
+        <h1 class="u-text-dark-heading">{{ (failed() ? 'projectsPage.loadError' : 'projectsPage.notFound') | translate }}</h1>
+      </div>
+    </section>
+  </main>
 }

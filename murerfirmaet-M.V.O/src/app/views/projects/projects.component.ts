@@ -3,15 +3,15 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {RouterLink} from '@angular/router';
 import {TranslatePipe} from '@ngx-translate/core';
 import {FaIconComponent} from '@fortawesome/angular-fontawesome';
-import {faArrowRightLong, faCalendar, faLocationDot, faPhone} from '@fortawesome/free-solid-svg-icons';
+import {faArrowRightLong, faPhone} from '@fortawesome/free-solid-svg-icons';
+import {of} from 'rxjs';
+import {catchError} from 'rxjs/operators';
 import {ContactConstants} from '../../core/constants/contact.constants';
 import {QuoteCategory} from '../../core/constants/quote-categories.constants';
 import {IProject} from '../../core/interfaces/project.interface';
 import {ProjectsService} from '../../core/services/projects.service';
-import {MonthYearPipe} from '../../shared/pipes/month-year.pipe';
-import {ProjectViewerComponent} from '../../shared/components/project-viewer/project-viewer.component';
 import {ProjectDialogComponent} from '../../shared/components/project-dialog/project-dialog.component';
-import {RevealDirective} from '../../shared/directives/reveal.directive';
+import {ProjectSectionComponent} from '../../shared/components/project-section/project-section.component';
 
 interface IGalleryTile {
   project: IProject;
@@ -21,13 +21,22 @@ interface IGalleryTile {
 
 @Component({
   selector: 'mvo-projects',
-  imports: [RouterLink, TranslatePipe, FaIconComponent, MonthYearPipe, ProjectViewerComponent, ProjectDialogComponent, RevealDirective],
+  imports: [RouterLink, TranslatePipe, FaIconComponent, ProjectDialogComponent, ProjectSectionComponent],
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.scss',
   standalone: true,
 })
 export class ProjectsComponent {
-  private readonly projects = toSignal(inject(ProjectsService).getProjects(), {initialValue: []});
+  /** Undefined while loading, null when the projects could not be fetched. */
+  private readonly loaded = toSignal(inject(ProjectsService).getProjects().pipe(
+    catchError(error => {
+      console.warn('Projekterne kunne ikke hentes.', error);
+      return of(null);
+    }),
+  ));
+  private readonly projects = computed(() => this.loaded() ?? []);
+  protected readonly loading = computed(() => this.loaded() === undefined);
+  protected readonly failed = computed(() => this.loaded() === null);
 
   protected readonly featured = computed(() => ProjectsService.pickFeatured(this.projects()));
 
@@ -46,7 +55,5 @@ export class ProjectsComponent {
 
   protected readonly callHref = `tel:+45${ContactConstants.PHONE_NUMBER.replace(/\s/g, '')}`;
   protected readonly faArrowRightLong = faArrowRightLong;
-  protected readonly faLocationDot = faLocationDot;
-  protected readonly faCalendar = faCalendar;
   protected readonly faPhone = faPhone;
 }

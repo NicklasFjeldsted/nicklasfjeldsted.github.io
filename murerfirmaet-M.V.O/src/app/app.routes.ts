@@ -33,6 +33,11 @@ export const routes: Routes = [
         runGuardsAndResolvers: 'pathParamsChange',
       },
       {
+        path: 'projekter',
+        loadComponent: () => import('./admin/projects/admin-projects.component').then(m => m.AdminProjectsComponent),
+        canDeactivate: [unsavedChangesGuard],
+      },
+      {
         path: 'billeder',
         loadComponent: () => import('./admin/media/media-library.component').then(m => m.MediaLibraryComponent),
         canDeactivate: [unsavedChangesGuard],

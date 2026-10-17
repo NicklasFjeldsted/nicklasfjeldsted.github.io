@@ -319,6 +319,10 @@
       "description": "Fortæl os om din opgave, så vender vi tilbage med et tilbud.",
       "getOffer": "Få et tilbud",
       "call": "Ring til os"
-    }
+    },
+    "empty": "Vi er ved at lægge vores projekter op. Kig forbi igen snart.",
+    "loadError": "Projekterne kunne ikke hentes lige nu. Prøv igen om lidt.",
+    "notFound": "Projektet findes ikke længere.",
+    "noImages": "Ingen billeder endnu"
   }
 }
