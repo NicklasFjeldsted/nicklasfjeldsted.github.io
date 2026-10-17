@@ -6,6 +6,8 @@
         <li>{{ p.name }}</li>
         @if (isIntro()) {
           <li aria-current="location">Sideindledning</li>
+        } @else if (isNew()) {
+          <li aria-current="location">Ny sektion</li>
         } @else if (section()) {
           <li>{{ sectionTitle() }}</li>
           <li aria-current="location">{{ tabLabel() }}</li>
@@ -36,64 +38,9 @@
     </div>
   } @else {
     <div class="adm-layout">
-      <aside class="adm-side" aria-label="Vælg indhold">
-        <h2>Sider</h2>
-        <ul class="adm-list">
-          @for (p of managedPages(); track p.id) {
-            <li><button type="button" class="adm-list__btn" [attr.aria-current]="page()?.id === p.id ? 'true' : null" (click)="selectPage(p)">{{ p.name }}</button></li>
-          }
-          @for (p of unmanagedPages(); track p.id) {
-            <li>
-              <button type="button" class="adm-list__btn" disabled aria-disabled="true">
-                {{ p.name }} <span class="adm-badge adm-badge--hidden">Ikke redigerbar her</span>
-              </button>
-            </li>
-          }
-        </ul>
-        @if (unmanagedPages().length) {
-          <p class="adm-hint">Sider markeret "Ikke redigerbar her" styres endnu ikke fra administrationen. Deres indhold ligger fast i websitet.</p>
-        }
-
-        @if (page(); as p) {
-          <h2>Sektioner</h2>
-          <ul class="adm-list">
-            <li><button type="button" class="adm-list__btn" [attr.aria-current]="isIntro() ? 'true' : null" (click)="selectIntro()">Sideindledning</button></li>
-            @for (s of sections(); track s.id; let i = $index; let first = $first; let last = $last) {
-              <li class="adm-list__row">
-                <button type="button" class="adm-list__btn" [attr.aria-current]="selected() === s.id ? 'true' : null" (click)="selectSection(s)">
-                  {{ s.title }} @if (!s.isPublished) { <span class="adm-badge adm-badge--hidden">Skjult</span> }
-                </button>
-                @if (!isFixed()) {
-                <span class="adm-list__move">
-                  <button type="button" class="adm-btn adm-btn--small" (click)="move(i, -1)" [disabled]="first || busy() || isDirty()" [attr.aria-label]="'Flyt ' + s.title + ' op'">↑</button>
-                  <button type="button" class="adm-btn adm-btn--small" (click)="move(i, 1)" [disabled]="last || busy() || isDirty()" [attr.aria-label]="'Flyt ' + s.title + ' ned'">↓</button>
-                </span>
-                }
-              </li>
-            } @empty {
-              <li class="adm-hint">Siden har ingen sektioner endnu.</li>
-            }
-          </ul>
-
-          @if (isFixed()) {
-            <p class="adm-hint">Siden har et fast design. Du kan ændre tekster og billede, men ikke tilføje eller flytte sektioner.</p>
-          } @else {
-          <form class="adm-add" (ngSubmit)="addSection()">
-            <h3>Ny sektion</h3>
-            <div class="adm-field">
-              <label for="new-title">Titel</label>
-              <input id="new-title" name="newTitle" class="adm-input" maxlength="200" autocomplete="off" [ngModel]="newTitle()" (ngModelChange)="newTitle.set($event)">
-            </div>
-            <div class="adm-field">
-              <label for="new-type">Type</label>
-              <select id="new-type" name="newType" class="adm-input" [ngModel]="newType()" (ngModelChange)="newType.set(+$event)">
-                @for (t of sectionTypes; track t.id) { <option [value]="t.id">{{ t.label }}</option> }
-              </select>
-            </div>
-            <button type="submit" class="adm-btn adm-btn--small" [disabled]="adding() || !newTitle().trim()">{{ adding() ? 'Opretter…' : 'Opret sektion' }}</button>
-          </form>
-          }
-        }
+      <aside class="adm-side">
+        <mvo-admin-page-menu [pages]="managedPages()" [sectionsByPage]="sectionsByPage()" [currentPageId]="page()?.id ?? null"
+                             [selected]="selected()" (openPart)="openPart($event)" (addSection)="startNewSection($event)" />
       </aside>
 
       <main class="adm-main">
@@ -105,6 +52,25 @@
           @if (aboutPreview(); as ap) {
             <ng-container *ngTemplateOutlet="aboutPreviewBox; context: {$implicit: ap}" />
           }
+        } @else if (isNew()) {
+          <h2>Ny sektion på {{ page()!.name }}</h2>
+          <form class="adm-add" (ngSubmit)="addSection()">
+            <div class="adm-field">
+              <label for="new-title">Titel</label>
+              <input id="new-title" name="newTitle" class="adm-input" maxlength="200" autocomplete="off" [ngModel]="newTitle()" (ngModelChange)="newTitle.set($event)">
+            </div>
+            <div class="adm-field">
+              <label for="new-type">Type</label>
+              <select id="new-type" name="newType" class="adm-input" [ngModel]="newType()" (ngModelChange)="newType.set(+$event)">
+                @for (t of sectionTypes; track t.id) { <option [value]="t.id">{{ t.label }}</option> }
+              </select>
+            </div>
+            <p class="adm-hint">Den nye sektion lægges nederst på siden og er skjult, indtil du gør den synlig.</p>
+            <div class="adm-actions">
+              <button type="submit" class="adm-btn adm-btn--primary" [disabled]="adding() || !newTitle().trim()">{{ adding() ? 'Opretter…' : 'Opret sektion' }}</button>
+              <button type="button" class="adm-btn" (click)="selectIntro()">Annuller</button>
+            </div>
+          </form>
         } @else if (loadingContent()) {
           <p role="status">Henter sektion…</p>
         } @else if (section(); as s) {
@@ -115,6 +81,8 @@
           </div>
           <div class="adm-actions" style="margin-top: 0">
             @if (!isFixed()) {
+              <button type="button" class="adm-btn adm-btn--small" (click)="move(sectionIndex(), -1)" [disabled]="sectionIndex() <= 0 || busy() || isDirty()">↑ Flyt op</button>
+              <button type="button" class="adm-btn adm-btn--small" (click)="move(sectionIndex(), 1)" [disabled]="sectionIndex() === sections().length - 1 || busy() || isDirty()">↓ Flyt ned</button>
               <button type="button" class="adm-btn adm-btn--small" (click)="toggleVisibility()" [disabled]="busy() || isDirty()">{{ s.isPublished ? 'Skjul sektion' : 'Gør synlig' }}</button>
             }
             <button type="button" class="adm-btn adm-btn--small" (click)="reloadSection()">Genindlæs</button>
@@ -161,7 +129,7 @@
             </section>
           }
         } @else {
-          <div class="adm-empty">Vælg en sektion i listen til venstre.</div>
+          <div class="adm-empty">Hold musen over en side i menuen til venstre, og vælg den del, du vil redigere.</div>
         }
       </main>
     </div>

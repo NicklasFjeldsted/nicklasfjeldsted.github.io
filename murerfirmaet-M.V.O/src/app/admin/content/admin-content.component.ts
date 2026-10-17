@@ -3,6 +3,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {NgTemplateOutlet} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
+import {forkJoin} from 'rxjs';
 import {AdminApiService} from '../admin-api.service';
 import {IHasUnsavedChanges} from '../admin.guards';
 import {
@@ -19,11 +20,14 @@ import {MasonryShowcaseComponent} from '../../shared/components/masonry-showcase
 import {AboutProfileComponent} from '../../shared/components/about-profile/about-profile.component';
 import {ABOUT_FALLBACK_IMAGE, IAboutProfile, toParagraphs} from '../../core/interfaces/about-page.interface';
 import {AdminNavService, ContentTab as Tab, contentLinkParams, tabFromParam} from '../shell/admin-nav.service';
+import {IPagePart, PageMenuComponent} from './page-menu.component';
 const INTRO = 'intro';
+/** The "Ny sektion" form is open in the main area. */
+const NEW = 'new';
 
 @Component({
   selector: 'mvo-admin-content',
-  imports: [FormsModule, NgTemplateOutlet, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, GalleryEditorComponent, BeforeAfterEditorComponent, MasonryShowcaseComponent, AboutProfileComponent],
+  imports: [FormsModule, NgTemplateOutlet, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, GalleryEditorComponent, BeforeAfterEditorComponent, MasonryShowcaseComponent, AboutProfileComponent, PageMenuComponent],
   templateUrl: './admin-content.component.html',
 })
 export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
@@ -39,7 +43,9 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   protected readonly loadingPages = signal(true);
   protected readonly loadError = signal('');
   protected readonly page = signal<IPageDetail | null>(null);
-  protected readonly selected = signal<typeof INTRO | number | null>(null);
+  protected readonly selected = signal<typeof INTRO | typeof NEW | number | null>(null);
+  /** Sections of every editable page, for the sidebar's flyouts. */
+  protected readonly sectionsByPage = signal<Record<number, ISectionListItem[]>>({});
   protected readonly section = signal<ISectionContent | null>(null);
   protected readonly tab = signal<Tab>('text');
   protected readonly loadingContent = signal(false);
@@ -71,9 +77,10 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
 
   protected readonly isDirty = computed(() => Object.values(this.dirtyFlags()).some(Boolean));
   protected readonly managedPages = computed(() => this.pages().filter(p => p.isManaged));
-  protected readonly unmanagedPages = computed(() => this.pages().filter(p => !p.isManaged));
   protected readonly sections = computed(() => [...(this.page()?.sections ?? [])].sort((a, b) => a.displayOrder - b.displayOrder));
   protected readonly isIntro = computed(() => this.selected() === INTRO);
+  protected readonly isNew = computed(() => this.selected() === NEW);
+  protected readonly sectionIndex = computed(() => this.sections().findIndex(s => s.id === this.selected()));
   protected readonly sectionTitle = computed(() => this.section()?.title ?? '');
   protected readonly tabs = computed(() => {
     const s = this.section();
@@ -96,7 +103,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
       const page = this.page();
       const selected = this.selected();
       const tab = this.tab();
-      if (!page || selected === null) return;
+      if (!page || selected === null || selected === NEW) return;
       const params = contentLinkParams(page.id, typeof selected === 'number' ? selected : null, tab);
       untracked(() => {
         this.nav.contentParams.set(params);
@@ -104,6 +111,12 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
           void this.router.navigate([], {relativeTo: this.route, queryParams: params, replaceUrl: true});
         }
       });
+    });
+
+    // The open page's sections are the freshest copy; keep the sidebar in step with them.
+    effect(() => {
+      const page = this.page();
+      if (page) untracked(() => this.sectionsByPage.update(m => ({...m, [page.id]: page.sections})));
     });
 
     // Back/forward in the browser; the editor's own address updates are ignored.
@@ -144,6 +157,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
       next: pages => {
         this.pages.set(pages);
         this.loadingPages.set(false);
+        this.loadSectionLists();
         if (!this.page()) this.openFromParams(this.route.snapshot.queryParamMap);
       },
       error: (e: IApiError) => {
@@ -153,10 +167,28 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
     });
   }
 
-  protected async selectPage(p: IPageListItem): Promise<void> {
-    if (!p.isManaged || this.page()?.id === p.id) return;
+  /** A page or section picked in the sidebar. */
+  protected async openPart(part: IPagePart): Promise<void> {
+    if (part.pageId !== this.page()?.id) {
+      if (!(await this.leave())) return;
+      this.openPage(part.pageId, part.sectionId, 'text');
+    } else if (part.sectionId === null) {
+      await this.selectIntro();
+    } else if (this.selected() !== part.sectionId && (await this.leave())) {
+      this.openSection(part.sectionId, 'text');
+    }
+  }
+
+  protected async startNewSection(pageId: number): Promise<void> {
+    if (this.selected() === NEW && this.page()?.id === pageId) return;
     if (!(await this.leave())) return;
-    this.openPage(p.id, null, 'text');
+    if (pageId !== this.page()?.id) {
+      this.openPage(pageId, null, 'text', true);
+      return;
+    }
+    this.section.set(null);
+    this.draft.set(null);
+    this.selected.set(NEW);
   }
 
   protected async selectIntro(): Promise<void> {
@@ -306,7 +338,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
     }
   }
 
-  private openPage(pageId: number, sectionId: number | null, tab: Tab): void {
+  private openPage(pageId: number, sectionId: number | null, tab: Tab, startNew = false): void {
     this.dirtyFlags.set({});
     this.selected.set(null);
     this.section.set(null);
@@ -321,7 +353,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
           this.api.getSection(detail.id, profile.id).subscribe({next: s => this.profileSection.set(s)});
         }
         if (sectionId !== null && detail.sections.some(s => s.id === sectionId)) this.openSection(sectionId, tab);
-        else this.selected.set(INTRO);
+        else this.selected.set(startNew && !detail.hasFixedLayout ? NEW : INTRO);
       },
       error: (e: IApiError) => this.notice.set({kind: 'error', text: `Siden kunne ikke hentes. ${e.message}`}),
     });
@@ -376,6 +408,14 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
       next: detail => this.page.update(current => (current && !this.dirtyFlags()['page'] ? detail : current)),
     });
     this.api.getPages().subscribe({next: pages => this.pages.set(pages)});
+  }
+
+  private loadSectionLists(): void {
+    const pages = this.managedPages();
+    if (!pages.length) return;
+    forkJoin(pages.map(p => this.api.getPage(p.id))).subscribe({
+      next: details => this.sectionsByPage.update(m => ({...m, ...Object.fromEntries(details.map(d => [d.id, d.sections]))})),
+    });
   }
 
   private fail(prefix: string, e: IApiError): void {
