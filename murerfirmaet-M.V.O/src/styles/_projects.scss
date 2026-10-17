@@ -1,0 +1,61 @@
+// =============================================================================
+// PROJECTS — pieces shared by the Projekter page, the project popup and the project page
+// =============================================================================
+
+.project-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3125rem 0.75rem;
+  border-radius: 999px;
+  background-color: var(--bg-gold-subtle);
+  color: var(--color-primary-on-light);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+
+  span { display: inline-flex; align-items: center; gap: 0.4375rem; }
+  fa-icon { color: var(--color-primary-on-light); font-size: 0.8125rem; }
+}
+
+.project-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  height: 3.25rem;
+  padding: 0 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: filter 160ms ease;
+
+  &--primary {
+    background: linear-gradient(180deg, var(--color-primary-light), var(--color-primary));
+    border: 1px solid var(--color-primary-active);
+    color: var(--text-on-primary);
+
+    &:hover { filter: brightness(1.05); }
+  }
+
+  &--outline {
+    border: 1px solid var(--color-primary);
+    color: var(--text-inverse);
+
+    fa-icon { color: var(--color-primary); }
+  }
+
+  &:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+}

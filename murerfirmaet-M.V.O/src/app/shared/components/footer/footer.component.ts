@@ -27,11 +27,10 @@ interface IFooterLink {
   standalone: true,
 })
 export class FooterComponent {
-  // "Projekter" has no page yet, so it points to the home page until one is built.
   protected readonly quickLinks: IFooterLink[] = [
     {labelKey: 'footer.links.home', path: '/'},
     {labelKey: 'footer.links.services', path: '/ydelser'},
-    {labelKey: 'footer.links.projects', path: '/'},
+    {labelKey: 'footer.links.projects', path: '/projekter'},
     {labelKey: 'footer.links.about', path: '/om-os'},
     {labelKey: 'footer.links.contact', path: '/kontakt'},
   ];

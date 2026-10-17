@@ -1,0 +1,104 @@
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  animation: fade-in 180ms ease;
+
+  @media (max-width: 767px) {
+    align-items: flex-end;
+    padding: 0;
+  }
+}
+
+// Desktop: images on the left, text on the right. Mobile: a sheet from the bottom with the image on top.
+.dialog {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 2rem;
+  width: min(68rem, 100%);
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  background: var(--bg-surface);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  animation: pop-in 220ms cubic-bezier(0.2, 0.9, 0.3, 1.1);
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    max-height: 92vh;
+    padding: 0 0 1.25rem;
+    border-radius: 1rem 1rem 0 0;
+    animation: slide-up 240ms ease;
+  }
+}
+
+.dialog__viewer {
+  @media (max-width: 767px) {
+    ::ng-deep .viewer__stage { border-radius: 1rem 1rem 0 0; }
+    ::ng-deep .viewer__thumbs { padding: 0 1rem; }
+  }
+}
+
+.dialog__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg-section);
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  cursor: pointer;
+
+  &:hover { background: var(--bg-surface-soft); }
+  &:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+  @media (max-width: 767px) {
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+  }
+}
+
+.dialog__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding-top: 2.5rem;
+
+  h2 { color: var(--text-primary); }
+
+  @media (max-width: 767px) { padding: 0 1rem; }
+}
+
+.dialog__summary {
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.dialog__cta {
+  margin-top: auto;
+
+  @media (max-width: 767px) {
+    align-self: stretch;
+    margin-top: 0.5rem;
+  }
+}
+
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.96); } }
+@keyframes slide-up { from { transform: translateY(100%); } }

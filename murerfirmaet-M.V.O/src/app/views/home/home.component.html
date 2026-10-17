@@ -73,6 +73,9 @@
         <h2 class="u-text-inverse">{{ 'projects.subheading' | translate }}</h2>
       </div>
       <mvo-project-carousel [images]="projectImages"/>
+      <a routerLink="/projekter" class="inline-flex items-center gap-2 self-center text-sm font-bold uppercase tracking-wide u-text-brand hover:underline">
+        <span>{{ 'projects.seeMore' | translate }}</span><fa-icon [icon]="faArrowRightLong"/>
+      </a>
     </div>
   </section>
 </main>

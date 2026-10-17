@@ -1,0 +1,71 @@
+@if (project(); as p) {
+  <main class="project-page">
+    <section class="project-hero u-bg-dark">
+      <div class="project-hero__inner">
+        <a routerLink="/projekter" class="project-hero__back"><fa-icon [icon]="faArrowLeftLong"/><span>{{ 'projectsPage.allProjects' | translate }}</span></a>
+        <span class="project-chip">{{ 'quote.categories.' + p.category | translate }}</span>
+        <h1 class="u-text-dark-heading">{{ p.title }}</h1>
+        <p class="project-meta project-meta--dark">
+          <span><fa-icon [icon]="faLocationDot"/>{{ p.location }}</span>
+          <span><fa-icon [icon]="faCalendar"/>{{ 'projectsPage.completed' | translate }} {{ p.completedOn | monthYear }}</span>
+        </p>
+      </div>
+    </section>
+
+    <section class="project-main u-bg-section">
+      <div class="project-main__inner">
+        <mvo-project-viewer [images]="p.images" [title]="p.title" [large]="true"/>
+
+        <div class="project-main__content">
+          <div class="project-main__text">
+            <h2>{{ 'projectsPage.aboutProject' | translate }}</h2>
+            <p class="project-main__summary">{{ p.summary }}</p>
+            @for (paragraph of p.description; track $index) {
+              <p>{{ paragraph }}</p>
+            }
+          </div>
+
+          <aside class="project-facts">
+            <dl>
+              <div><dt>{{ 'projectsPage.facts.category' | translate }}</dt><dd>{{ 'quote.categories.' + p.category | translate }}</dd></div>
+              <div><dt>{{ 'projectsPage.facts.location' | translate }}</dt><dd>{{ p.location }}</dd></div>
+              <div><dt>{{ 'projectsPage.facts.completed' | translate }}</dt><dd class="capitalize">{{ p.completedOn | monthYear }}</dd></div>
+              <div><dt>{{ 'projectsPage.facts.images' | translate }}</dt><dd>{{ p.images.length }}</dd></div>
+            </dl>
+            <p>{{ 'projectsPage.facts.similar' | translate }}</p>
+            <a routerLink="/kontakt" class="project-btn project-btn--primary"><span>{{ 'projectsPage.cta.getOffer' | translate }}</span><fa-icon [icon]="faArrowRightLong"/></a>
+            <a [href]="callHref" class="project-facts__call"><fa-icon [icon]="faPhone"/><span>{{ 'projectsPage.cta.call' | translate }}</span></a>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    @if (others().length) {
+      <section class="project-others u-bg-surface">
+        <div class="project-others__inner">
+          <div class="project-others__head">
+            <h2>{{ 'projectsPage.others' | translate }}</h2>
+            <a routerLink="/projekter" class="project-others__all"><span>{{ 'projectsPage.allProjects' | translate }}</span><fa-icon [icon]="faArrowRightLong"/></a>
+          </div>
+          <ul class="project-others__grid">
+            @for (o of others(); track o.id) {
+              <li>
+                <a class="project-card" [routerLink]="['/projekter', o.slug]">
+                  <img [src]="o.images[0].url" alt="" loading="lazy"/>
+                  <div class="project-card__body">
+                    <span class="project-chip">{{ 'quote.categories.' + o.category | translate }}</span>
+                    <h3>{{ o.title }}</h3>
+                    <p class="project-meta">
+                      <span><fa-icon [icon]="faLocationDot"/>{{ o.location }}</span>
+                      <span><fa-icon [icon]="faCalendar"/>{{ o.completedOn | monthYear }}</span>
+                    </p>
+                  </div>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      </section>
+    }
+  </main>
+}

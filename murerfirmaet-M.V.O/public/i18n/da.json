@@ -3,6 +3,7 @@
     "home": "Forside",
     "specializedMasonry": "Specialiseret murerarbejde",
     "services": "Ydelser",
+    "projects": "Projekter",
     "about": "Om os",
     "contact": "Kontakt"
   },
@@ -282,6 +283,42 @@
           "Opmuring af mindre vægge"
         ]
       }
+    }
+  },
+  "projectsPage": {
+    "eyebrow": "Projekter",
+    "heading": {
+      "before": "Se resultatet af ",
+      "accent": "vores arbejde",
+      "after": ""
+    },
+    "lead": "Her dokumenterer vi udvalgte opgaver med billeder og en beskrivelse af, hvad vi lavede. Find et projekt, der ligner dit eget, og se hvordan det endte.",
+    "completed": "Afsluttet",
+    "seeProject": "Se hele projektet",
+    "goToProject": "Gå til projekt",
+    "allProjects": "Alle projekter",
+    "aboutProject": "Om opgaven",
+    "others": "Andre projekter",
+    "gallery": {
+      "eyebrow": "Galleri",
+      "heading": "Billeder fra vores projekter",
+      "lead": "Tryk på et billede for at se projektet, det hører til.",
+      "filter": "Vis projekter inden for",
+      "all": "Alle",
+      "open": "Se projektet"
+    },
+    "facts": {
+      "category": "Kategori",
+      "location": "Sted",
+      "completed": "Afsluttet",
+      "images": "Billeder",
+      "similar": "Skal du have lavet en lignende opgave? Vi kommer gerne forbi og giver et uforpligtende tilbud."
+    },
+    "cta": {
+      "heading": "Har du et projekt, der ligner?",
+      "description": "Fortæl os om din opgave, så vender vi tilbage med et tilbud.",
+      "getOffer": "Få et tilbud",
+      "call": "Ring til os"
     }
   }
 }

@@ -4,6 +4,8 @@ import {SpecializedMasonryComponent} from './views/specialized-masonry/specializ
 import {ContactComponent} from './views/contact/contact.component';
 import {AboutComponent} from './views/about/about.component';
 import {ServicesComponent} from './views/services/services.component';
+import {ProjectsComponent} from './views/projects/projects.component';
+import {ProjectDetailComponent} from './views/project-detail/project-detail.component';
 import {authGuard, unsavedChangesGuard} from './admin/admin.guards';
 
 export const routes: Routes = [
@@ -13,6 +15,8 @@ export const routes: Routes = [
     data: {headerTheme: 'light'}
   },
   {path: 'ydelser', component: ServicesComponent},
+  {path: 'projekter', component: ProjectsComponent},
+  {path: 'projekter/:slug', component: ProjectDetailComponent},
   {path: 'om-os', component: AboutComponent},
   {path: 'kontakt', component: ContactComponent},
   {path: 'admin/login', loadComponent: () => import('./admin/login/login.component').then(m => m.LoginComponent)},
