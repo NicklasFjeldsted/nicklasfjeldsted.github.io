@@ -18,7 +18,9 @@
     @if (s.introduction) {
       <p class="showcase__intro" mvoReveal [mvoRevealDelay]="200">{{ s.introduction }}</p>
     }
-    <p class="showcase__body" mvoReveal [mvoRevealDelay]="300">{{ s.description }}</p>
+    @if (s.description) {
+      <p class="showcase__body" mvoReveal [mvoRevealDelay]="300">{{ s.description }}</p>
+    }
     @if (s.additionalDescription) {
       <p class="showcase__body" mvoReveal [mvoRevealDelay]="400">{{ s.additionalDescription }}</p>
     }

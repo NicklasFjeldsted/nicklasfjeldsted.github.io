@@ -9,8 +9,12 @@
         } @else if (isNew()) {
           <li aria-current="location">Ny sektion</li>
         } @else if (section()) {
-          <li>{{ sectionTitle() }}</li>
-          <li aria-current="location">{{ tabLabel() }}</li>
+          @if (isProfile()) {
+            <li>{{ sectionTitle() }}</li>
+            <li aria-current="location">{{ tabLabel() }}</li>
+          } @else {
+            <li aria-current="location">{{ sectionTitle() }}</li>
+          }
         }
       }
     </ol>
@@ -59,13 +63,7 @@
               <label for="new-title">Titel</label>
               <input id="new-title" name="newTitle" class="adm-input" maxlength="200" autocomplete="off" [ngModel]="newTitle()" (ngModelChange)="newTitle.set($event)">
             </div>
-            <div class="adm-field">
-              <label for="new-type">Type</label>
-              <select id="new-type" name="newType" class="adm-input" [ngModel]="newType()" (ngModelChange)="newType.set(+$event)">
-                @for (t of sectionTypes; track t.id) { <option [value]="t.id">{{ t.label }}</option> }
-              </select>
-            </div>
-            <p class="adm-hint">Den nye sektion lægges nederst på siden og er skjult, indtil du gør den synlig.</p>
+            <p class="adm-hint">Sektionen starter med kun en titel. Bagefter tilføjer du tekst, punkter og billeder, som du har brug for. Den lægges nederst på siden og er skjult, indtil du gør den synlig.</p>
             <div class="adm-actions">
               <button type="submit" class="adm-btn adm-btn--primary" [disabled]="adding() || !newTitle().trim()">{{ adding() ? 'Opretter…' : 'Opret sektion' }}</button>
               <button type="button" class="adm-btn" (click)="selectIntro()">Annuller</button>
@@ -77,7 +75,6 @@
           <div class="adm-section-head">
             <h2>{{ s.title }}</h2>
             <span class="adm-badge" [class.adm-badge--hidden]="!s.isPublished">{{ s.isPublished ? 'Synlig' : 'Skjult' }}</span>
-            <span class="adm-hint">{{ s.sectionTypeName }}</span>
           </div>
           <div class="adm-actions" style="margin-top: 0">
             @if (!isFixed()) {
@@ -91,28 +88,26 @@
             }
           </div>
 
-          <div class="adm-tabs" role="tablist" aria-label="Del af sektionen">
-            @for (t of tabs(); track t.id) {
-              <button type="button" role="tab" class="adm-tab" [attr.aria-selected]="tab() === t.id" (click)="selectTab(t.id)">{{ t.label }}</button>
-            }
-          </div>
+          @if (isProfile()) {
+            <div class="adm-tabs" role="tablist" aria-label="Del af sektionen">
+              @for (t of tabs(); track t.id) {
+                <button type="button" role="tab" class="adm-tab" [attr.aria-selected]="tab() === t.id" (click)="selectTab(t.id)">{{ t.label }}</button>
+              }
+            </div>
 
-          <div role="tabpanel">
-            @switch (tab()) {
-              @case ('text') {
-                <mvo-section-text-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('text', $event)" (notify)="notice.set($event)" />
+            <div role="tabpanel">
+              @switch (tab()) {
+                @case ('text') {
+                  <mvo-section-text-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('text', $event)" (notify)="notice.set($event)" />
+                }
+                @case ('primary') {
+                  <mvo-primary-image-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('primary', $event)" (notify)="notice.set($event)" />
+                }
               }
-              @case ('primary') {
-                <mvo-primary-image-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('primary', $event)" (notify)="notice.set($event)" />
-              }
-              @case ('beforeAfter') {
-                <mvo-before-after-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('beforeAfter', $event)" (notify)="notice.set($event)" />
-              }
-              @case ('gallery') {
-                <mvo-gallery-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('gallery', $event)" (notify)="notice.set($event)" />
-              }
-            }
-          </div>
+            </div>
+          } @else {
+            <mvo-section-blocks-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('blocks', $event)" (notify)="notice.set($event)" />
+          }
 
           @if (aboutPreview(); as ap) {
             <ng-container *ngTemplateOutlet="aboutPreviewBox; context: {$implicit: ap}" />

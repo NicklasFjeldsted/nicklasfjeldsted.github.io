@@ -16,7 +16,10 @@ namespace Mvo.Api.Controllers;
 public record LoginRequest(string Email, string Password);
 public record UpdatePageTextRequest(int ExpectedVersion, string? Eyebrow, string Heading, string Introduction);
 public record ReorderSectionsRequest(int ExpectedPageVersion, IReadOnlyList<int> OrderedSectionIds);
-public record CreateSectionRequest(string Title, SectionTypeId SectionType);
+public record CreateSectionRequest(string Title, SectionTypeId? SectionType);
+public record SaveSectionContentRequest(
+    int ExpectedVersion, string Title, string? Eyebrow, string? Introduction, string? Description, string? AdditionalDescription,
+    IReadOnlyList<string>? Details, SectionMedia Media, int? PrimaryMediaId, IReadOnlyList<int>? GalleryMediaIds);
 public record UpdateSectionTextRequest(
     int ExpectedVersion, string Title, string? Eyebrow, string? Introduction,
     string Description, string? AdditionalDescription, IReadOnlyList<string>? Details);
@@ -67,7 +70,7 @@ public class AdminPagesController(ISender sender) : ControllerBase
     [HttpPost("{pageId:int}/sections")]
     public async Task<ActionResult<SectionContentDto>> CreateSection(int pageId, CreateSectionRequest r, CancellationToken ct)
     {
-        var created = await sender.Send(new CreateSectionCommand(pageId, r.Title, r.SectionType), ct);
+        var created = await sender.Send(new CreateSectionCommand(pageId, r.Title, r.SectionType ?? SectionTypeId.TextBlock), ct);
         return CreatedAtAction(nameof(GetSection), new { pageId, sectionId = created.Id }, created);
     }
 
@@ -79,6 +82,11 @@ public class AdminPagesController(ISender sender) : ControllerBase
     public async Task<SectionContentDto> UpdateSectionText(int pageId, int sectionId, UpdateSectionTextRequest r, CancellationToken ct) =>
         await sender.Send(new UpdateSectionTextCommand(pageId, sectionId, r.ExpectedVersion, r.Title, r.Eyebrow, r.Introduction,
             r.Description, r.AdditionalDescription, r.Details ?? []), ct);
+
+    [HttpPut("{pageId:int}/sections/{sectionId:int}/content")]
+    public async Task<SectionContentDto> SaveSectionContent(int pageId, int sectionId, SaveSectionContentRequest r, CancellationToken ct) =>
+        await sender.Send(new SaveSectionContentCommand(pageId, sectionId, r.ExpectedVersion, r.Title, r.Eyebrow, r.Introduction,
+            r.Description, r.AdditionalDescription, r.Details ?? [], r.Media, r.PrimaryMediaId, r.GalleryMediaIds ?? []), ct);
 
     [HttpPut("{pageId:int}/sections/{sectionId:int}/visibility")]
     public async Task<SectionContentDto> SetVisibility(int pageId, int sectionId, SectionVisibilityRequest r, CancellationToken ct) =>

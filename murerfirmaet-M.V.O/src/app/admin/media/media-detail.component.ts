@@ -155,8 +155,8 @@ export class MediaDetailComponent {
   }
 
   protected link(u: IMediaUsage) {
-    const tab = u.sectionType === 'BeforeAfter' ? 'beforeAfter' : u.kind === 'Primary' ? 'primary' : 'gallery';
-    return contentLinkParams(u.pageId, u.sectionId, tab);
+    // Only the profile has its image on a separate tab; other sections show their images with the rest of the content.
+    return contentLinkParams(u.pageId, u.sectionId, u.sectionType === 'Profile' && u.kind === 'Primary' ? 'primary' : 'text');
   }
 
   protected usageLabel(u: IMediaUsage): string {

@@ -195,25 +195,6 @@ textarea.adm-input { min-height: 7rem; resize: vertical; }
   border: 1px dashed var(--adm-border); border-radius: 8px;
 }
 
-.adm-gallery {
-  list-style: none; margin: 1rem 0 0; padding: 0;
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: 0.9rem;
-
-  &__item {
-    position: relative; display: flex; flex-direction: column; gap: 0.5rem; padding: 0.6rem;
-    background: var(--adm-surface); border: 1px solid var(--adm-border); border-radius: 8px; cursor: grab;
-    img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; background: rgba(0, 0, 0, 0.05); }
-  }
-  &__pos {
-    position: absolute; top: 0.9rem; left: 0.9rem; min-width: 1.6rem; padding: 0 0.4rem; text-align: center;
-    font-size: 0.8rem; font-weight: 700; color: #fff; background: rgba(0, 0, 0, 0.7); border-radius: 999px;
-  }
-  &__alt { margin: 0; font-size: 0.85rem; color: var(--adm-muted); overflow-wrap: anywhere; }
-  &__tools { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-}
-.cdk-drag-preview { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); border-radius: 8px; background: #fff; padding: 0.6rem; }
-.cdk-drag-placeholder { opacity: 0.35; }
-.cdk-drag-animating { transition: transform 200ms ease; }
 
 .adm-visually-hidden {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
@@ -367,3 +348,54 @@ textarea.adm-input { min-height: 7rem; resize: vertical; }
 
 // The description at the top of an editor tab gets room before the images and buttons below it.
 .adm [role='tabpanel'] > * > p.adm-hint:first-child { margin: 0 0 1rem; }
+
+// Section editor built from parts: one box per part, and chips to add the parts the section does not have yet.
+.adm-blocks { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
+.adm-block {
+  padding: 0.7rem 0.9rem; background: var(--adm-surface); border: 1px solid var(--adm-border); border-radius: 10px;
+  &--new { border-color: var(--adm-accent); box-shadow: 0 0 0 3px rgba(138, 90, 43, 0.15); }
+  &__head {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;
+    h3 { margin: 0; font-size: 0.95rem; }
+    .adm-hint { font-size: 0.8rem; }
+  }
+  &__icon {
+    flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 6px;
+    font-size: 0.8rem; font-weight: 700; color: var(--adm-accent); background: rgba(138, 90, 43, 0.1);
+  }
+  &__remove {
+    margin-left: auto; padding: 0.2rem 0.45rem; font: inherit; font-size: 0.85rem; color: var(--adm-muted);
+    background: none; border: 0; border-radius: 4px; cursor: pointer;
+    &:hover:not(:disabled) { color: var(--adm-danger); background: rgba(161, 42, 42, 0.06); }
+    &:focus-visible { outline: none; box-shadow: var(--adm-focus); }
+  }
+  &__points { display: flex; flex-direction: column; gap: 0.4rem; }
+  &__point { display: flex; gap: 0.4rem; align-items: center; .adm-input { flex: 1; } }
+  &__thumbs {
+    list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end;
+    li { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+    img { display: block; width: 110px; height: 82px; object-fit: cover; border: 1px solid var(--adm-border); border-radius: 6px; }
+  }
+  &__thumb--main img { width: 150px; height: 112px; border: 2px solid var(--adm-accent); }
+  &__caption { font-size: 0.75rem; color: var(--adm-muted); }
+  &__tools { display: flex; gap: 0.2rem; }
+  &__add-image {
+    justify-content: center; align-self: stretch; min-width: 9rem; padding: 0.5rem;
+    border: 1px dashed var(--adm-border); border-radius: 6px;
+  }
+}
+.adm-addparts {
+  margin-top: 0.9rem; padding: 0.8rem 0.9rem; border: 1px dashed var(--adm-border); border-radius: 10px; background: rgba(138, 90, 43, 0.03);
+  h3 { margin: 0 0 0.55rem; font-size: 0.9rem; }
+  .adm-hint { margin: 0.5rem 0 0; font-size: 0.8rem; }
+  &__list { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  &__chip {
+    display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem 0.35rem 0.4rem;
+    font: inherit; font-size: 0.9rem; font-weight: 600; color: inherit; background: var(--adm-surface);
+    border: 1px solid var(--adm-border); border-radius: 999px; cursor: pointer;
+    .adm-block__icon { width: 22px; height: 22px; border-radius: 50%; font-size: 0.75rem; }
+    &:hover:not(:disabled) { border-color: var(--adm-accent); background: rgba(138, 90, 43, 0.06); }
+    &:focus-visible { outline: none; box-shadow: var(--adm-focus); }
+    &:disabled { opacity: 0.45; cursor: not-allowed; }
+  }
+}
