@@ -37,6 +37,7 @@ export class HeaderComponent {
     {labelKey: 'nav.home', path: '/', exact: true},
     {labelKey: 'nav.specializedMasonry', path: '/specialiseret-murerarbejde', exact: false},
     {labelKey: 'nav.services', path: '/ydelser', exact: false},
+    {labelKey: 'nav.projects', path: '/projekter', exact: false},
     {labelKey: 'nav.about', path: '/om-os', exact: false},
     {labelKey: 'nav.contact', path: '/kontakt', exact: false},
   ];

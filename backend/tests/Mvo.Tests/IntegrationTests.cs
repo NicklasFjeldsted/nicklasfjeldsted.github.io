@@ -316,6 +316,10 @@ public class MediaAndHttpTests(TestHost host)
     [InlineData("GET", "/api/admin/media")]
     [InlineData("GET", "/api/admin/media/1")]
     [InlineData("PUT", "/api/admin/media/1")]
+    [InlineData("GET", "/api/admin/projects")]
+    [InlineData("POST", "/api/admin/projects")]
+    [InlineData("PUT", "/api/admin/projects/1")]
+    [InlineData("DELETE", "/api/admin/projects/1?expectedVersion=1")]
     public async Task Admin_endpoints_reject_unauthenticated_requests(string method, string url)
     {
         var response = await Client().SendAsync(new HttpRequestMessage(new HttpMethod(method), url));

@@ -84,15 +84,19 @@ export interface IMediaPage {
   total: number;
 }
 
-/** Where an image is shown on the website. `kind` is the section's primary image or a gallery position. */
+/**
+ * Where an image is shown on the website. `kind` is the section's primary image, a gallery position, or a position in a
+ * project; for projects `projectId` is set and `sectionTitle` is the project's title.
+ */
 export interface IMediaUsage {
   pageId: number;
   pageName: string;
   sectionId: number;
   sectionTitle: string;
   sectionType: string;
-  kind: 'Primary' | 'Gallery';
+  kind: 'Primary' | 'Gallery' | 'Project';
   position: number | null;
+  projectId: number | null;
 }
 
 export interface IMediaDetail extends IMedia {
@@ -123,6 +127,57 @@ export const SECTION_TYPES = [
   {id: 2, label: 'Tekstblok'},
   {id: 3, label: 'Før og efter (billedsammenligning)'},
 ] as const;
+
+export interface IProjectListItem {
+  id: number;
+  slug: string;
+  title: string;
+  category: string;
+  location: string;
+  /** yyyy-mm-dd */
+  completedOn: string;
+  isFeatured: boolean;
+  isPublished: boolean;
+  coverUrl: string | null;
+  imageCount: number;
+}
+
+export interface IProjectImage {
+  mediaId: number;
+  url: string;
+  name: string;
+}
+
+export interface IProjectDetail {
+  id: number;
+  slug: string;
+  title: string;
+  category: string;
+  location: string;
+  completedOn: string;
+  summary: string;
+  description: string;
+  isFeatured: boolean;
+  isPublished: boolean;
+  version: number;
+  images: IProjectImage[];
+}
+
+/** What the project editor saves in one go. */
+export interface IProjectInput {
+  title: string;
+  category: string;
+  location: string;
+  completedOn: string;
+  summary: string;
+  description: string;
+  isFeatured: boolean;
+  isPublished: boolean;
+  mediaIds: number[];
+}
+
+/** The Projekter page shows three projects at the top; the server allows at most this many to be featured. */
+export const MAX_FEATURED_PROJECTS = 3;
 
 export const ALLOWED_IMAGE_TYPES = 'image/jpeg,image/png,image/webp';
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;

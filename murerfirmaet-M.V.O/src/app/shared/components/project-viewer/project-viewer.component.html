@@ -1,0 +1,38 @@
+<div class="viewer__stage">
+  @for (image of images(); track image.id; let i = $index) {
+    <img
+      class="viewer__image"
+      [class.viewer__image--active]="i === index()"
+      [src]="image.url"
+      [alt]="i === index() ? title() + ', billede ' + (i + 1) : ''"
+      [attr.aria-hidden]="i === index() ? null : 'true'"
+      draggable="false"/>
+  }
+  @if (images().length > 1) {
+    <button type="button" class="viewer__arrow viewer__arrow--left" aria-label="Forrige billede" (click)="step(-1)">
+      <fa-icon [icon]="faLeft"/>
+    </button>
+    <button type="button" class="viewer__arrow viewer__arrow--right" aria-label="Næste billede" (click)="step(1)">
+      <fa-icon [icon]="faRight"/>
+    </button>
+    <span class="viewer__counter">{{ index() + 1 }} / {{ images().length }}</span>
+  }
+</div>
+
+@if (images().length > 1) {
+  <ul class="viewer__thumbs" [attr.aria-label]="'Billeder fra ' + title()">
+    @for (image of images(); track image.id; let i = $index) {
+      <li>
+        <button
+          type="button"
+          class="viewer__thumb"
+          [class.viewer__thumb--selected]="i === index()"
+          [attr.aria-label]="'Vis billede ' + (i + 1) + ' af ' + images().length"
+          [attr.aria-pressed]="i === index()"
+          (click)="index.set(i)">
+          <img [src]="image.url" alt="" loading="lazy" draggable="false"/>
+        </button>
+      </li>
+    }
+  </ul>
+}

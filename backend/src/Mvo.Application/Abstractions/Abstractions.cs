@@ -12,6 +12,8 @@ public interface IAppDbContext
     DbSet<MediaAsset> MediaAssets { get; }
     DbSet<GalleryImage> GalleryImages { get; }
     DbSet<AdminUser> AdminUsers { get; }
+    DbSet<Project> Projects { get; }
+    DbSet<ProjectImage> ProjectImages { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
 

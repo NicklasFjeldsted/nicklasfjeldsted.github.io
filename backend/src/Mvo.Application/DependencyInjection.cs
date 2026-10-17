@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Mvo.Application.Common;
 using Mvo.Application.Features.Media;
+using Mvo.Application.Features.Projects;
 using Mvo.Application.Features.Sections;
 
 namespace Mvo.Application;
@@ -16,6 +17,7 @@ public static class DependencyInjection
         services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddScoped<SectionContentLoader>();
         services.AddScoped<MediaDetailLoader>();
+        services.AddScoped<ProjectLoader>();
         return services;
     }
 }

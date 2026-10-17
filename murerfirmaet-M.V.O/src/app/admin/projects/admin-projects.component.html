@@ -1,0 +1,204 @@
+<div class="adm-content">
+  <nav class="adm-breadcrumb" aria-label="Du redigerer her">
+    <ol>
+      <li>Projekter</li>
+      @if (draft(); as d) {
+        <li aria-current="location">{{ isNew() ? 'Nyt projekt' : saved()?.title }}</li>
+      }
+    </ol>
+    <span class="adm-breadcrumb__end">
+      @if (dirty()) { <span class="adm-badge adm-badge--unsaved">Ugemte ændringer</span> }
+      @if (saved(); as p) {
+        @if (p.isPublished) {
+          <a class="adm-btn adm-btn--small" [href]="'/projekter/' + p.slug" target="_blank" rel="noopener">Se projektet live ↗</a>
+        }
+      } @else {
+        <a class="adm-btn adm-btn--small" href="/projekter" target="_blank" rel="noopener">Se siden live ↗</a>
+      }
+    </span>
+  </nav>
+
+  @if (notice(); as n) {
+    <div class="adm-notice" [class.adm-notice--error]="n.kind === 'error'" [attr.role]="n.kind === 'error' ? 'alert' : 'status'">
+      <span>{{ n.text }}</span>
+      <button type="button" class="adm-btn adm-btn--small" (click)="notice.set(null)" aria-label="Luk besked">Luk</button>
+    </div>
+  }
+
+  <div class="adm-layout">
+    <aside class="adm-side" aria-label="Vælg projekt">
+      <div class="prj-side-head">
+        <h2>Projekter</h2>
+        <button type="button" class="adm-btn adm-btn--small adm-btn--primary" (click)="select('ny')" [attr.aria-current]="isNew() ? 'true' : null">+ Nyt projekt</button>
+      </div>
+      @if (loadingList()) {
+        <p class="adm-hint" role="status">Henter projekter…</p>
+      } @else if (listError()) {
+        <div class="adm-notice adm-notice--error" role="alert">
+          <span>Projekterne kunne ikke hentes. {{ listError() }}</span>
+          <button type="button" class="adm-btn adm-btn--small" (click)="loadList()">Prøv igen</button>
+        </div>
+      } @else {
+        <ul class="adm-list">
+          @for (p of projects(); track p.id) {
+            <li>
+              <button type="button" class="adm-list__btn prj-item" [attr.aria-current]="selected() === p.id ? 'true' : null" (click)="select(p.id)">
+                @if (p.coverUrl) { <img [src]="p.coverUrl" alt=""> } @else { <span class="prj-item__noimg" aria-hidden="true"></span> }
+                <span class="prj-item__text">
+                  <span class="prj-item__title">{{ p.title }}</span>
+                  <span class="prj-item__meta">
+                    {{ categoryLabel(p.category) }}
+                    @if (p.isFeatured) { <span class="adm-badge prj-badge--featured">Fremhævet</span> }
+                    @if (!p.isPublished) { <span class="adm-badge adm-badge--hidden">Skjult</span> }
+                  </span>
+                </span>
+              </button>
+            </li>
+          } @empty {
+            <li class="adm-hint">Der er ingen projekter endnu.</li>
+          }
+        </ul>
+        <p class="prj-side-hint">Projekterne vises nyeste først. De fremhævede vises øverst på Projekter-siden, og ellers fyldes der op med de nyeste, så der altid er 3.</p>
+      }
+    </aside>
+
+    <main class="adm-main">
+      @if (loadingProject()) {
+        <p role="status">Henter projekt…</p>
+      } @else if (draft(); as d) {
+        <div class="adm-section-head">
+          <h2>{{ isNew() ? 'Nyt projekt' : saved()?.title }}</h2>
+          @if (!isNew()) {
+            <span class="adm-badge" [class.adm-badge--hidden]="!saved()?.isPublished">{{ saved()?.isPublished ? 'Synlig' : 'Skjult' }}</span>
+          }
+          @if (saved(); as p) {
+            <button type="button" class="adm-btn adm-btn--small adm-btn--danger prj-delete" (click)="remove()" [disabled]="busy()">Slet projekt</button>
+          }
+        </div>
+
+        <form class="prj-form" (ngSubmit)="save()">
+          <div class="adm-field">
+            <label for="prj-title">Titel</label>
+            <input id="prj-title" name="title" class="adm-input" maxlength="200" autocomplete="off" [ngModel]="d.title" (ngModelChange)="update('title', $event)"
+                   [attr.aria-invalid]="fieldErrors('title').length ? 'true' : null" placeholder="Fx Badeværelse med marmorfliser">
+            @for (e of fieldErrors('title'); track e) { <span class="adm-error">{{ e }}</span> }
+          </div>
+
+          <div class="prj-row">
+            <div class="adm-field">
+              <label for="prj-category">Kategori</label>
+              <select id="prj-category" name="category" class="adm-input" [ngModel]="d.category" (ngModelChange)="update('category', $event)">
+                @for (c of categories; track c.id) { <option [value]="c.id">{{ c.label }}</option> }
+              </select>
+            </div>
+            <div class="adm-field">
+              <label for="prj-location">Sted</label>
+              <input id="prj-location" name="location" class="adm-input" maxlength="100" autocomplete="off" [ngModel]="d.location" (ngModelChange)="update('location', $event)"
+                     [attr.aria-invalid]="fieldErrors('location').length ? 'true' : null" placeholder="Fx Valby">
+              @for (e of fieldErrors('location'); track e) { <span class="adm-error">{{ e }}</span> }
+            </div>
+            <div class="adm-field">
+              <label for="prj-completed">Afsluttet</label>
+              <input id="prj-completed" name="completed" type="month" class="adm-input" [ngModel]="d.completedMonth" (ngModelChange)="update('completedMonth', $event)"
+                     [attr.aria-invalid]="fieldErrors('completedOn').length ? 'true' : null">
+              @for (e of fieldErrors('completedOn'); track e) { <span class="adm-error">{{ e }}</span> }
+            </div>
+          </div>
+
+          <div class="adm-field">
+            <label for="prj-summary">Kort tekst</label>
+            <textarea id="prj-summary" name="summary" class="adm-input prj-summary" maxlength="500" [ngModel]="d.summary" (ngModelChange)="update('summary', $event)"
+                      [attr.aria-invalid]="fieldErrors('summary').length ? 'true' : null"></textarea>
+            <span class="adm-hint">Vises i sektionen og i popuppen. {{ d.summary.length }}/500 tegn.</span>
+            @for (e of fieldErrors('summary'); track e) { <span class="adm-error">{{ e }}</span> }
+          </div>
+
+          <div class="adm-field">
+            <label for="prj-description">Beskrivelse</label>
+            <textarea id="prj-description" name="description" class="adm-input prj-description" maxlength="4000" [ngModel]="d.description" (ngModelChange)="update('description', $event)"></textarea>
+            <span class="adm-hint">Vises på projektets egen side. Lav en tom linje mellem afsnit. {{ d.description.length }}/4000 tegn.</span>
+            @for (e of fieldErrors('description'); track e) { <span class="adm-error">{{ e }}</span> }
+          </div>
+
+          <fieldset class="prj-checks">
+            <legend class="adm-label">Visning</legend>
+            <label class="prj-check">
+              <input type="checkbox" name="published" [ngModel]="d.isPublished" (ngModelChange)="update('isPublished', $event)">
+              <span>Vis projektet på hjemmesiden</span>
+            </label>
+            <label class="prj-check" [class.prj-check--disabled]="featuredFull() && !d.isFeatured">
+              <input type="checkbox" name="featured" [ngModel]="d.isFeatured" (ngModelChange)="update('isFeatured', $event)" [disabled]="featuredFull() && !d.isFeatured">
+              <span>Fremhæv projektet øverst på Projekter-siden</span>
+            </label>
+            <span class="adm-hint">
+              {{ featuredElsewhere() + (d.isFeatured ? 1 : 0) }} af {{ maxFeatured }} pladser til fremhævede projekter er brugt.
+              @if (featuredFull() && !d.isFeatured) { Fjern fremhævningen fra et andet projekt for at fremhæve dette. }
+            </span>
+          </fieldset>
+
+          <h3 class="prj-images-head">Billeder</h3>
+          <p class="adm-hint">Det første billede er projektets forsidebillede. Træk billederne for at ændre rækkefølgen.</p>
+          <div class="adm-actions" style="margin-top: 0.5rem">
+            <div class="adm-menu">
+              <button type="button" class="adm-btn" aria-haspopup="menu" [attr.aria-expanded]="menuOpen()" (click)="menuOpen.set(!menuOpen())" [disabled]="busy()">Tilføj billeder ▾</button>
+              @if (menuOpen()) {
+                <div class="adm-menu__list" role="menu">
+                  <button type="button" role="menuitem" class="adm-menu__item" (click)="addFromLibrary()">
+                    Vælg fra billedarkivet<small>Genbrug billeder, der allerede er uploadet</small>
+                  </button>
+                  <label role="menuitem" class="adm-menu__item" tabindex="0" (keydown.enter)="fileInput.click()">
+                    Upload fra denne enhed<small>Gemmes også i billedarkivet</small>
+                    <input #fileInput type="file" class="adm-visually-hidden" multiple [accept]="accept" (change)="addFromDevice($event)">
+                  </label>
+                </div>
+              }
+            </div>
+          </div>
+          @for (e of fieldErrors('mediaIds'); track e) { <p class="adm-error" role="alert">{{ e }}</p> }
+          <p class="adm-visually-hidden" aria-live="polite">{{ announcement() }}</p>
+
+          @if (d.images.length === 0) {
+            <div class="adm-empty" style="margin-top: 1rem">Projektet har ingen billeder endnu. Tilføj mindst ét, før projektet kan vises på hjemmesiden.</div>
+          } @else {
+            <ol class="adm-gallery" cdkDropList cdkDropListOrientation="mixed" (cdkDropListDropped)="drop($event)">
+              @for (img of d.images; track img.mediaId; let i = $index; let first = $first; let last = $last) {
+                <li class="adm-gallery__item" cdkDrag [cdkDragDisabled]="busy()">
+                  <span class="adm-gallery__pos">{{ i + 1 }}</span>
+                  @if (first) { <span class="prj-cover">Forsidebillede</span> }
+                  <img [src]="img.url" [alt]="'Projektbillede ' + (i + 1)" draggable="false">
+                  <p class="adm-gallery__alt">{{ img.name }}</p>
+                  <div class="adm-gallery__tools">
+                    <button type="button" class="adm-btn adm-btn--small" (click)="moveImage(i, i - 1)" [disabled]="first || busy()" [attr.aria-label]="'Flyt billede ' + (i + 1) + ' tidligere'">←</button>
+                    <button type="button" class="adm-btn adm-btn--small" (click)="moveImage(i, i + 1)" [disabled]="last || busy()" [attr.aria-label]="'Flyt billede ' + (i + 1) + ' senere'">→</button>
+                    <button type="button" class="adm-btn adm-btn--small adm-btn--danger" (click)="removeImage(i)" [disabled]="busy()">Fjern</button>
+                  </div>
+                </li>
+              }
+            </ol>
+          }
+
+          <div class="adm-savebar">
+            <button type="submit" class="adm-btn adm-btn--primary" [disabled]="(!dirty() && !isNew()) || busy()">{{ busy() ? 'Gemmer…' : isNew() ? 'Opret projekt' : 'Gem ændringer' }}</button>
+            <button type="button" class="adm-btn" (click)="reset()" [disabled]="!dirty() || busy()">Fortryd</button>
+            @if (dirty()) { <span class="adm-badge adm-badge--unsaved">Ugemte ændringer</span> }
+          </div>
+        </form>
+
+        @if (preview(); as pv) {
+          <section class="adm-preview-box" aria-labelledby="prj-preview-title">
+            <header class="adm-preview-box__head">
+              <h3 id="prj-preview-title">Sådan ser projektet ud på siden</h3>
+              <span class="adm-hint">{{ dirty() || isNew() ? 'Viser dine ugemte ændringer.' : 'Viser det gemte indhold.' }}</span>
+              @if (!d.isPublished) { <span class="adm-badge adm-badge--hidden">Projektet er skjult for besøgende</span> }
+            </header>
+            <div class="adm-preview-box__stage prj-preview">
+              <mvo-project-section [project]="pv" [index]="previewIndex()"/>
+            </div>
+          </section>
+        }
+      } @else {
+        <div class="adm-empty">{{ projects().length ? 'Vælg et projekt i listen, eller opret et nyt.' : 'Opret jeres første projekt med knappen "+ Nyt projekt".' }}</div>
+      }
+    </main>
+  </div>
+</div>

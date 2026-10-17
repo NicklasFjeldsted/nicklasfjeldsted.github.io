@@ -14,6 +14,8 @@ public class FailingDb(IAppDbContext inner) : IAppDbContext
     public DbSet<MediaAsset> MediaAssets => inner.MediaAssets;
     public DbSet<GalleryImage> GalleryImages => inner.GalleryImages;
     public DbSet<AdminUser> AdminUsers => inner.AdminUsers;
+    public DbSet<Project> Projects => inner.Projects;
+    public DbSet<ProjectImage> ProjectImages => inner.ProjectImages;
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         throw new InvalidOperationException("Simulated persistence failure.");

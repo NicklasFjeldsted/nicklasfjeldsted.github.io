@@ -50,7 +50,7 @@ import {contentLinkParams} from '../shell/admin-nav.service';
         <ul class="lib-uses">
           @for (u of d.usages; track $index) {
             <li>
-              <a [routerLink]="['/admin']" [queryParams]="link(u)">{{ u.pageName }} › {{ u.sectionTitle }}</a>
+              <a [routerLink]="u.kind === 'Project' ? '/admin/projekter' : '/admin'" [queryParams]="link(u)">{{ u.pageName }} › {{ u.sectionTitle }}</a>
               <small class="adm-hint">{{ usageLabel(u) }}</small>
             </li>
           }
@@ -155,11 +155,13 @@ export class MediaDetailComponent {
   }
 
   protected link(u: IMediaUsage) {
+    if (u.kind === 'Project') return {projekt: u.projectId};
     const tab = u.sectionType === 'BeforeAfter' ? 'beforeAfter' : u.kind === 'Primary' ? 'primary' : 'gallery';
     return contentLinkParams(u.pageId, u.sectionId, tab);
   }
 
   protected usageLabel(u: IMediaUsage): string {
+    if (u.kind === 'Project') return u.position === 1 ? 'Projektets forsidebillede' : `Projektbillede, position ${u.position}`;
     if (u.sectionType === 'BeforeAfter') return u.kind === 'Primary' ? 'Før-billede' : 'Efter-billede';
     return u.kind === 'Primary' ? 'Hovedbillede' : `Galleri, position ${u.position}`;
   }

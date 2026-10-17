@@ -1,0 +1,75 @@
+<main class="projects-page">
+  <section class="projects-hero u-bg-dark">
+    <div class="projects-hero__inner">
+      <h5 class="u-text-brand uppercase">{{ 'projectsPage.eyebrow' | translate }}</h5>
+      <h1 class="u-text-dark-heading">{{ 'projectsPage.heading.before' | translate }}<span class="u-text-brand">{{ 'projectsPage.heading.accent' | translate }}</span>{{ 'projectsPage.heading.after' | translate }}</h1>
+      <p class="projects-hero__lead">{{ 'projectsPage.lead' | translate }}</p>
+    </div>
+  </section>
+
+  @if (!loading() && !featured().length) {
+    <section class="project-section">
+      <p class="projects-empty">{{ (failed() ? 'projectsPage.loadError' : 'projectsPage.empty') | translate }}</p>
+    </section>
+  }
+
+  @for (p of featured(); track p.id; let i = $index) {
+    <section class="project-section" [class.project-section--tinted]="i % 2 === 1">
+      <mvo-project-section [project]="p" [index]="i"/>
+    </section>
+  }
+
+  @if (tiles().length || filter()) {
+  <section class="projects-gallery u-bg-dark" aria-labelledby="projects-gallery-heading">
+    <div class="projects-gallery__inner">
+      <div class="projects-gallery__head">
+        <h4 class="u-text-brand uppercase">{{ 'projectsPage.gallery.eyebrow' | translate }}</h4>
+        <h2 id="projects-gallery-heading" class="u-text-dark-heading">{{ 'projectsPage.gallery.heading' | translate }}</h2>
+        <p class="u-text-dark-body">{{ 'projectsPage.gallery.lead' | translate }}</p>
+      </div>
+
+      <div class="projects-gallery__filters" role="group" [attr.aria-label]="'projectsPage.gallery.filter' | translate">
+        <button type="button" class="projects-filter" [class.projects-filter--active]="!filter()" [attr.aria-pressed]="!filter()" (click)="filter.set(null)">
+          {{ 'projectsPage.gallery.all' | translate }}
+        </button>
+        @for (c of categories(); track c) {
+          <button type="button" class="projects-filter" [class.projects-filter--active]="filter() === c" [attr.aria-pressed]="filter() === c" (click)="filter.set(c)">
+            {{ 'quote.categories.' + c | translate }}
+          </button>
+        }
+      </div>
+
+      <ul class="projects-gallery__grid">
+        @for (tile of tiles(); track tile.url + tile.project.id) {
+          <li>
+            <button type="button" class="gallery-tile" (click)="open.set(tile)" [attr.aria-label]="('projectsPage.gallery.open' | translate) + ': ' + tile.project.title">
+              <img [src]="tile.url" alt="" loading="lazy" draggable="false"/>
+              <span class="gallery-tile__label">
+                <span class="gallery-tile__category">{{ 'quote.categories.' + tile.project.category | translate }}</span>
+                <span class="gallery-tile__title">{{ tile.project.title }}</span>
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+  }
+
+  <section class="projects-cta u-bg-dark">
+    <div class="projects-cta__inner">
+      <div>
+        <h2 class="u-text-dark-heading">{{ 'projectsPage.cta.heading' | translate }}</h2>
+        <p class="u-text-dark-body">{{ 'projectsPage.cta.description' | translate }}</p>
+      </div>
+      <div class="projects-cta__buttons">
+        <a routerLink="/kontakt" class="project-btn project-btn--primary"><span>{{ 'projectsPage.cta.getOffer' | translate }}</span><fa-icon [icon]="faArrowRightLong"/></a>
+        <a [href]="callHref" class="project-btn project-btn--outline"><fa-icon [icon]="faPhone"/><span>{{ 'projectsPage.cta.call' | translate }}</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+@if (open(); as tile) {
+  <mvo-project-dialog [project]="tile.project" [startIndex]="tile.imageIndex" (closed)="open.set(null)"/>
+}

@@ -5,7 +5,7 @@ import {filter, map} from 'rxjs/operators';
 import {AuthService} from '../auth.service';
 import {AdminNavService} from './admin-nav.service';
 
-/** Frame around every admin screen: title, log out, and the tabs between the content editor and the image library. */
+/** Frame around every admin screen: title, log out, and the tabs between the content editor, the projects and the image library. */
 @Component({
   selector: 'mvo-admin-shell',
   imports: [RouterOutlet, RouterLink],
@@ -17,6 +17,7 @@ import {AdminNavService} from './admin-nav.service';
       </header>
       <nav class="adm-nav" aria-label="Administration">
         <a routerLink="/admin" [queryParams]="nav.contentParams()" [attr.aria-current]="path() === '/admin' ? 'page' : null">Website-indhold</a>
+        <a routerLink="/admin/projekter" [attr.aria-current]="path() === '/admin/projekter' ? 'page' : null">Projekter</a>
         <a routerLink="/admin/billeder" [attr.aria-current]="path() === '/admin/billeder' ? 'page' : null">Billedarkiv</a>
       </nav>
       <router-outlet />

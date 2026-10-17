@@ -18,8 +18,12 @@ public record MediaLibraryItemDto(
 
 public record MediaLibraryPageDto(IReadOnlyList<MediaLibraryItemDto> Items, int Total);
 
-/// <summary>Where an image is shown: as a section's primary image or at a position in its gallery.</summary>
-public record MediaUsageDto(int PageId, string PageName, int SectionId, string SectionTitle, string SectionType, string Kind, int? Position);
+/// <summary>
+/// Where an image is shown: as a section's primary image, at a position in a section's gallery, or at a position in a project
+/// (Kind "Project"; ProjectId is set and the page and section fields name the Projekter page and the project).
+/// </summary>
+public record MediaUsageDto(
+    int PageId, string PageName, int SectionId, string SectionTitle, string SectionType, string Kind, int? Position, int? ProjectId = null);
 
 public record MediaDetailDto(
     int Id, string Url, string Name, string OriginalFileName, string ContentType, long SizeBytes,
@@ -49,7 +53,8 @@ public class GetMediaLibraryHandler(IAppDbContext db, IMediaStorage storage) : I
         var rows = db.MediaAssets.AsNoTracking().Select(m => new
         {
             m.Id, m.StoredFileName, m.Name, m.OriginalFileName, m.ContentType, m.SizeBytes, m.CreatedUtc, m.DefaultAltText,
-            UsageCount = db.Sections.Count(s => s.PrimaryMediaId == m.Id) + db.GalleryImages.Count(g => g.MediaAssetId == m.Id),
+            UsageCount = db.Sections.Count(s => s.PrimaryMediaId == m.Id) + db.GalleryImages.Count(g => g.MediaAssetId == m.Id)
+                + db.ProjectImages.Count(i => i.MediaAssetId == m.Id),
         });
 
         // Every word must match the name, original file name or alt text (the database collation ignores case).
@@ -144,10 +149,21 @@ public class MediaDetailLoader(IAppDbContext db, IMediaStorage storage)
             })
             .ToListAsync(cancellationToken);
 
+        var projectRows = await db.ProjectImages.AsNoTracking()
+            .Where(i => i.MediaAssetId == mediaId)
+            .Select(i => new
+            {
+                i.ProjectId,
+                Title = db.Projects.Where(p => p.Id == i.ProjectId).Select(p => p.Title).First(),
+                Position = db.ProjectImages.Count(o => o.ProjectId == i.ProjectId && o.DisplayOrder < i.DisplayOrder) + 1,
+            })
+            .ToListAsync(cancellationToken);
+
         var usages = primaries
             .Select(p => new MediaUsageDto(p.PageId, p.PageName, p.Id, p.Title, p.SectionTypeId.ToString(), "Primary", null))
             .Concat(galleryRows.Select(g => new MediaUsageDto(
                 g.Section.PageId, g.Section.PageName, g.SectionId, g.Section.Title, g.Section.SectionTypeId.ToString(), "Gallery", g.Position)))
+            .Concat(projectRows.Select(p => new MediaUsageDto(0, "Projekter", 0, p.Title, "Project", "Project", p.Position, p.ProjectId)))
             .OrderBy(u => u.PageName).ThenBy(u => u.SectionTitle).ThenBy(u => u.Position ?? 0)
             .ToList();
 

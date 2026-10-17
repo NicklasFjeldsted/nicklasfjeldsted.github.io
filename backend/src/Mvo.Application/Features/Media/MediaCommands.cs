@@ -112,7 +112,8 @@ public class DeleteMediaHandler(IAppDbContext db, IMediaStorage storage) : IRequ
             ?? throw new NotFoundException($"Media {request.MediaId} was not found.");
 
         var inUse = await db.Sections.AnyAsync(s => s.PrimaryMediaId == asset.Id, cancellationToken)
-            || await db.GalleryImages.AnyAsync(g => g.MediaAssetId == asset.Id, cancellationToken);
+            || await db.GalleryImages.AnyAsync(g => g.MediaAssetId == asset.Id, cancellationToken)
+            || await db.ProjectImages.AnyAsync(i => i.MediaAssetId == asset.Id, cancellationToken);
         if (inUse) throw new ConflictException("The image is still used on the website and cannot be deleted.");
 
         db.MediaAssets.Remove(asset);
