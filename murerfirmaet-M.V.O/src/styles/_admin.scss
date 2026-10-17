@@ -127,6 +127,18 @@ textarea.adm-input { min-height: 7rem; resize: vertical; }
   &__item--open &__chev { transform: rotate(90deg); @media (min-width: 56rem) { transform: translateX(3px); color: var(--adm-accent); } }
 }
 
+// The open page's parts are always listed under it, on every screen size.
+.adm-pages__item--current {
+  .adm-pages__chev { transform: rotate(90deg); }
+  > .adm-flyout {
+    display: block; position: static; width: auto; margin: 0.25rem 0 0.5rem 0.75rem; padding: 0.25rem 0 0.25rem 0.75rem;
+    border-left: 2px solid var(--adm-border);
+    &::before { display: none; }
+    .adm-flyout__panel { padding: 0; border: 0; box-shadow: none; background: none; }
+    .adm-flyout__title { display: none; }
+  }
+}
+
 .adm-flyout {
   display: none;
   .adm-pages__item--open > & { display: block; }

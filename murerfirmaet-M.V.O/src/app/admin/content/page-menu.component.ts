@@ -11,8 +11,9 @@ export interface IPagePart {
 const CLOSE_DELAY_MS = 200;
 
 /**
- * Sidebar listing the editable pages. Hovering (or focusing) a page opens a flyout with its parts, like a webshop's
- * category menu; on narrow screens a tap expands the parts under the page instead.
+ * Sidebar listing the editable pages. The open page lists its parts (intro, sections, "+ Ny sektion") right under it.
+ * Hovering (or focusing) another page shows its parts in a flyout, like a webshop's category menu; on touch screens a tap
+ * opens the page instead.
  */
 @Component({
   selector: 'mvo-admin-page-menu',
@@ -23,10 +24,10 @@ const CLOSE_DELAY_MS = 200;
         @for (p of pages(); track p.id) {
           @let parts = sectionsByPage()[p.id] ?? [];
           @let current = currentPageId() === p.id;
-          <li class="adm-pages__item" [class.adm-pages__item--open]="openId() === p.id"
+          <li class="adm-pages__item" [class.adm-pages__item--current]="current" [class.adm-pages__item--open]="!current && openId() === p.id"
               (mouseenter)="hoverOpen(p.id)" (mouseleave)="hoverClose(p.id)" (focusin)="hoverOpen(p.id)" (focusout)="onFocusOut($event, p.id)">
             <button type="button" class="adm-pages__btn" [attr.aria-current]="current ? 'page' : null"
-                    [attr.aria-expanded]="openId() === p.id" [attr.aria-controls]="'parts-' + p.id" (click)="toggle(p.id)">
+                    [attr.aria-expanded]="current || openId() === p.id" [attr.aria-controls]="'parts-' + p.id" (click)="selectPage(p.id, current)">
               <span class="adm-pages__name">{{ p.name }}</span>
               <span class="adm-pages__meta">{{ parts.length + 1 }} dele</span>
               <span class="adm-pages__chev" aria-hidden="true">›</span>
@@ -97,10 +98,10 @@ export class PageMenuComponent implements OnDestroy {
     this.closeTimer = setTimeout(() => this.openId.update(open => (open === id ? null : open)), CLOSE_DELAY_MS);
   }
 
-  /** A tap on touch screens. With a mouse or keyboard the hover or focus already opened it, so a click keeps it open. */
-  protected toggle(id: number): void {
-    if (this.canHover) this.hoverOpen(id);
-    else this.openId.update(open => (open === id ? null : id));
+  /** Clicking a page opens it; its parts then stay listed under it in the sidebar. */
+  protected selectPage(id: number, current: boolean): void {
+    if (current) return;
+    this.pick(id, null);
   }
 
   protected onFocusOut(event: FocusEvent, id: number): void {
