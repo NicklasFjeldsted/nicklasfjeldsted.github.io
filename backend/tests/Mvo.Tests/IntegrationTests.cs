@@ -607,3 +607,87 @@ public class AboutPageTests(TestHost host)
         section.PrimaryImage.Should().NotBeNull();
     }
 }
+
+[Collection("host")]
+public class SectionContentTests(TestHost host)
+{
+    private static SaveSectionContentCommand Save(SectionContentDto s, string title = "Titel", string? eyebrow = null,
+        string? description = null, IReadOnlyList<string>? details = null, SectionMedia media = SectionMedia.None,
+        int? primary = null, IReadOnlyList<int>? gallery = null) =>
+        new(s.PageId, s.Id, s.Version, title, eyebrow, null, description, null, details ?? [], media, primary, gallery ?? []);
+
+    [Fact]
+    public async Task New_section_starts_as_a_title_without_images()
+    {
+        var s = await host.SendAsync(new CreateSectionCommand(TestHost.ManagedPageId, "Kun titel"));
+        s.SectionType.Should().Be("TextBlock");
+        s.Description.Should().BeEmpty();
+        s.PrimaryImage.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Text_and_images_are_saved_together_and_set_the_type()
+    {
+        var s = await host.SendAsync(new CreateSectionCommand(TestHost.ManagedPageId, "Bygges op"));
+        var (main, a, b) = (await host.NewMediaAsync(), await host.NewMediaAsync(), await host.NewMediaAsync());
+
+        var saved = await host.SendAsync(Save(s, "Facader", "Overtekst", null, ["Et punkt"], SectionMedia.Images, main, [a, b]));
+
+        saved.Version.Should().BeGreaterThan(s.Version);
+        saved.SectionType.Should().Be("MasonryShowcase");
+        saved.Title.Should().Be("Facader");
+        saved.Eyebrow.Should().Be("Overtekst");
+        saved.Description.Should().BeEmpty();
+        saved.Details.Should().Equal("Et punkt");
+        saved.PrimaryImage!.MediaId.Should().Be(main);
+        saved.Gallery.Select(g => g.MediaId).Should().Equal(a, b);
+
+        var cleared = await host.SendAsync(Save(saved, "Facader", description: "Kun tekst"));
+        cleared.SectionType.Should().Be("TextBlock");
+        cleared.Eyebrow.Should().BeNull();
+        cleared.Details.Should().BeEmpty();
+        cleared.PrimaryImage.Should().BeNull();
+        cleared.Gallery.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Before_after_takes_one_before_and_one_after_image()
+    {
+        var s = await host.SendAsync(new CreateSectionCommand(TestHost.ManagedPageId, "Før og efter"));
+        var (before, after) = (await host.NewMediaAsync(), await host.NewMediaAsync());
+
+        var saved = await host.SendAsync(Save(s, media: SectionMedia.BeforeAfter, primary: before, gallery: [after]));
+        saved.SectionType.Should().Be("BeforeAfter");
+        saved.Gallery.Should().ContainSingle().Which.MediaId.Should().Be(after);
+
+        var tooMany = async () => await host.SendAsync(Save(saved, media: SectionMedia.BeforeAfter, primary: before,
+            gallery: [after, await host.NewMediaAsync()]));
+        await tooMany.Should().ThrowAsync<ValidationException>();
+    }
+
+    [Fact]
+    public async Task Save_rejects_stale_versions_unknown_media_and_profile_sections()
+    {
+        var s = await host.SendAsync(new CreateSectionCommand(TestHost.ManagedPageId, "Afvises"));
+        await host.SendAsync(Save(s, "Første"));
+
+        var stale = () => host.SendAsync(Save(s, "Anden"));
+        await stale.Should().ThrowAsync<ConflictException>();
+
+        var fresh = await host.SendAsync(new GetSectionContentQuery(s.PageId, s.Id));
+        var unknown = () => host.SendAsync(Save(fresh, media: SectionMedia.Images, primary: 999_999));
+        await unknown.Should().ThrowAsync<NotFoundException>();
+
+        var about = await host.SendAsync(new GetPageQuery(3));
+        var profile = await host.SendAsync(new GetSectionContentQuery(about.Id, about.Sections[0].Id));
+        var act = () => host.SendAsync(Save(profile, "Navn"));
+        await act.Should().ThrowAsync<ConflictException>();
+    }
+
+    [Fact]
+    public void Images_are_not_allowed_without_an_image_part()
+    {
+        new SaveSectionContentValidator().Validate(new SaveSectionContentCommand(1, 1, 1, "t", null, null, null, null, [],
+            SectionMedia.None, 5, [])).IsValid.Should().BeFalse();
+    }
+}

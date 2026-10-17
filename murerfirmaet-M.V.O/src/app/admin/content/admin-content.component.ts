@@ -7,12 +7,11 @@ import {forkJoin} from 'rxjs';
 import {AdminApiService} from '../admin-api.service';
 import {IHasUnsavedChanges} from '../admin.guards';
 import {
-  IApiError, INotice, IPageDetail, IPageListItem, ISectionContent, ISectionListItem, SECTION_TYPES,
+  IApiError, INotice, IPageDetail, IPageListItem, ISectionContent, ISectionListItem,
 } from '../admin.models';
-import {BeforeAfterEditorComponent} from '../editors/before-after-editor.component';
-import {GalleryEditorComponent} from '../editors/gallery-editor.component';
 import {PageTextEditorComponent} from '../editors/page-text-editor.component';
 import {PrimaryImageEditorComponent} from '../editors/primary-image-editor.component';
+import {SectionBlocksEditorComponent} from '../editors/section-blocks-editor.component';
 import {SectionTextEditorComponent} from '../editors/section-text-editor.component';
 import {ConfirmService} from '../shared/confirm-dialog.component';
 import {IMasonryImage, IMasonrySection, MasonrySectionType} from '../../core/interfaces/masonry-page.interface';
@@ -27,7 +26,7 @@ const NEW = 'new';
 
 @Component({
   selector: 'mvo-admin-content',
-  imports: [FormsModule, NgTemplateOutlet, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, GalleryEditorComponent, BeforeAfterEditorComponent, MasonryShowcaseComponent, AboutProfileComponent, PageMenuComponent],
+  imports: [FormsModule, NgTemplateOutlet, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, SectionBlocksEditorComponent, MasonryShowcaseComponent, AboutProfileComponent, PageMenuComponent],
   templateUrl: './admin-content.component.html',
 })
 export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
@@ -38,7 +37,6 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   private readonly nav = inject(AdminNavService);
   private readonly unregister = this.nav.registerDirtyState(() => this.isDirty(), () => this.dirtyFlags.set({}));
 
-  protected readonly sectionTypes = SECTION_TYPES;
   protected readonly pages = signal<IPageListItem[]>([]);
   protected readonly loadingPages = signal(true);
   protected readonly loadError = signal('');
@@ -72,7 +70,6 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   });
 
   protected readonly newTitle = signal('');
-  protected readonly newType = signal<number>(SECTION_TYPES[0].id);
   protected readonly adding = signal(false);
 
   protected readonly isDirty = computed(() => Object.values(this.dirtyFlags()).some(Boolean));
@@ -82,15 +79,13 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   protected readonly isNew = computed(() => this.selected() === NEW);
   protected readonly sectionIndex = computed(() => this.sections().findIndex(s => s.id === this.selected()));
   protected readonly sectionTitle = computed(() => this.section()?.title ?? '');
+  /** The profile on a fixed-layout page keeps its own editors; every other section is built up from parts. */
+  protected readonly isProfile = computed(() => this.section()?.sectionType === 'Profile');
+  /** Tabs of the profile section on a fixed-layout page; other sections edit everything in one place. */
   protected readonly tabs = computed(() => {
     const s = this.section();
     const tabs: {id: Tab; label: string}[] = [{id: 'text', label: 'Tekst'}];
-    if (s?.sectionType === 'BeforeAfter') {
-      tabs.push({id: 'beforeAfter', label: 'Før og efter'});
-      return tabs;
-    }
-    if (s?.hasPrimaryImage) tabs.push({id: 'primary', label: s.sectionType === 'Profile' ? 'Billede' : 'Hovedbillede'});
-    if (s?.hasGallery) tabs.push({id: 'gallery', label: 'Galleri'});
+    if (s?.hasPrimaryImage) tabs.push({id: 'primary', label: 'Billede'});
     return tabs;
   });
   protected readonly tabLabel = computed(() => this.tabs().find(t => t.id === this.tab())?.label ?? '');
@@ -290,7 +285,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
     if (!page || !title || this.adding()) return;
     if (!(await this.leave())) return;
     this.adding.set(true);
-    this.api.createSection(page.id, title, this.newType()).subscribe({
+    this.api.createSection(page.id, title).subscribe({
       next: created => {
         this.adding.set(false);
         this.newTitle.set('');
@@ -298,7 +293,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
         this.selected.set(created.id);
         this.tab.set('text');
         this.refreshPage();
-        this.notice.set({kind: 'success', text: `Sektionen "${created.title}" er oprettet. Den er skjult, indtil du gør den synlig.`});
+        this.notice.set({kind: 'success', text: `Sektionen "${created.title}" er oprettet. Tilføj tekst og billeder herunder. Den er skjult, indtil du gør den synlig.`});
       },
       error: (e: IApiError) => {
         this.adding.set(false);
@@ -387,11 +382,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   }
 
   private tabAllowed(tab: Tab, s: ISectionContent): boolean {
-    const beforeAfter = s.sectionType === 'BeforeAfter';
-    if (tab === 'beforeAfter') return beforeAfter;
-    if (tab === 'primary') return s.hasPrimaryImage && !beforeAfter;
-    if (tab === 'gallery') return s.hasGallery && !beforeAfter;
-    return true;
+    return tab === 'text' || (tab === 'primary' && s.sectionType === 'Profile' && s.hasPrimaryImage);
   }
 
   private async leave(): Promise<boolean> {

@@ -122,11 +122,20 @@ export interface IGalleryImageInput {
 }
 
 /** Section types an administrator can create; mirror the SectionType lookup table seeded by the backend. The "Profile" type only exists on the fixed "Om os" page. */
-export const SECTION_TYPES = [
-  {id: 1, label: 'Murerarbejde med billeder'},
-  {id: 2, label: 'Tekstblok'},
-  {id: 3, label: 'Før og efter (billedsammenligning)'},
-] as const;
+/** Which images a section shows; it decides how the section is laid out on the page. Numbers match the API. */
+export enum SectionMedia { None = 0, Images = 1, BeforeAfter = 2 }
+
+export interface ISectionContentSave {
+  title: string;
+  eyebrow: string | null;
+  introduction: string | null;
+  description: string | null;
+  additionalDescription: string | null;
+  details: string[];
+  media: SectionMedia;
+  primaryMediaId: number | null;
+  galleryMediaIds: number[];
+}
 
 export interface IProjectListItem {
   id: number;

@@ -8,7 +8,8 @@ using Mvo.Application.Features.Pages;
 
 namespace Mvo.Application.Features.Sections;
 
-public record CreateSectionCommand(int PageId, string Title, SectionTypeId SectionType) : IRequest<SectionContentDto>;
+/// <summary>A new section starts as a title only; its texts and images are added afterwards.</summary>
+public record CreateSectionCommand(int PageId, string Title, SectionTypeId SectionType = SectionTypeId.TextBlock) : IRequest<SectionContentDto>;
 
 public class CreateSectionValidator : AbstractValidator<CreateSectionCommand>
 {

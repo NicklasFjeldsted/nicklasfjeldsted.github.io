@@ -5,7 +5,7 @@ import {catchError, map} from 'rxjs/operators';
 import {API_BASE_URL, mediaUrl} from '../core/config/api.config';
 import {
   IApiError, IGalleryImageInput, IMedia, IMediaDetail, IMediaPage, IMediaQuery, IPageDetail, IPageListItem, IProjectDetail,
-  IProjectInput, IProjectListItem, ISectionContent,
+  IProjectInput, IProjectListItem, ISectionContent, ISectionContentSave,
 } from './admin.models';
 
 const BASE = `${API_BASE_URL}/api/admin`;
@@ -44,8 +44,15 @@ export class AdminApiService {
       .pipe(this.fail());
   }
 
-  createSection(pageId: number, title: string, sectionType: number) {
-    return this.http.post<ISectionContent>(`${BASE}/pages/${pageId}/sections`, {title, sectionType})
+  /** A new section starts as a title only; texts and images are added to it afterwards. */
+  createSection(pageId: number, title: string) {
+    return this.http.post<ISectionContent>(`${BASE}/pages/${pageId}/sections`, {title})
+      .pipe(map(s => this.withUrls(s)), this.fail());
+  }
+
+  /** Saves the section's texts, points and images in one request. */
+  saveSectionContent(pageId: number, sectionId: number, expectedVersion: number, content: ISectionContentSave) {
+    return this.http.put<ISectionContent>(`${this.section(pageId, sectionId)}/content`, {expectedVersion, ...content})
       .pipe(map(s => this.withUrls(s)), this.fail());
   }
 

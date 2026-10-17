@@ -65,7 +65,7 @@ const CLOSE_DELAY_MS = 200;
 })
 export class PageMenuComponent implements OnDestroy {
   readonly pages = input.required<IPageListItem[]>();
-  readonly sectionsByPage = input.required<Record<number, ISectionListItem[]>>();
+  readonly sectionsByPage = input.required<Record<number, ISectionListItem[] | undefined>>();
   readonly currentPageId = input<number | null>(null);
   readonly selected = input<'intro' | 'new' | number | null>(null);
   readonly openPart = output<IPagePart>();
