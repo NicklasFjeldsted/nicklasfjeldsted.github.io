@@ -1,0 +1,24 @@
+@let p = project();
+@let i = index();
+<article class="project-row" [class.project-row--reversed]="i % 2 === 1" [attr.aria-labelledby]="'project-' + p.id">
+  @if (p.images.length) {
+    <mvo-project-viewer class="project-row__viewer" [images]="p.images" [title]="p.title" mvoReveal mvoRevealThreshold="0.1"/>
+  } @else {
+    <div class="project-row__viewer project-row__no-images">{{ 'projectsPage.noImages' | translate }}</div>
+  }
+  <div class="project-row__body">
+    <div class="project-row__top" mvoReveal>
+      <span class="project-row__number">{{ (i + 1).toString().padStart(2, '0') }}</span>
+      <span class="project-chip">{{ 'quote.categories.' + p.category | translate }}</span>
+    </div>
+    <h2 [id]="'project-' + p.id" mvoReveal [mvoRevealDelay]="100">{{ p.title }}</h2>
+    <p class="project-meta" mvoReveal [mvoRevealDelay]="150">
+      <span><fa-icon [icon]="faLocationDot"/>{{ p.location }}</span>
+      <span><fa-icon [icon]="faCalendar"/>{{ 'projectsPage.completed' | translate }} {{ p.completedOn | monthYear }}</span>
+    </p>
+    <p class="project-row__summary" mvoReveal [mvoRevealDelay]="200">{{ p.summary }}</p>
+    <a class="project-row__link" [routerLink]="['/projekter', p.slug]" mvoReveal [mvoRevealDelay]="250">
+      <span>{{ 'projectsPage.seeProject' | translate }}</span><fa-icon [icon]="faArrowRightLong"/>
+    </a>
+  </div>
+</article>

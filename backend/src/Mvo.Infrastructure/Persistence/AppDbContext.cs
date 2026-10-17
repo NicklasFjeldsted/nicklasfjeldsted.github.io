@@ -3,6 +3,7 @@ using Mvo.Application.Abstractions;
 using Mvo.Application.Domain;
 using Mvo.Application.Features.Media;
 using Mvo.Application.Features.Pages;
+using Mvo.Application.Features.Projects;
 using Mvo.Application.Features.Sections;
 
 namespace Mvo.Infrastructure.Persistence;
@@ -16,6 +17,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<MediaAsset> MediaAssets => Set<MediaAsset>();
     public DbSet<GalleryImage> GalleryImages => Set<GalleryImage>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<ProjectImage> ProjectImages => Set<ProjectImage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -127,6 +130,31 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(x => x.Email).HasMaxLength(254).IsRequired();
             e.Property(x => x.PasswordHash).HasMaxLength(500).IsRequired();
             e.HasIndex(x => x.Email).IsUnique();
+        });
+
+        modelBuilder.Entity<Project>(e =>
+        {
+            e.ToTable("Project");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Slug).HasMaxLength(ProjectRules.SlugMax).IsRequired();
+            e.Property(x => x.Title).HasMaxLength(ProjectRules.TitleMax).IsRequired();
+            e.Property(x => x.Category).HasMaxLength(30).IsRequired();
+            e.Property(x => x.Location).HasMaxLength(ProjectRules.LocationMax).IsRequired();
+            e.Property(x => x.Summary).HasMaxLength(ProjectRules.SummaryMax).IsRequired();
+            e.Property(x => x.Description).HasMaxLength(ProjectRules.DescriptionMax).IsRequired();
+            e.Property(x => x.Version).IsConcurrencyToken();
+            e.HasIndex(x => x.Slug).IsUnique();
+            e.HasIndex(x => x.CompletedOn);
+        });
+
+        modelBuilder.Entity<ProjectImage>(e =>
+        {
+            e.ToTable("ProjectImage");
+            e.HasKey(x => x.Id);
+            e.HasOne<Project>().WithMany(p => p.Images).HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.MediaAsset).WithMany().HasForeignKey(x => x.MediaAssetId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.ProjectId, x.DisplayOrder });
+            e.HasIndex(x => new { x.ProjectId, x.MediaAssetId }).IsUnique();
         });
     }
 }

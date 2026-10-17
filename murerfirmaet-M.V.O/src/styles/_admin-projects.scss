@@ -1,0 +1,44 @@
+// Admin: the Projekter screen (src/app/admin/projects)
+.prj-side-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem;
+  h2 { margin: 0 !important; }
+}
+.prj-item { display: flex; gap: 0.6rem; align-items: center; }
+.prj-item img, .prj-item__noimg {
+  flex: 0 0 3.25rem; width: 3.25rem; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; background: rgba(0, 0, 0, 0.06);
+}
+.prj-item__text { display: flex; flex-direction: column; min-width: 0; }
+.prj-item__title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prj-item__meta {
+  display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; font-size: 0.8rem; font-weight: 400; color: var(--adm-muted);
+  .adm-badge { font-size: 0.7rem; padding: 0 0.4rem; }
+}
+.prj-badge--featured { border-color: var(--adm-accent); color: var(--color-primary-on-light, #8a5a2b); }
+.prj-delete { margin-left: auto; }
+.prj-form { margin-top: 1rem; }
+.prj-row {
+  display: grid; gap: 0 1rem; grid-template-columns: 1fr;
+  @media (min-width: 40rem) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+textarea.prj-summary { min-height: 5rem; }
+textarea.prj-description { min-height: 12rem; }
+.prj-checks {
+  display: flex; flex-direction: column; gap: 0.4rem; margin: 0 0 1.25rem; padding: 0.8rem 1rem;
+  border: 1px solid var(--adm-border); border-radius: 8px;
+  legend { padding: 0 0.3rem; font-weight: 600; }
+  .adm-hint { color: var(--adm-muted); font-size: 0.875rem; }
+}
+.prj-check {
+  display: flex; gap: 0.5rem; align-items: center; cursor: pointer;
+  input { width: 1.1rem; height: 1.1rem; accent-color: var(--adm-accent); }
+  &--disabled { color: var(--adm-muted); cursor: not-allowed; }
+}
+.prj-images-head { margin: 0 0 0.25rem; font-size: 1.05rem; }
+.prj-cover {
+  position: absolute; top: 0.9rem; right: 0.9rem; padding: 0 0.5rem; font-size: 0.75rem; font-weight: 700;
+  color: #1d1d1d; background: var(--color-primary, #e3b871); border-radius: 999px;
+}
+// The preview shows the section; its link would leave the admin.
+.prj-preview .project-row__link { pointer-events: none; }
+.prj-side-hint { margin: 0.75rem 0 0; font-size: 0.85rem; color: var(--adm-muted); }
+.prj-form .adm-gallery { grid-template-columns: repeat(auto-fill, minmax(min(13rem, 42%), 1fr)); }

@@ -4,8 +4,8 @@ import {Observable, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {API_BASE_URL, mediaUrl} from '../core/config/api.config';
 import {
-  IApiError, IGalleryImageInput, IMedia, IMediaDetail, IMediaPage, IMediaQuery, IPageDetail, IPageListItem, ISectionContent,
-  ISectionContentSave,
+  IApiError, IGalleryImageInput, IMedia, IMediaDetail, IMediaPage, IMediaQuery, IPageDetail, IPageListItem, IProjectDetail,
+  IProjectInput, IProjectListItem, ISectionContent, ISectionContentSave,
 } from './admin.models';
 
 const BASE = `${API_BASE_URL}/api/admin`;
@@ -133,6 +133,36 @@ export class AdminApiService {
   /** Permanently deletes an image from the library. The server refuses while the image is used on the website. */
   deleteMedia(mediaId: number): Observable<void> {
     return this.http.delete<void>(`${BASE}/media/${mediaId}`).pipe(this.fail());
+  }
+
+  getProjects(): Observable<IProjectListItem[]> {
+    return this.http.get<IProjectListItem[]>(`${BASE}/projects`).pipe(
+      map(list => list.map(p => ({...p, coverUrl: p.coverUrl && mediaUrl(p.coverUrl)}))),
+      this.fail(),
+    );
+  }
+
+  getProject(projectId: number): Observable<IProjectDetail> {
+    return this.http.get<IProjectDetail>(`${BASE}/projects/${projectId}`).pipe(map(p => this.projectUrls(p)), this.fail());
+  }
+
+  createProject(project: IProjectInput): Observable<IProjectDetail> {
+    return this.http.post<IProjectDetail>(`${BASE}/projects`, project).pipe(map(p => this.projectUrls(p)), this.fail());
+  }
+
+  /** Saves the whole project (text, settings and images in order) in one request. */
+  updateProject(projectId: number, expectedVersion: number, project: IProjectInput): Observable<IProjectDetail> {
+    return this.http.put<IProjectDetail>(`${BASE}/projects/${projectId}`, {expectedVersion, project})
+      .pipe(map(p => this.projectUrls(p)), this.fail());
+  }
+
+  /** Deletes the project. Its images stay in the image library. */
+  deleteProject(projectId: number, expectedVersion: number): Observable<void> {
+    return this.http.delete<void>(`${BASE}/projects/${projectId}`, {params: {expectedVersion}}).pipe(this.fail());
+  }
+
+  private projectUrls(project: IProjectDetail): IProjectDetail {
+    return {...project, images: project.images.map(i => ({...i, url: mediaUrl(i.url)}))};
   }
 
   private section(pageId: number, sectionId: number): string {

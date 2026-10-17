@@ -280,6 +280,99 @@ namespace Mvo.Infrastructure.Persistence.Migrations
                     b.ToTable("MediaAsset", (string)null);
                 });
 
+            modelBuilder.Entity("Mvo.Application.Domain.Project", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<DateOnly>("CompletedOn")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("CreatedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompletedOn");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Project", (string)null);
+                });
+
+            modelBuilder.Entity("Mvo.Application.Domain.ProjectImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MediaAssetId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MediaAssetId");
+
+                    b.HasIndex("ProjectId", "DisplayOrder");
+
+                    b.HasIndex("ProjectId", "MediaAssetId")
+                        .IsUnique();
+
+                    b.ToTable("ProjectImage", (string)null);
+                });
+
             modelBuilder.Entity("Mvo.Application.Domain.SectionDetail", b =>
                 {
                     b.Property<int>("Id")
@@ -412,6 +505,23 @@ namespace Mvo.Infrastructure.Persistence.Migrations
                     b.Navigation("MediaAsset");
                 });
 
+            modelBuilder.Entity("Mvo.Application.Domain.ProjectImage", b =>
+                {
+                    b.HasOne("Mvo.Application.Domain.MediaAsset", "MediaAsset")
+                        .WithMany()
+                        .HasForeignKey("MediaAssetId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mvo.Application.Domain.Project", null)
+                        .WithMany("Images")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MediaAsset");
+                });
+
             modelBuilder.Entity("Mvo.Application.Domain.SectionDetail", b =>
                 {
                     b.HasOne("Mvo.Application.Domain.ContentSection", null)
@@ -431,6 +541,11 @@ namespace Mvo.Infrastructure.Persistence.Migrations
                     b.Navigation("Details");
 
                     b.Navigation("Gallery");
+                });
+
+            modelBuilder.Entity("Mvo.Application.Domain.Project", b =>
+                {
+                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

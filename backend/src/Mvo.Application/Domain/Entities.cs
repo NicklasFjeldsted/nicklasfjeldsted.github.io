@@ -92,3 +92,33 @@ public class AdminUser
     public string Email { get; set; } = "";
     public string PasswordHash { get; set; } = "";
 }
+
+/// <summary>A finished job shown on the Projekter page.</summary>
+public class Project
+{
+    public int Id { get; set; }
+    /// <summary>Address of the project page (/projekter/{slug}). Set from the title when the project is created and kept after that, so links keep working.</summary>
+    public string Slug { get; set; } = "";
+    public string Title { get; set; } = "";
+    /// <summary>One of the quote form's categories (QuoteCategories).</summary>
+    public string Category { get; set; } = "";
+    public string Location { get; set; } = "";
+    public DateOnly CompletedOn { get; set; }
+    public string Summary { get; set; } = "";
+    /// <summary>Full description; paragraphs are separated by blank lines.</summary>
+    public string Description { get; set; } = "";
+    public bool IsFeatured { get; set; }
+    public bool IsPublished { get; set; }
+    public DateTime CreatedUtc { get; set; }
+    public int Version { get; set; } = 1;
+    public List<ProjectImage> Images { get; set; } = [];
+}
+
+public class ProjectImage
+{
+    public int Id { get; set; }
+    public int ProjectId { get; set; }
+    public int MediaAssetId { get; set; }
+    public MediaAsset MediaAsset { get; set; } = null!;
+    public int DisplayOrder { get; set; }
+}

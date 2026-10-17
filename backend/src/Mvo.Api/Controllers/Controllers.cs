@@ -8,6 +8,7 @@ using Mvo.Application.Features.Contact;
 using Mvo.Application.Features.Gallery;
 using Mvo.Application.Features.Media;
 using Mvo.Application.Features.Pages;
+using Mvo.Application.Features.Projects;
 using Mvo.Application.Features.Public;
 using Mvo.Application.Features.Sections;
 
@@ -30,6 +31,7 @@ public record ReplaceGalleryImageRequest(int ExpectedVersion, int MediaId, strin
 public record SetGalleryRequest(int ExpectedVersion, IReadOnlyList<GalleryImageInput> Images);
 public record ReorderGalleryRequest(int ExpectedVersion, IReadOnlyList<int> OrderedGalleryImageIds);
 public record UpdateMediaRequest(string Name, string? DefaultAltText);
+public record UpdateProjectRequest(int ExpectedVersion, ProjectInput Project);
 
 [ApiController]
 [Route("api/pages")]
@@ -37,6 +39,44 @@ public class PublicPagesController(ISender sender) : ControllerBase
 {
     [HttpGet("{slug}")]
     public async Task<PublicPageDto> Get(string slug, CancellationToken ct) => await sender.Send(new GetPublicPageQuery(slug), ct);
+}
+
+[ApiController]
+[Route("api/projects")]
+public class PublicProjectsController(ISender sender) : ControllerBase
+{
+    [HttpGet]
+    public async Task<IReadOnlyList<PublicProjectDto>> List(CancellationToken ct) => await sender.Send(new GetPublicProjectsQuery(), ct);
+}
+
+[ApiController]
+[Authorize]
+[Route("api/admin/projects")]
+public class AdminProjectsController(ISender sender) : ControllerBase
+{
+    [HttpGet]
+    public async Task<IReadOnlyList<ProjectListItemDto>> List(CancellationToken ct) => await sender.Send(new GetProjectsQuery(), ct);
+
+    [HttpGet("{projectId:int}")]
+    public async Task<ProjectDto> Get(int projectId, CancellationToken ct) => await sender.Send(new GetProjectQuery(projectId), ct);
+
+    [HttpPost]
+    public async Task<ActionResult<ProjectDto>> Create(ProjectInput project, CancellationToken ct)
+    {
+        var created = await sender.Send(new CreateProjectCommand(project), ct);
+        return CreatedAtAction(nameof(Get), new { projectId = created.Id }, created);
+    }
+
+    [HttpPut("{projectId:int}")]
+    public async Task<ProjectDto> Update(int projectId, UpdateProjectRequest r, CancellationToken ct) =>
+        await sender.Send(new UpdateProjectCommand(projectId, r.ExpectedVersion, r.Project), ct);
+
+    [HttpDelete("{projectId:int}")]
+    public async Task<IActionResult> Delete(int projectId, [FromQuery] int expectedVersion, CancellationToken ct)
+    {
+        await sender.Send(new DeleteProjectCommand(projectId, expectedVersion), ct);
+        return NoContent();
+    }
 }
 
 [ApiController]

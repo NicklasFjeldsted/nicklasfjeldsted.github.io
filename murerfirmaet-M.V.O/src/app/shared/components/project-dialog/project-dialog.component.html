@@ -1,0 +1,23 @@
+@let p = project();
+<div class="dialog-backdrop" (click)="closed.emit()">
+  <div class="dialog" role="dialog" aria-modal="true" [attr.aria-labelledby]="'dialog-' + p.id" (click)="$event.stopPropagation()">
+    <button #closeButton type="button" class="dialog__close" aria-label="Luk" (click)="closed.emit()">
+      <fa-icon [icon]="faXmark"/>
+    </button>
+
+    <mvo-project-viewer class="dialog__viewer" [images]="p.images" [title]="p.title" [index]="startIndex()"/>
+
+    <div class="dialog__text">
+      <span class="project-chip">{{ 'quote.categories.' + p.category | translate }}</span>
+      <h2 [id]="'dialog-' + p.id">{{ p.title }}</h2>
+      <p class="project-meta">
+        <span><fa-icon [icon]="faLocationDot"/>{{ p.location }}</span>
+        <span><fa-icon [icon]="faCalendar"/>{{ p.completedOn | monthYear }}</span>
+      </p>
+      <p class="dialog__summary">{{ p.summary }}</p>
+      <a class="project-btn project-btn--primary dialog__cta" [routerLink]="['/projekter', p.slug]" (click)="closed.emit()">
+        <span>{{ 'projectsPage.goToProject' | translate }}</span><fa-icon [icon]="faArrowRightLong"/>
+      </a>
+    </div>
+  </div>
+</div>

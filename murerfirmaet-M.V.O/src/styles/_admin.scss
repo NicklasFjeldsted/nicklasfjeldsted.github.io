@@ -201,6 +201,25 @@ textarea.adm-input { min-height: 7rem; resize: vertical; }
   clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
+.adm-gallery {
+  list-style: none; margin: 1rem 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: 0.9rem;
+
+  &__item {
+    position: relative; display: flex; flex-direction: column; gap: 0.5rem; padding: 0.6rem;
+    background: var(--adm-surface); border: 1px solid var(--adm-border); border-radius: 8px; cursor: grab;
+    img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; background: rgba(0, 0, 0, 0.05); }
+  }
+  &__pos {
+    position: absolute; top: 0.9rem; left: 0.9rem; min-width: 1.6rem; padding: 0 0.4rem; text-align: center;
+    font-size: 0.8rem; font-weight: 700; color: #fff; background: rgba(0, 0, 0, 0.7); border-radius: 999px;
+  }
+  &__alt { margin: 0; font-size: 0.85rem; color: var(--adm-muted); overflow-wrap: anywhere; }
+  &__tools { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+}
+.cdk-drag-preview { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); border-radius: 8px; background: #fff; padding: 0.6rem; }
+.cdk-drag-placeholder { opacity: 0.35; }
+.cdk-drag-animating { transition: transform 200ms ease; }
 .adm-pair { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); margin-bottom: 1.5rem; }
 .adm-ba-preview { max-width: 32rem; }
 
