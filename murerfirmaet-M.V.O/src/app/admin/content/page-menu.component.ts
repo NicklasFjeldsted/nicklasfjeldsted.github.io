@@ -12,8 +12,8 @@ const CLOSE_DELAY_MS = 200;
 
 /**
  * Sidebar listing the editable pages. The open page lists its parts (intro, sections, "+ Ny sektion") right under it.
- * Hovering (or focusing) another page shows its parts in a flyout, like a webshop's category menu; on touch screens a tap
- * opens the page instead.
+ * Clicking another page folds its parts out as well; hovering (or focusing) it shows them in a flyout, like a webshop's
+ * category menu. Nothing in the editor changes until a part is picked.
  */
 @Component({
   selector: 'mvo-admin-page-menu',
@@ -24,10 +24,11 @@ const CLOSE_DELAY_MS = 200;
         @for (p of pages(); track p.id) {
           @let parts = sectionsByPage()[p.id] ?? [];
           @let current = currentPageId() === p.id;
-          <li class="adm-pages__item" [class.adm-pages__item--current]="current" [class.adm-pages__item--open]="!current && openId() === p.id"
+          @let expanded = current || browsedId() === p.id;
+          <li class="adm-pages__item" [class.adm-pages__item--expanded]="expanded" [class.adm-pages__item--open]="!expanded && openId() === p.id"
               (mouseenter)="hoverOpen(p.id)" (mouseleave)="hoverClose(p.id)" (focusin)="hoverOpen(p.id)" (focusout)="onFocusOut($event, p.id)">
             <button type="button" class="adm-pages__btn" [attr.aria-current]="current ? 'page' : null"
-                    [attr.aria-expanded]="current || openId() === p.id" [attr.aria-controls]="'parts-' + p.id" (click)="selectPage(p.id, current)">
+                    [attr.aria-expanded]="expanded || openId() === p.id" [attr.aria-controls]="'parts-' + p.id" (click)="toggle(p.id, current)">
               <span class="adm-pages__name">{{ p.name }}</span>
               <span class="adm-pages__meta">{{ parts.length + 1 }} dele</span>
               <span class="adm-pages__chev" aria-hidden="true">›</span>
@@ -72,6 +73,8 @@ export class PageMenuComponent implements OnDestroy {
   readonly addSection = output<number>();
 
   protected readonly openId = signal<number | null>(null);
+  /** Another page folded out to look at its parts, without leaving the open one. */
+  protected readonly browsedId = signal<number | null>(null);
   private closeTimer: ReturnType<typeof setTimeout> | undefined;
   /** Touch screens fire hover and focus on a tap too; there only the tap itself opens and closes a page. */
   private readonly canHover = window.matchMedia('(hover: hover)').matches;
@@ -98,10 +101,14 @@ export class PageMenuComponent implements OnDestroy {
     this.closeTimer = setTimeout(() => this.openId.update(open => (open === id ? null : open)), CLOSE_DELAY_MS);
   }
 
-  /** Clicking a page opens it; its parts then stay listed under it in the sidebar. */
-  protected selectPage(id: number, current: boolean): void {
+  /**
+   * Clicking another page only folds out its parts under it; what is open in the editor changes first when one of
+   * those parts is picked. The open page always shows its parts.
+   */
+  protected toggle(id: number, current: boolean): void {
     if (current) return;
-    this.pick(id, null);
+    this.closeNow();
+    this.browsedId.update(open => (open === id ? null : id));
   }
 
   protected onFocusOut(event: FocusEvent, id: number): void {
@@ -111,11 +118,13 @@ export class PageMenuComponent implements OnDestroy {
 
   protected pick(pageId: number, sectionId: number | null): void {
     this.closeNow();
+    this.browsedId.set(null);
     this.openPart.emit({pageId, sectionId});
   }
 
   protected add(pageId: number): void {
     this.closeNow();
+    this.browsedId.set(null);
     this.addSection.emit(pageId);
   }
 }

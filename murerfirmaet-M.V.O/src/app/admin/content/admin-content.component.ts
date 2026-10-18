@@ -3,7 +3,8 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {NgTemplateOutlet} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
-import {forkJoin} from 'rxjs';
+import {forkJoin, of} from 'rxjs';
+import {switchMap} from 'rxjs/operators';
 import {AdminApiService} from '../admin-api.service';
 import {IHasUnsavedChanges} from '../admin.guards';
 import {
@@ -46,7 +47,10 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   protected readonly sectionsByPage = signal<Record<number, ISectionListItem[]>>({});
   protected readonly section = signal<ISectionContent | null>(null);
   protected readonly tab = signal<Tab>('text');
+  /** A page or section is being fetched; the current one stays on screen until it arrives. */
   protected readonly loadingContent = signal(false);
+  /** Only the latest click wins when several loads overlap. */
+  private loadRequest = 0;
   protected readonly notice = signal<INotice | null>(null);
   protected readonly busy = signal(false);
   protected readonly dirtyFlags = signal<Record<string, boolean>>({});
@@ -188,6 +192,8 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
 
   protected async selectIntro(): Promise<void> {
     if (this.selected() === INTRO || !(await this.leave())) return;
+    this.loadRequest++;
+    this.loadingContent.set(false);
     this.section.set(null);
     this.draft.set(null);
     this.selected.set(INTRO);
@@ -333,53 +339,81 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
     }
   }
 
+  /**
+   * Loads the page (and the section to show) before anything on screen changes, then swaps it all at once, so moving
+   * between pages feels like one screen instead of a reload.
+   */
   private openPage(pageId: number, sectionId: number | null, tab: Tab, startNew = false): void {
-    this.dirtyFlags.set({});
-    this.selected.set(null);
-    this.section.set(null);
-    this.page.set(null);
-    this.pageDraft.set(null);
-    this.profileSection.set(null);
-    this.api.getPage(pageId).subscribe({
-      next: detail => {
+    const request = ++this.loadRequest;
+    this.loadingContent.set(true);
+    this.api.getPage(pageId).pipe(
+      switchMap(detail => {
+        const profile = detail.hasFixedLayout ? detail.sections.find(s => s.sectionType === 'Profile') : undefined;
+        const target = sectionId !== null && detail.sections.some(s => s.id === sectionId) ? sectionId : null;
+        return forkJoin({
+          detail: of(detail),
+          profile: profile ? this.api.getSection(detail.id, profile.id) : of(null),
+          section: target === null ? of(null) : target === profile?.id ? of(null) : this.api.getSection(detail.id, target),
+          target: of(target),
+        });
+      }),
+    ).subscribe({
+      next: ({detail, profile, section, target}) => {
+        if (request !== this.loadRequest) return;
+        this.loadingContent.set(false);
+        this.dirtyFlags.set({});
+        this.draft.set(null);
+        this.pageDraft.set(null);
         this.page.set(detail);
-        const profile = detail.sections.find(s => s.sectionType === 'Profile');
-        if (detail.hasFixedLayout && profile) {
-          this.api.getSection(detail.id, profile.id).subscribe({next: s => this.profileSection.set(s)});
+        this.profileSection.set(profile);
+        const shown = target === null ? null : section ?? profile;
+        this.section.set(shown);
+        if (shown) {
+          this.tab.set(this.tabAllowed(tab, shown) ? tab : 'text');
+          this.selected.set(shown.id);
+        } else {
+          this.tab.set('text');
+          this.selected.set(startNew && !detail.hasFixedLayout ? NEW : INTRO);
         }
-        if (sectionId !== null && detail.sections.some(s => s.id === sectionId)) this.openSection(sectionId, tab);
-        else this.selected.set(startNew && !detail.hasFixedLayout ? NEW : INTRO);
       },
-      error: (e: IApiError) => this.notice.set({kind: 'error', text: `Siden kunne ikke hentes. ${e.message}`}),
+      error: (e: IApiError) => {
+        if (request !== this.loadRequest) return;
+        this.loadingContent.set(false);
+        this.notice.set({kind: 'error', text: `Siden kunne ikke hentes. ${e.message}`});
+      },
     });
   }
+
 
   private matches(params: ParamMap, expected: Record<string, unknown>): boolean {
     const keys = ['side', 'sektion', 'fane'];
     return keys.every(k => (params.get(k) ?? '') === (expected[k] === undefined ? '' : String(expected[k])));
   }
 
+  /** Fetches the section first and only then swaps the editor over, so the old one stays on screen meanwhile. */
   private openSection(id: number, tab: Tab): void {
     const page = this.page();
     if (!page) return;
-    this.dirtyFlags.set({});
-    this.selected.set(id);
-    this.tab.set(tab);
-    this.draft.set(null);
-    this.section.set(null);
+    const request = ++this.loadRequest;
     this.loadingContent.set(true);
     this.api.getSection(page.id, id).subscribe({
       next: s => {
+        if (request !== this.loadRequest) return;
         this.loadingContent.set(false);
+        this.dirtyFlags.set({});
+        this.draft.set(null);
         this.section.set(s);
         this.tab.set(this.tabAllowed(tab, s) ? tab : 'text');
+        this.selected.set(id);
       },
       error: (e: IApiError) => {
+        if (request !== this.loadRequest) return;
         this.loadingContent.set(false);
         this.notice.set({kind: 'error', text: `Sektionen kunne ikke hentes. ${e.message}`});
       },
     });
   }
+
 
   private tabAllowed(tab: Tab, s: ISectionContent): boolean {
     return tab === 'text' || (tab === 'primary' && s.sectionType === 'Profile' && s.hasPrimaryImage);
