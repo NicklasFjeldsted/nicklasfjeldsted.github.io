@@ -47,7 +47,7 @@
                              [selected]="selected()" (openPart)="openPart($event)" (addSection)="startNewSection($event)" />
       </aside>
 
-      <main class="adm-main">
+      <main class="adm-main" [class.adm-main--loading]="loadingContent()" [attr.aria-busy]="loadingContent()">
         @if (!page()) {
           <div class="adm-empty">{{ managedPages().length ? 'Vælg en side for at komme i gang.' : 'Der er ingen redigerbare sider.' }}</div>
         } @else if (isIntro()) {
@@ -69,8 +69,6 @@
               <button type="button" class="adm-btn" (click)="selectIntro()">Annuller</button>
             </div>
           </form>
-        } @else if (loadingContent()) {
-          <p role="status">Henter sektion…</p>
         } @else if (section(); as s) {
           <div class="adm-section-head">
             <h2>{{ s.title }}</h2>
