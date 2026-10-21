@@ -1,6 +1,6 @@
-# Opsætning af backend på Hetzner (CAX11, Ubuntu)
+# Opsætning af hjemmesiden og backenden på Hetzner (CAX11, Ubuntu)
 
-Vejledning til at få databasen og C#-backenden (`backend/`) online på en Hetzner Cloud-server, så den kan bruges af hjemmesiden på `murerfirmaet-mvo.dk` og administrationssiden.
+Vejledning til at få databasen, C#-backenden (`backend/`) og hjemmesiden (`murerfirmaet-M.V.O/`) online på en Hetzner Cloud-server. Hjemmesiden kører på `murerfirmaet-mvo.dk` og API'et på `api.murerfirmaet-mvo.dk`.
 
 Skrevet til begyndere: hvert trin forklarer **hvad** du gør og **hvorfor**.
 
@@ -11,14 +11,14 @@ Skrevet til begyndere: hvert trin forklarer **hvad** du gør og **hvorfor**.
 ## 0. Overblik
 
 ```
-Besøgende ──► murerfirmaet-mvo.dk          (frontend, GitHub Pages)
-                  │
-                  │ henter indhold
-                  ▼
-Browser ──► api.murerfirmaet-mvo.dk ──► Hetzner-server (CAX11)
-                                          ├─ Caddy      (HTTPS, port 80/443)
-                                          ├─ API (.NET) (kun synlig for Caddy)
-                                          └─ MySQL      (kun synlig for API'et)
+Besøgende ──► murerfirmaet-mvo.dk ─────┐
+              www.murerfirmaet-mvo.dk ──┤   (www sendes videre til murerfirmaet-mvo.dk)
+Browser ───► api.murerfirmaet-mvo.dk ───┤
+                                        ▼
+                              Hetzner-server (CAX11)
+                                ├─ Caddy      (HTTPS, port 80/443, serverer hjemmesiden)
+                                ├─ API (.NET) (kun synlig for Caddy)
+                                └─ MySQL      (kun synlig for API'et)
 ```
 
 | Begreb | Forklaring |
@@ -27,7 +27,7 @@ Browser ──► api.murerfirmaet-mvo.dk ──► Hetzner-server (CAX11)
 | **SSH** | En sikker måde at logge ind på serveren fra din egen computer. |
 | **Docker** | Pakker hvert program (database, API, Caddy) i en "container", så det kører ens overalt. |
 | **Docker Compose** | Starter alle containere sammen ud fra én fil (`docker-compose.prod.yml`). |
-| **Caddy** | En webserver foran API'et. Den skaffer og fornyer automatisk et gratis HTTPS-certifikat. |
+| **Caddy** | Webserveren. Den serverer hjemmesidens filer, sender `api.`-trafik videre til API'et og skaffer og fornyer automatisk gratis HTTPS-certifikater. |
 | **DNS** | Internettets telefonbog: den fortæller, at `api.murerfirmaet-mvo.dk` skal pege på din servers IP-adresse. |
 | **Firewall** | En port-vagt. Kun de porte, du åbner (22, 80, 443), kan nås udefra. |
 
@@ -42,18 +42,22 @@ Du skal have:
 - [ ] Serverens **IPv4-adresse** (står i Hetzner-konsollen under din server).
 - [ ] En SSH-nøgle på din computer (se trin 3).
 
-### DNS: peg `api` på serveren
+### DNS: peg domænet på serveren
 
-I din registrars DNS-indstillinger tilføjer du en post:
+I din registrars DNS-indstillinger skal disse poster pege på serveren (slet eventuelle gamle `A`-poster for `@` og `CNAME` for `www`, fx GitHub Pages' adresser):
 
 | Type | Navn | Værdi |
 | --- | --- | --- |
 | `A` | `api` | serverens IPv4-adresse |
+| `A` | `@` | serverens IPv4-adresse |
+| `A` | `www` | serverens IPv4-adresse |
 
-Det kan tage fra få minutter til nogle timer, før den virker. Tjek fra din computer:
+Det kan tage fra få minutter til nogle timer, før de virker. Tjek fra din computer:
 
 ```powershell
 nslookup api.murerfirmaet-mvo.dk
+nslookup murerfirmaet-mvo.dk
+nslookup www.murerfirmaet-mvo.dk
 ```
 
 Svaret skal vise din servers IP. Gør dette **før** trin 7, ellers kan Caddy ikke få sit HTTPS-certifikat.
@@ -195,7 +199,7 @@ docker compose version
 sudo apt install -y git
 git clone https://github.com/NicklasFjeldsted/mvo.git
 cd mvo
-git checkout feature/deployment     # fjern dette trin, når grenen er merget
+git checkout development
 cd backend
 ```
 
@@ -227,6 +231,7 @@ nano .env.production
 | Variabel | Indhold |
 | --- | --- |
 | `API_DOMAIN` | `api.murerfirmaet-mvo.dk` |
+| `SITE_DOMAIN` | `murerfirmaet-mvo.dk` (uden `www`) |
 | `MYSQL_ROOT_PASSWORD` | første tilfældige værdi |
 | `MVO_DB_PASSWORD` | anden tilfældige værdi |
 | `JWT_KEY` | base64-værdien (mindst 32 tegn) |
@@ -276,14 +281,14 @@ docker compose -f docker-compose.prod.yml --env-file .env.production up -d --for
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 ```
 
-Første gang bygger Docker API'et på serveren. Det tager nogle minutter på ARM. Tjek status:
+Første gang bygger Docker API'et og hjemmesiden på serveren. Det tager nogle minutter på ARM. Tjek status:
 
 ```bash
 docker compose -f docker-compose.prod.yml ps
 docker compose -f docker-compose.prod.yml logs -f api     # Ctrl+C for at stoppe visningen
 ```
 
-API'et opretter selv databasetabellerne og administratorbrugeren ved første opstart. Ændrer du senere `ADMIN_EMAIL` eller `ADMIN_PASSWORD`, opdateres administratorbrugeren, næste gang API'et starter (se afsnit 12). Caddy henter certifikatet, så snart DNS peger på serveren.
+API'et opretter selv databasetabellerne og administratorbrugeren ved første opstart. Ændrer du senere `ADMIN_EMAIL` eller `ADMIN_PASSWORD`, opdateres administratorbrugeren, næste gang API'et starter (se afsnit 12). Caddy henter certifikaterne, så snart DNS peger på serveren.
 
 **Test fra din computer:**
 
@@ -295,26 +300,11 @@ Du skal få JSON tilbage. Hvis du får en certifikat- eller forbindelsesfejl, se
 
 ---
 
-## 9. Frontenden: peg på API'et og brug domænet
+## 9. Hjemmesiden
 
-**Disse ændringer sker i repoet og kræver, at domænet er klart.**
+Hjemmesiden bygges ind i Caddy-imaget (`murerfirmaet-M.V.O/Dockerfile`), så trin 8 har allerede startet den. Den bruger API'et på `https://api.murerfirmaet-mvo.dk` (se `murerfirmaet-M.V.O/src/app/core/config/api.config.ts`).
 
-1. I `murerfirmaet-M.V.O/src/app/core/config/api.config.ts` ændres `API_BASE_URL` til `https://api.murerfirmaet-mvo.dk`.
-2. Deploy frontenden (`npm run deploy`).
-3. I GitHub: repoets **Settings → Pages → Custom domain**: skriv `murerfirmaet-mvo.dk` og slå **Enforce HTTPS** til.
-4. Hos din registrar tilføjes DNS-poster for frontenden. GitHub oplyser disse IP-adresser til apex-domæner:
-
-| Type | Navn | Værdi |
-| --- | --- | --- |
-| `A` | `@` | `185.199.108.153` |
-| `A` | `@` | `185.199.109.153` |
-| `A` | `@` | `185.199.110.153` |
-| `A` | `@` | `185.199.111.153` |
-| `CNAME` | `www` | `<dit-github-brugernavn>.github.io` |
-
-Tjek altid mod GitHubs egen dokumentation (se Links), da IP-adresserne kan ændre sig.
-
-Åbn derefter `https://murerfirmaet-mvo.dk/admin` og log ind med `ADMIN_EMAIL` og `ADMIN_PASSWORD`.
+Åbn `https://murerfirmaet-mvo.dk` og `https://murerfirmaet-mvo.dk/admin`, og log ind med `ADMIN_EMAIL` og `ADMIN_PASSWORD`. `https://www.murerfirmaet-mvo.dk` skal sende dig videre til adressen uden `www`.
 
 ---
 
@@ -344,7 +334,7 @@ docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mys
 
 ---
 
-## 11. Opdatér backenden senere
+## 11. Opdatér hjemmesiden og backenden senere
 
 ```bash
 cd ~/mvo
@@ -353,7 +343,13 @@ cd backend
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 ```
 
-Data i databasen og billeder bevares, fordi de ligger i Docker-volumer.
+Kommandoen bygger både API'et og hjemmesiden igen. Data i databasen og billeder bevares, fordi de ligger i Docker-volumer.
+
+Har du kun ændret hjemmesiden, kan du nøjes med at bygge Caddy igen:
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build caddy
+```
 
 ---
 
@@ -361,13 +357,15 @@ Data i databasen og billeder bevares, fordi de ligger i Docker-volumer.
 
 | Problem | Mulig årsag og løsning |
 | --- | --- |
-| Caddy får ikke certifikat | DNS peger ikke endnu på serveren, eller port 80/443 er ikke åben i Hetzner-firewallen. Se `docker compose ... logs caddy`. |
+| Caddy får ikke certifikat | DNS for domænet (`@`, `www` eller `api`) peger ikke endnu på serveren, eller port 80/443 er ikke åben i Hetzner-firewallen. Se `docker compose ... logs caddy`. |
 | `Access denied for user` | Databasens adgangskode er ændret efter første start. Volumet husker den gamle. Vil du nulstille, så kør `docker compose ... down -v` (sletter data!) og start igen. |
 | Browseren viser CORS-fejl | `CORS_ORIGIN_1/2` matcher ikke den adresse, siden kører på (husk `https://`, og ingen `/` til sidst). |
 | API'et stopper ved opstart | Se `logs api`. Typisk: `JWT_KEY` er for kort (kræver mindst 32 tegn) eller en variabel mangler. |
 | Kan ikke logge ind efter ændring af `ADMIN_EMAIL`/`ADMIN_PASSWORD` | Husk `--env-file .env.production`, ellers læser Docker Compose ikke filen. Kør `docker compose -f docker-compose.prod.yml --env-file .env.production up -d --force-recreate api`, så API'et starter med de nye værdier og opdaterer administratorbrugeren. |
 | Formularen siger "kunne ikke sendes" | API'et kunne ikke sende mailen til firmaet. Se `logs api`: henvendelsen står i loggen sammen med fejlen. Typisk forkert `SMTP_PASSWORD` (Gmail kræver en app-adgangskode) eller port 465/25, som Hetzner blokerer. |
 | Ingen mails, men formularen siger tak | `SMTP_HOST` eller `MAIL_FROM_ADDRESS` er tom, så mail er slået fra. Henvendelserne står i `logs api`. |
+| Hjemmesiden viser gammelt indhold | Byg Caddy igen (afsnit 11) og tryk Ctrl+F5. `index.html` caches ikke, så en ny version slår igennem med det samme. |
+| Bygget stopper med `JavaScript heap out of memory` | Serveren mangler hukommelse under Angular-bygget. Luk andet, eller tilføj swap: `sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile`. |
 | `permission denied` ved Docker | Du er ikke logget ind igen, efter `usermod -aG docker`. Log ud og ind. |
 | Kan ikke SSH'e ind | Tjek, at port 22 er åben i firewallen, og at du bruger den rigtige nøgle (`ssh -i`). |
 
@@ -391,7 +389,6 @@ Hold dig til forsiderne herunder og søg derfra. Dybe links ændrer sig ofte.
 - Docker (installation på Ubuntu): <https://docs.docker.com/engine/install/ubuntu/>
 - Docker Compose: <https://docs.docker.com/compose/>
 - Caddy (reverse proxy og automatisk HTTPS): <https://caddyserver.com/docs/>
-- GitHub Pages, eget domæne: <https://docs.github.com/en/pages> (søg på *custom domain*)
 - MySQL `mysqldump`: <https://dev.mysql.com/doc/refman/8.4/en/mysqldump.html>
 - ASP.NET Core i Docker: <https://learn.microsoft.com/aspnet/core/host-and-deploy/docker/>
 - Ubuntu Server: <https://ubuntu.com/server/docs>
