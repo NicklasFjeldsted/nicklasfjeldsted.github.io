@@ -13,8 +13,10 @@
         [class.carousel__slide--center]="offset === 0"
         [class.carousel__slide--side]="offset !== 0"
         [class.carousel__slide--clickable]="true"
-        (click)="offset === 0 ? openModal() : goToOffset(offset)">
-        <img [src]="imageAt(offset)" alt="Project image" class="carousel__img" draggable="false" />
+        (click)="offset === 0 ? openCenter() : goToOffset(offset)">
+        @let item = itemAt(offset);
+        <img [src]="item.url" [alt]="item.title ?? 'Projektbillede'" class="carousel__img" draggable="false" />
+        @if (offset === 0 && item.title) { <span class="carousel__caption">{{ item.title }}</span> }
       </div>
     }
   </div>
@@ -28,8 +30,10 @@
         [class.carousel__slide--adjacent]="offset === 1 || offset === -1"
         [class.carousel__slide--far]="offset === 2 || offset === -2"
         [class.carousel__slide--clickable]="true"
-        (click)="offset === 0 ? openModal() : goToOffset(offset)">
-        <img [src]="imageAt(offset)" alt="Project image" class="carousel__img" draggable="false" />
+        (click)="offset === 0 ? openCenter() : goToOffset(offset)">
+        @let item = itemAt(offset);
+        <img [src]="item.url" [alt]="item.title ?? 'Projektbillede'" class="carousel__img" draggable="false" />
+        @if (offset === 0 && item.title) { <span class="carousel__caption">{{ item.title }}</span> }
       </div>
     }
   </div>

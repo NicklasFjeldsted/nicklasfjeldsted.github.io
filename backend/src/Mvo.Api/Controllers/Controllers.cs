@@ -21,6 +21,8 @@ public record CreateSectionRequest(string Title, SectionTypeId? SectionType);
 public record SaveSectionContentRequest(
     int ExpectedVersion, string Title, string? Eyebrow, string? Introduction, string? Description, string? AdditionalDescription,
     IReadOnlyList<string>? Details, SectionMedia Media, int? PrimaryMediaId, IReadOnlyList<int>? GalleryMediaIds);
+public record SaveHomePartRequest(
+    int ExpectedVersion, string? Eyebrow, string? Title, string? Description, IReadOnlyList<HomePartItemInput>? Items, int? PrimaryMediaId);
 public record UpdateSectionTextRequest(
     int ExpectedVersion, string Title, string? Eyebrow, string? Introduction,
     string Description, string? AdditionalDescription, IReadOnlyList<string>? Details);
@@ -127,6 +129,11 @@ public class AdminPagesController(ISender sender) : ControllerBase
     public async Task<SectionContentDto> SaveSectionContent(int pageId, int sectionId, SaveSectionContentRequest r, CancellationToken ct) =>
         await sender.Send(new SaveSectionContentCommand(pageId, sectionId, r.ExpectedVersion, r.Title, r.Eyebrow, r.Introduction,
             r.Description, r.AdditionalDescription, r.Details ?? [], r.Media, r.PrimaryMediaId, r.GalleryMediaIds ?? []), ct);
+
+    [HttpPut("{pageId:int}/sections/{sectionId:int}/home-part")]
+    public async Task<SectionContentDto> SaveHomePart(int pageId, int sectionId, SaveHomePartRequest r, CancellationToken ct) =>
+        await sender.Send(new SaveHomePartCommand(pageId, sectionId, r.ExpectedVersion, r.Eyebrow, r.Title, r.Description,
+            r.Items ?? [], r.PrimaryMediaId), ct);
 
     [HttpPut("{pageId:int}/sections/{sectionId:int}/visibility")]
     public async Task<SectionContentDto> SetVisibility(int pageId, int sectionId, SectionVisibilityRequest r, CancellationToken ct) =>

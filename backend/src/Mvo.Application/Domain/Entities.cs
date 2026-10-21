@@ -6,6 +6,8 @@ public enum SectionTypeId
     TextBlock = 2,
     BeforeAfter = 3,
     Profile = 4,
+    /// <summary>A fixed part of the home page; <see cref="ContentSection.Key"/> says which.</summary>
+    HomePart = 5,
 }
 
 public class SectionType
@@ -44,6 +46,8 @@ public class ContentSection
     public string? Introduction { get; set; }
     public string Description { get; set; } = "";
     public string? AdditionalDescription { get; set; }
+    /// <summary>Names a fixed part of a page with a fixed design (for example the home page's "hero"), so the site can find it.</summary>
+    public string? Key { get; set; }
     public int DisplayOrder { get; set; }
     public bool IsPublished { get; set; }
     public int? PrimaryMediaId { get; set; }
@@ -59,6 +63,10 @@ public class SectionDetail
     public int Id { get; set; }
     public int SectionId { get; set; }
     public string Text { get; set; } = "";
+    /// <summary>Text under the point, for points shown as a card with a title and text.</summary>
+    public string? Description { get; set; }
+    /// <summary>Name of the icon shown with the point (one of <c>HomePage.Icons</c>).</summary>
+    public string? Icon { get; set; }
     public int DisplayOrder { get; set; }
 }
 

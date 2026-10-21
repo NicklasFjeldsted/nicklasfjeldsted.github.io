@@ -361,6 +361,7 @@ textarea.adm-input { min-height: 7rem; resize: vertical; }
   }
   &__stage { padding: 1.5rem; background: var(--bg-surface, #fff); }
   &__stage--dark { background: var(--bg-dark); }
+  &__stage--flush { padding: 0; }
   // The public page fades sections in on scroll; the preview shows them straight away.
   .mvo-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
 }
@@ -422,3 +423,36 @@ textarea.adm-input { min-height: 7rem; resize: vertical; }
 // While another page or section loads, the current one stays put and only fades slightly.
 .adm-main { transition: opacity 0.15s; }
 .adm-main--loading { opacity: 0.55; pointer-events: none; }
+
+// ── Home page parts ───────────────────────────────────────────────────────────
+.adm-home__intro { margin: -0.25rem 0 1rem; }
+.adm-home__hero-image { max-width: 28rem; }
+.adm-home__cards {
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  margin-top: 1rem;
+  .adm-field + .adm-field { margin-top: 0.5rem; }
+}
+
+// Icon choice on a card: one round button per icon, the chosen one in the accent colour.
+.adm-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.25rem 0 0.75rem;
+
+  &__btn {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    border: 1px solid var(--adm-border);
+    background: var(--adm-surface);
+    color: var(--adm-muted);
+    cursor: pointer;
+
+    &:hover { border-color: var(--adm-accent); }
+    &:focus-visible { outline: none; box-shadow: var(--adm-focus); }
+    &[aria-checked='true'] { border: 2px solid var(--adm-accent); color: var(--adm-accent); background: #fff8e8; }
+  }
+}

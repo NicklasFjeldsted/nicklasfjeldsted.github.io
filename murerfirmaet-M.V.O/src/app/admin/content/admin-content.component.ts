@@ -1,10 +1,10 @@
 import {Component, HostListener, OnDestroy, computed, effect, inject, signal, untracked} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {NgTemplateOutlet} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {forkJoin, of} from 'rxjs';
-import {switchMap} from 'rxjs/operators';
+import {catchError, map, switchMap} from 'rxjs/operators';
 import {AdminApiService} from '../admin-api.service';
 import {IHasUnsavedChanges} from '../admin.guards';
 import {
@@ -14,6 +14,7 @@ import {PageTextEditorComponent} from '../editors/page-text-editor.component';
 import {PrimaryImageEditorComponent} from '../editors/primary-image-editor.component';
 import {SectionBlocksEditorComponent} from '../editors/section-blocks-editor.component';
 import {SectionTextEditorComponent} from '../editors/section-text-editor.component';
+import {HomePartEditorComponent, homePartLabel} from '../editors/home-part-editor.component';
 import {ConfirmService} from '../shared/confirm-dialog.component';
 import {IMasonryImage, IMasonrySection, MasonrySectionType} from '../../core/interfaces/masonry-page.interface';
 import {MasonryShowcaseComponent} from '../../shared/components/masonry-showcase/masonry-showcase.component';
@@ -21,13 +22,17 @@ import {AboutProfileComponent} from '../../shared/components/about-profile/about
 import {ABOUT_FALLBACK_IMAGE, IAboutProfile, toParagraphs} from '../../core/interfaces/about-page.interface';
 import {AdminNavService, ContentTab as Tab, contentLinkParams, tabFromParam} from '../shell/admin-nav.service';
 import {IPagePart, PageMenuComponent} from './page-menu.component';
+import {HomePartKey, IHomeContent, toHomeContent} from '../../core/interfaces/home-page.interface';
+import {ProjectsService} from '../../core/services/projects.service';
+import {HomePartComponent} from '../../shared/components/home-part/home-part.component';
+import {projectCarouselItems} from '../../views/home/home.component';
 const INTRO = 'intro';
 /** The "Ny sektion" form is open in the main area. */
 const NEW = 'new';
 
 @Component({
   selector: 'mvo-admin-content',
-  imports: [FormsModule, NgTemplateOutlet, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, SectionBlocksEditorComponent, MasonryShowcaseComponent, AboutProfileComponent, PageMenuComponent],
+  imports: [FormsModule, NgTemplateOutlet, PageTextEditorComponent, SectionTextEditorComponent, PrimaryImageEditorComponent, SectionBlocksEditorComponent, HomePartEditorComponent, MasonryShowcaseComponent, AboutProfileComponent, HomePartComponent, PageMenuComponent],
   templateUrl: './admin-content.component.html',
 })
 export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
@@ -73,6 +78,17 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
     return toAboutProfile(page, profile);
   });
 
+  /** The open home page part and its content with the unsaved changes, for the preview of the real home page part. */
+  protected readonly homePreview = computed<{key: HomePartKey; content: IHomeContent} | null>(() => {
+    const s = this.draft() ?? this.section();
+    if (s?.sectionType !== 'HomePart' || !s.key) return null;
+    const content = toHomeContent([{...s, imageUrl: s.primaryImage?.url ?? null}]);
+    return {key: s.key as HomePartKey, content};
+  });
+  /** The newest projects' images, as the home page's carousel shows them. */
+  protected readonly projectImages = toSignal(
+    inject(ProjectsService).getProjects().pipe(map(projectCarouselItems), catchError(() => of([]))), {initialValue: []});
+
   protected readonly newTitle = signal('');
   protected readonly adding = signal(false);
 
@@ -82,7 +98,11 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
   protected readonly isIntro = computed(() => this.selected() === INTRO);
   protected readonly isNew = computed(() => this.selected() === NEW);
   protected readonly sectionIndex = computed(() => this.sections().findIndex(s => s.id === this.selected()));
-  protected readonly sectionTitle = computed(() => this.section()?.title ?? '');
+  protected readonly sectionTitle = computed(() => {
+    const s = this.section();
+    return s ? homePartLabel(s.key) ?? s.title : '';
+  });
+  protected readonly isHomePart = computed(() => this.section()?.sectionType === 'HomePart');
   /** The profile on a fixed-layout page keeps its own editors; every other section is built up from parts. */
   protected readonly isProfile = computed(() => this.section()?.sectionType === 'Profile');
   /** Tabs of the profile section on a fixed-layout page; other sections edit everything in one place. */
@@ -331,7 +351,7 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
     const sectionId = Number(params.get('sektion')) || null;
     if (pageId === this.page()?.id && sectionId !== null && this.sections().some(s => s.id === sectionId)) {
       this.openSection(sectionId, tabFromParam(params.get('fane')));
-    } else if (pageId === this.page()?.id && sectionId === null) {
+    } else if (pageId === this.page()?.id && sectionId === null && this.hasIntro(pageId)) {
       this.section.set(null);
       this.selected.set(INTRO);
     } else {
@@ -349,7 +369,9 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
     this.api.getPage(pageId).pipe(
       switchMap(detail => {
         const profile = detail.hasFixedLayout ? detail.sections.find(s => s.sectionType === 'Profile') : undefined;
-        const target = sectionId !== null && detail.sections.some(s => s.id === sectionId) ? sectionId : null;
+        const requested = sectionId !== null && detail.sections.some(s => s.id === sectionId) ? sectionId : null;
+        // The home page has no intro text, so it opens on its first part.
+        const target = requested ?? (this.hasIntro(detail.id) ? null : detail.sections[0]?.id ?? null);
         return forkJoin({
           detail: of(detail),
           profile: profile ? this.api.getSection(detail.id, profile.id) : of(null),
@@ -384,6 +406,10 @@ export class AdminContentComponent implements IHasUnsavedChanges, OnDestroy {
     });
   }
 
+
+  private hasIntro(pageId: number): boolean {
+    return this.pages().find(p => p.id === pageId)?.hasIntro ?? true;
+  }
 
   private matches(params: ParamMap, expected: Record<string, unknown>): boolean {
     const keys = ['side', 'sektion', 'fane'];

@@ -71,9 +71,12 @@
           </form>
         } @else if (section(); as s) {
           <div class="adm-section-head">
-            <h2>{{ s.title }}</h2>
-            <span class="adm-badge" [class.adm-badge--hidden]="!s.isPublished">{{ s.isPublished ? 'Synlig' : 'Skjult' }}</span>
+            <h2>{{ sectionTitle() }}</h2>
+            @if (!isHomePart()) {
+              <span class="adm-badge" [class.adm-badge--hidden]="!s.isPublished">{{ s.isPublished ? 'Synlig' : 'Skjult' }}</span>
+            }
           </div>
+          @if (!isHomePart()) {
           <div class="adm-actions" style="margin-top: 0">
             @if (!isFixed()) {
               <button type="button" class="adm-btn adm-btn--small" (click)="move(sectionIndex(), -1)" [disabled]="sectionIndex() <= 0 || busy() || isDirty()">↑ Flyt op</button>
@@ -85,8 +88,11 @@
               <button type="button" class="adm-btn adm-btn--small adm-btn--danger" (click)="deleteSection()" [disabled]="busy()">Slet sektion</button>
             }
           </div>
+          }
 
-          @if (isProfile()) {
+          @if (isHomePart()) {
+            <mvo-home-part-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('home', $event)" (notify)="notice.set($event)" />
+          } @else if (isProfile()) {
             <div class="adm-tabs" role="tablist" aria-label="Del af sektionen">
               @for (t of tabs(); track t.id) {
                 <button type="button" role="tab" class="adm-tab" [attr.aria-selected]="tab() === t.id" (click)="selectTab(t.id)">{{ t.label }}</button>
@@ -107,7 +113,17 @@
             <mvo-section-blocks-editor [section]="s" (sectionChange)="onSectionChange($event)" (draftChange)="draft.set($event)" (dirtyChange)="setDirty('blocks', $event)" (notify)="notice.set($event)" />
           }
 
-          @if (aboutPreview(); as ap) {
+          @if (homePreview(); as hp) {
+            <section class="adm-preview-box" aria-labelledby="home-preview-title">
+              <header class="adm-preview-box__head">
+                <h3 id="home-preview-title">Sådan ser det ud på forsiden</h3>
+                <span class="adm-hint">{{ isDirty() ? 'Viser dine ugemte ændringer.' : 'Viser det gemte indhold.' }}</span>
+              </header>
+              <div class="adm-preview-box__stage adm-preview-box__stage--dark adm-preview-box__stage--flush">
+                <mvo-home-part [part]="hp.key" [content]="hp.content" [projectImages]="projectImages()" [preview]="true" />
+              </div>
+            </section>
+          } @else if (aboutPreview(); as ap) {
             <ng-container *ngTemplateOutlet="aboutPreviewBox; context: {$implicit: ap}" />
           } @else if (preview(); as pv) {
             <section class="adm-preview-box" aria-labelledby="preview-title">

@@ -101,10 +101,10 @@ namespace Mvo.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 1,
-                            HasFixedLayout = false,
+                            HasFixedLayout = true,
                             Heading = "Forside",
                             Introduction = "",
-                            IsManaged = false,
+                            IsManaged = true,
                             Name = "Forside",
                             Slug = "forside",
                             Version = 1
@@ -165,6 +165,11 @@ namespace Mvo.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Key")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("SectionKey");
 
                     b.Property<int>("PageId")
                         .HasColumnType("int");
@@ -381,8 +386,16 @@ namespace Mvo.Infrastructure.Persistence.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
 
                     b.Property<int>("SectionId")
                         .HasColumnType("int");
@@ -459,6 +472,14 @@ namespace Mvo.Infrastructure.Persistence.Migrations
                             HasGallery = false,
                             HasPrimaryImage = true,
                             Name = "Profile"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            DisplayName = "Del af forsiden",
+                            HasGallery = false,
+                            HasPrimaryImage = true,
+                            Name = "HomePart"
                         });
                 });
 

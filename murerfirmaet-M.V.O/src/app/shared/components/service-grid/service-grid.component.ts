@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, input} from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
 import {IProvidedService} from '../../../core/interfaces/provided-service.interface';
 import {ServiceCardComponent} from '../service-card/service-card.component';
@@ -11,6 +11,10 @@ import {ServiceCardComponent} from '../service-card/service-card.component';
   standalone: true
 })
 export class ServiceGridComponent {
+  /** The home page's own heading over the cards. Left out, the default texts are used; a null overtext is not shown. */
+  readonly eyebrow = input<string | null | undefined>();
+  readonly heading = input<string | undefined>();
+
   providedServices: IProvidedService[] = [
     {serviceId: 'badevaerelser', titleKey: 'services.bathrooms.title', descriptionKey: 'services.bathrooms.description', image: 'bathrooms/bathroom4.png'},
     {serviceId: 'fliser', titleKey: 'services.tiling.title', descriptionKey: 'services.tiling.description', image: 'tile-work/image4.png'},

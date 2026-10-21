@@ -4,7 +4,7 @@ import {Observable, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {API_BASE_URL, mediaUrl} from '../core/config/api.config';
 import {
-  IApiError, IGalleryImageInput, IMedia, IMediaDetail, IMediaPage, IMediaQuery, IPageDetail, IPageListItem, IProjectDetail,
+  IApiError, IGalleryImageInput, IHomePartSave, IMedia, IMediaDetail, IMediaPage, IMediaQuery, IPageDetail, IPageListItem, IProjectDetail,
   IProjectInput, IProjectListItem, ISectionContent, ISectionContentSave,
 } from './admin.models';
 
@@ -53,6 +53,11 @@ export class AdminApiService {
   /** Saves the section's texts, points and images in one request. */
   saveSectionContent(pageId: number, sectionId: number, expectedVersion: number, content: ISectionContentSave) {
     return this.http.put<ISectionContent>(`${this.section(pageId, sectionId)}/content`, {expectedVersion, ...content})
+      .pipe(map(s => this.withUrls(s)), this.fail());
+  }
+
+  saveHomePart(pageId: number, sectionId: number, expectedVersion: number, part: IHomePartSave) {
+    return this.http.put<ISectionContent>(`${this.section(pageId, sectionId)}/home-part`, {expectedVersion, ...part})
       .pipe(map(s => this.withUrls(s)), this.fail());
   }
 

@@ -7,7 +7,8 @@ using Mvo.Application.Features.Sections;
 
 namespace Mvo.Application.Features.Pages;
 
-public record PageListItemDto(int Id, string Slug, string Name, bool IsManaged, bool HasFixedLayout, int SectionCount);
+/// <param name="HasIntro">False for the home page, whose top is one of its parts instead of an intro text.</param>
+public record PageListItemDto(int Id, string Slug, string Name, bool IsManaged, bool HasFixedLayout, int SectionCount, bool HasIntro);
 
 public record PageDetailDto(
     int Id, string Slug, string Name, bool HasFixedLayout, string? Eyebrow, string Heading, string Introduction, int Version,
@@ -19,7 +20,7 @@ public class GetPagesHandler(IAppDbContext db) : IRequestHandler<GetPagesQuery, 
 {
     public async Task<IReadOnlyList<PageListItemDto>> Handle(GetPagesQuery request, CancellationToken cancellationToken) =>
         await db.Pages.AsNoTracking().OrderBy(p => p.Id)
-            .Select(p => new PageListItemDto(p.Id, p.Slug, p.Name, p.IsManaged, p.HasFixedLayout, p.Sections.Count))
+            .Select(p => new PageListItemDto(p.Id, p.Slug, p.Name, p.IsManaged, p.HasFixedLayout, p.Sections.Count, p.Slug != HomePage.Slug))
             .ToListAsync(cancellationToken);
 }
 
@@ -40,14 +41,14 @@ public class GetPageHandler(IAppDbContext db) : IRequestHandler<GetPageQuery, Pa
             {
                 p.Id, p.Slug, p.Name, p.HasFixedLayout, p.Eyebrow, p.Heading, p.Introduction, p.Version,
                 Sections = p.Sections.OrderBy(s => s.DisplayOrder)
-                    .Select(s => new { s.Id, s.Title, Type = s.SectionTypeId, s.DisplayOrder, s.IsPublished, s.Version })
+                    .Select(s => new { s.Id, s.Title, Type = s.SectionTypeId, s.DisplayOrder, s.IsPublished, s.Version, s.Key })
                     .ToList(),
             })
             .FirstOrDefaultAsync(cancellationToken)
             ?? throw new NotFoundException($"Page {request.PageId} was not found.");
 
         var sections = page.Sections
-            .Select(s => new SectionListItemDto(s.Id, s.Title, s.Type.ToString(), s.DisplayOrder, s.IsPublished, s.Version))
+            .Select(s => new SectionListItemDto(s.Id, s.Title, s.Type.ToString(), s.DisplayOrder, s.IsPublished, s.Version, s.Key))
             .ToList();
 
         return new PageDetailDto(page.Id, page.Slug, page.Name, page.HasFixedLayout, page.Eyebrow, page.Heading, page.Introduction, page.Version, sections);

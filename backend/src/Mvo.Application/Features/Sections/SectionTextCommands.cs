@@ -33,6 +33,8 @@ public class UpdateSectionTextHandler(IAppDbContext db, SectionContentLoader loa
     public async Task<SectionContentDto> Handle(UpdateSectionTextCommand request, CancellationToken cancellationToken)
     {
         var section = await db.GetForUpdateAsync(request.PageId, request.SectionId, request.ExpectedVersion, false, true, cancellationToken);
+        if (section.SectionTypeId == SectionTypeId.HomePart)
+            throw new ConflictException("Home page parts have a fixed design. Save them with the home page editor.");
 
         section.Title = request.Title.Trim();
         section.Eyebrow = Normalize(request.Eyebrow);
