@@ -4,6 +4,7 @@ import {ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink, RouterLinkAct
 import {TranslatePipe} from '@ngx-translate/core';
 import {FaIconComponent} from '@fortawesome/angular-fontawesome';
 import {faBars, faPhone, faXmark} from '@fortawesome/free-solid-svg-icons';
+import {faInstagram} from '@fortawesome/free-brands-svg-icons';
 import {filter} from 'rxjs/operators';
 import {ContactConstants} from '../../../core/constants/contact.constants';
 
@@ -44,9 +45,11 @@ export class HeaderComponent {
 
   protected readonly callHref = `tel:+45${ContactConstants.PHONE_NUMBER.replace(/\s/g, '')}`;
   protected readonly phoneNumber = ContactConstants.PHONE_NUMBER;
+  protected readonly instagramUrl = ContactConstants.INSTAGRAM_URL;
   protected readonly faPhone = faPhone;
   protected readonly faBars = faBars;
   protected readonly faXmark = faXmark;
+  protected readonly faInstagram = faInstagram;
 
   private lastScrollY = 0;
   private ticking = false;

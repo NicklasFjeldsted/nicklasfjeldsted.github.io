@@ -22,6 +22,15 @@
       }
     </nav>
 
+    <a
+      class="site-header__instagram"
+      [href]="instagramUrl"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Følg os på Instagram">
+      <fa-icon [icon]="faInstagram" aria-hidden="true"></fa-icon>
+    </a>
+
     <a class="site-header__phone" [href]="callHref">
       <fa-icon [icon]="faPhone"></fa-icon>
       <span>{{ phoneNumber }}</span>
