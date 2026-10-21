@@ -1,6 +1,6 @@
 export const ContactConstants = {
   COMPANY_NAME: 'Murerfirmaet MVO ApS',
-  CVR: '44219531',
+  CVR: '45206009',
   PHONE_NUMBER: '52 60 51 05',
   INSTAGRAM_URL: 'https://www.instagram.com/murerfirmaet_m.v.o/',
   FACEBOOK_URL: 'https://www.facebook.com/p/Murerfirmaet-MVO-61553393775179/',
