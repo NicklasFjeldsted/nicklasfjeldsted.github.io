@@ -1,4 +1,4 @@
-# Produktion: MySQL + API + Caddy (HTTPS). Start med:
+# Produktion: MySQL + API + Caddy (HTTPS + hjemmesiden). Start med:
 #   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 services:
   mysql:
@@ -46,7 +46,8 @@ services:
     # Ingen "ports": kun Caddy taler med API'et.
 
   caddy:
-    image: caddy:2
+    # Caddy-imaget bygges sammen med hjemmesiden (se murerfirmaet-M.V.O/Dockerfile).
+    build: ../murerfirmaet-M.V.O
     restart: unless-stopped
     depends_on:
       - api
@@ -55,6 +56,7 @@ services:
       - "443:443"
     environment:
       API_DOMAIN: ${API_DOMAIN:?sæt API_DOMAIN i .env.production}
+      SITE_DOMAIN: ${SITE_DOMAIN:?sæt SITE_DOMAIN i .env.production}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data

@@ -1,5 +1,30 @@
-# Caddy henter og fornyer automatisk et gratis HTTPS-certifikat til domænet.
+# Caddy henter og fornyer automatisk et gratis HTTPS-certifikat til hvert domæne.
 {$API_DOMAIN} {
 	encode gzip
 	reverse_proxy api:8080
+}
+
+# Hjemmesiden (Angular). Filerne er bygget ind i Caddy-imaget under /srv.
+{$SITE_DOMAIN} {
+	encode zstd gzip
+	root * /srv
+
+	# route kører trinene i den rækkefølge, de står, så headers ser stien efter try_files.
+	route {
+		# Angular styrer selv adresser som /om-os og /admin, så ukendte stier får index.html.
+		try_files {path} /index.html
+
+		# Filer med hash i navnet ændrer navn ved hvert build og kan caches længe.
+		@hashed path_regexp -[0-9A-Z]{8}\.(js|css)$
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		# index.html skal altid hentes på ny, så en ny version slår igennem med det samme.
+		@html path /index.html
+		header @html Cache-Control "no-cache"
+
+		file_server
+	}
+}
+
+www.{$SITE_DOMAIN} {
+	redir https://{$SITE_DOMAIN}{uri} permanent
 }
