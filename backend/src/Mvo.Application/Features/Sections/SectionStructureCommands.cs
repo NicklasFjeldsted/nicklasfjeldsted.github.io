@@ -18,7 +18,8 @@ public class CreateSectionValidator : AbstractValidator<CreateSectionCommand>
         RuleFor(x => x.PageId).RequiredId();
         RuleFor(x => x.Title).RequiredText(SectionRules.TitleMax);
         RuleFor(x => x.SectionType).IsInEnum()
-            .NotEqual(SectionTypeId.Profile).WithMessage("Profile sections belong to pages with a fixed layout and cannot be created.");
+            .NotEqual(SectionTypeId.Profile).WithMessage("Profile sections belong to pages with a fixed layout and cannot be created.")
+            .NotEqual(SectionTypeId.HomePart).WithMessage("Home page parts belong to the home page and cannot be created.");
     }
 }
 

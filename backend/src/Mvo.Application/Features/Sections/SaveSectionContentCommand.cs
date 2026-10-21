@@ -62,6 +62,8 @@ public class SaveSectionContentHandler(IAppDbContext db, SectionContentLoader lo
         var section = await db.GetForUpdateAsync(request.PageId, request.SectionId, request.ExpectedVersion, true, true, cancellationToken);
         if (section.SectionTypeId == SectionTypeId.Profile)
             throw new ConflictException("Profile sections have a fixed design. Edit their text and image separately.");
+        if (section.SectionTypeId == SectionTypeId.HomePart)
+            throw new ConflictException("Home page parts have a fixed design. Save them with the home page editor.");
 
         var mediaIds = request.GalleryMediaIds.ToList();
         if (request.PrimaryMediaId is { } primaryId) mediaIds.Add(primaryId);

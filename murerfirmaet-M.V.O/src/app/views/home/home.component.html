@@ -1,81 +1,10 @@
 <main class="u-bg-dark relative">
-  <div class="flex flex-col gap-72 p-4 pt-2 lg:pt-4 lg:gap-12 lg:px-12 lg:h-[85dvh]">
-    <div class="home-bg"></div>
-    <div class="h-8 lg:h-16" aria-hidden="true"></div>
-    <section class="home-content">
-      <div class="flex flex-col gap-6 lg:flex-row lg:justify-between">
-        <div class="flex flex-col gap-6">
-          <div class="flex flex-col gap-2 max-w-56 lg:gap-6 lg:max-w-none">
-            <h5 class="u-text-brand uppercase max-w-48 lg:max-w-none">{{ 'top.subheading' | translate }}</h5>
-            @let heading = 'top.heading' | translate;
-            <h1 class="u-text-dark-heading lg:max-w-80 lg:text-6xl!">{{ headingLead(heading) }}<span class="u-text-brand">{{ headingAccent(heading) }}</span></h1>
-            <p class="text-sm u-text-dark-heading lg:max-w-56">{{ 'top.description' | translate }}</p>
-          </div>
-          <div class="flex flex-col gap-2">
-            @for (key of specialities; track key) {
-              <div class="flex flex-row gap-2 items-center">
-                <fa-icon [icon]="faCheckCircle" class="u-text-brand shrink-0"></fa-icon>
-                <p class="text-sm u-text-dark-heading">{{ key | translate }}</p>
-              </div>
-            }
-          </div>
-          <!-- On mobile the quote form lives on the contact page; the hero offers shortcuts instead. -->
-          <div class="hero-cta">
-            <a routerLink="/kontakt" class="hero-cta__btn hero-cta__btn--primary">
-              <span>{{ 'top.get_offer_mobile' | translate }}</span>
-              <fa-icon [icon]="faArrowRightLong" aria-hidden="true"></fa-icon>
-            </a>
-            <a [href]="callHref" class="hero-cta__btn hero-cta__btn--outline">
-              <fa-icon [icon]="faPhone" aria-hidden="true"></fa-icon>
-              <span>{{ 'top.call' | translate }}</span>
-            </a>
-          </div>
-        </div>
-        <mvo-quote-form class="hidden lg:block lg:max-w-80"/>
-      </div>
-    </section>
-  </div>
-  <section class="u-bg-dark lg:flex items-center lg:justify-center p-2 border-t border-[var(--divider-dark)]
-    lg:h-[15dvh] lg:py-0 lg:px-[clamp(0.5rem,2vw,8rem)]">
-    <div class="trust-strip grid grid-cols-2 gap-2 lg:gap-0 lg:grid-cols-[repeat(4,minmax(200px,350px))]">
-      @for (item of highlights; track item.titleKey) {
-        <mvo-trust-highlight [highlight]="item"/>
-      }
-    </div>
-  </section>
-  <section class="u-bg-section p-4 lg:pt-6 lg:px-[clamp(0.5rem,2vw,8rem)] rounded-lg lg:rounded-none">
-    <mvo-service-grid></mvo-service-grid>
-  </section>
-  <section class="u-bg-dark p-6 rounded-b-lg lg:rounded-none lg:px-[clamp(0.5rem,2vw,8rem)] lg:flex items-center lg:justify-center">
-    <div class="grid grid-cols-1 gap-6 lg:gap-2 lg:grid-cols-[repeat(4,minmax(200px,350px))]">
-      @for (feature of features; track feature.titleKey) {
-        <mvo-feature-highlight [highlight]="feature"/>
-      }
-    </div>
-  </section>
-  <section class="u-bg-section p-4 sm:py-6 rounded-lg sm:rounded-none">
-    <div class="flex flex-col w-full sm:items-center">
-      <div class="flex flex-col gap-3 mb-6 sm:items-center">
-        <h4 class="u-text-brand uppercase">{{ 'howWeWork.heading' | translate }}</h4>
-        <h2 class="u-text-body max-w-48 sm:max-w-none sm:!text-[2rem]">{{ 'howWeWork.subheading' | translate }}</h2>
-      </div>
-      <div class="flex flex-col sm:flex-row sm:items-start w-full">
-        @for (workStep of workSteps; track workStep.index) {
-          <mvo-work-step [workStep]="workStep"/>
-        }
-      </div>
-    </div>
-  </section>
-  <section class="u-bg-dark pt-6 pb-4 px-4 lg:px-8 theme-dark">
-    <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-3">
-        <h4 class="u-text-brand uppercase">{{ 'projects.heading' | translate }}</h4>
-        <h2 class="u-text-inverse">{{ 'projects.subheading' | translate }}</h2>
-      </div>
-      <mvo-project-carousel [images]="projectImages"/>
-      <a routerLink="/projekter" class="inline-flex items-center gap-2 self-center text-sm font-bold uppercase tracking-wide u-text-brand hover:underline">
-        <span>{{ 'projects.seeMore' | translate }}</span><fa-icon [icon]="faArrowRightLong"/>
-      </a>
-    </div>
-  </section>
+  <!-- Waits for the content (or, when the API is down, the default content) so the old texts never flash by. -->
+  @if (content(); as c) {
+    @for (part of parts; track part.key) {
+      <mvo-home-part [part]="part.key" [content]="c" [projectImages]="projectImages()"/>
+    }
+  } @else {
+    <div class="min-h-[85dvh]" aria-hidden="true"></div>
+  }
 </main>

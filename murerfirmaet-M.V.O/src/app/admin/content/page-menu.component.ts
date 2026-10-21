@@ -1,5 +1,6 @@
 import {Component, HostListener, OnDestroy, input, output, signal} from '@angular/core';
 import {IPageListItem, ISectionListItem} from '../admin.models';
+import {HOME_PARTS} from '../../core/interfaces/home-page.interface';
 
 export interface IPagePart {
   pageId: number;
@@ -30,22 +31,26 @@ const CLOSE_DELAY_MS = 200;
             <button type="button" class="adm-pages__btn" [attr.aria-current]="current ? 'page' : null"
                     [attr.aria-expanded]="expanded || openId() === p.id" [attr.aria-controls]="'parts-' + p.id" (click)="toggle(p.id, current)">
               <span class="adm-pages__name">{{ p.name }}</span>
-              <span class="adm-pages__meta">{{ parts.length + 1 }} dele</span>
+              <span class="adm-pages__meta">{{ parts.length + (p.hasIntro ? 1 : 0) }} dele</span>
               <span class="adm-pages__chev" aria-hidden="true">›</span>
             </button>
             <div class="adm-flyout" [id]="'parts-' + p.id">
               <div class="adm-flyout__panel">
               <p class="adm-flyout__title">{{ p.name }}</p>
               <ul class="adm-flyout__list">
-                <li>
-                  <button type="button" class="adm-flyout__btn" [attr.aria-current]="current && selected() === 'intro' ? 'true' : null" (click)="pick(p.id, null)">
-                    <span>Sideindledning</span><span class="adm-hint">Overskrift og tekst øverst</span>
-                  </button>
-                </li>
+                @if (p.hasIntro) {
+                  <li>
+                    <button type="button" class="adm-flyout__btn" [attr.aria-current]="current && selected() === 'intro' ? 'true' : null" (click)="pick(p.id, null)">
+                      <span>Sideindledning</span><span class="adm-hint">Overskrift og tekst øverst</span>
+                    </button>
+                  </li>
+                }
                 @for (s of parts; track s.id) {
+                  @let homePart = homePartOf(s.key);
                   <li>
                     <button type="button" class="adm-flyout__btn" [attr.aria-current]="current && selected() === s.id ? 'true' : null" (click)="pick(p.id, s.id)">
-                      <span>{{ s.title }}</span>
+                      <span>{{ homePart?.label ?? s.title }}</span>
+                      @if (homePart) { <span class="adm-hint">{{ homePart.hint }}</span> }
                       @if (!s.isPublished) { <span class="adm-badge adm-badge--hidden">Skjult</span> }
                     </button>
                   </li>
@@ -114,6 +119,11 @@ export class PageMenuComponent implements OnDestroy {
   protected onFocusOut(event: FocusEvent, id: number): void {
     const item = event.currentTarget as HTMLElement;
     if (!item.contains(event.relatedTarget as Node | null)) this.hoverClose(id);
+  }
+
+  /** Parts of the home page have fixed names, whatever their heading says. */
+  protected homePartOf(key: string | null) {
+    return HOME_PARTS.find(p => p.key === key) ?? null;
   }
 
   protected pick(pageId: number, sectionId: number | null): void {

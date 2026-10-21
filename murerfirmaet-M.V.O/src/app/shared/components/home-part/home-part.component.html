@@ -1,0 +1,101 @@
+@let c = content();
+@switch (part()) {
+  @case ('hero') {
+    <div class="home-hero flex flex-col gap-72 p-4 pt-2 lg:pt-4 lg:gap-12 lg:px-12 lg:h-[85dvh]">
+      <div class="home-bg" [style.--hero-image]="heroImage()"></div>
+      <div class="h-8 lg:h-16" aria-hidden="true"></div>
+      <section class="home-content">
+        <div class="flex flex-col gap-6 lg:flex-row lg:justify-between">
+          <div class="flex flex-col gap-6">
+            <div class="flex flex-col gap-2 max-w-56 lg:gap-6 lg:max-w-none">
+              @if (c.hero.eyebrow) { <h5 class="u-text-brand uppercase max-w-48 lg:max-w-none">{{ c.hero.eyebrow }}</h5> }
+              <h1 class="u-text-dark-heading lg:max-w-80 lg:text-6xl!">{{ headingLead(c.hero.heading) }}<span class="u-text-brand">{{ headingAccent(c.hero.heading) }}</span></h1>
+              <p class="text-sm u-text-dark-heading lg:max-w-56">{{ c.hero.text }}</p>
+            </div>
+            @if (c.hero.points.length) {
+              <div class="flex flex-col gap-2">
+                @for (point of c.hero.points; track $index) {
+                  <div class="flex flex-row gap-2 items-center">
+                    <fa-icon [icon]="faCheckCircle" class="u-text-brand shrink-0"></fa-icon>
+                    <p class="text-sm u-text-dark-heading">{{ point }}</p>
+                  </div>
+                }
+              </div>
+            }
+            <!-- On mobile the quote form lives on the contact page; the hero offers shortcuts instead. -->
+            <div class="hero-cta">
+              <a routerLink="/kontakt" class="hero-cta__btn hero-cta__btn--primary">
+                <span>{{ 'top.get_offer_mobile' | translate }}</span>
+                <fa-icon [icon]="faArrowRightLong" aria-hidden="true"></fa-icon>
+              </a>
+              <a [href]="callHref" class="hero-cta__btn hero-cta__btn--outline">
+                <fa-icon [icon]="faPhone" aria-hidden="true"></fa-icon>
+                <span>{{ 'top.call' | translate }}</span>
+              </a>
+            </div>
+          </div>
+          @if (preview()) {
+            <div class="hero-form-placeholder hidden lg:flex" aria-hidden="true">Tilbudsformularen</div>
+          } @else {
+            <mvo-quote-form class="hidden lg:block lg:max-w-80"/>
+          }
+        </div>
+      </section>
+    </div>
+  }
+  @case ('trust') {
+    <section class="u-bg-dark lg:flex items-center lg:justify-center p-2 border-t border-[var(--divider-dark)]
+      lg:h-[15dvh] lg:py-0 lg:px-[clamp(0.5rem,2vw,8rem)]">
+      <div class="trust-strip grid grid-cols-2 gap-2 lg:gap-0 lg:grid-cols-[repeat(4,minmax(200px,350px))]">
+        @for (card of c.trust; track $index) {
+          <mvo-trust-highlight [highlight]="{icon: icon(card.icon), title: card.title, description: card.text}"/>
+        }
+      </div>
+    </section>
+  }
+  @case ('services') {
+    <section class="u-bg-section p-4 lg:pt-6 lg:px-[clamp(0.5rem,2vw,8rem)] rounded-lg lg:rounded-none">
+      <mvo-service-grid [eyebrow]="c.services.eyebrow ?? null" [heading]="c.services.heading"></mvo-service-grid>
+    </section>
+  }
+  @case ('features') {
+    <section class="u-bg-dark p-6 rounded-b-lg lg:rounded-none lg:px-[clamp(0.5rem,2vw,8rem)] lg:flex items-center lg:justify-center">
+      <div class="grid grid-cols-1 gap-6 lg:gap-2 lg:grid-cols-[repeat(4,minmax(200px,350px))]">
+        @for (card of c.features; track $index) {
+          <mvo-feature-highlight [highlight]="{icon: icon(card.icon), title: card.title, description: card.text}"/>
+        }
+      </div>
+    </section>
+  }
+  @case ('steps') {
+    <section class="u-bg-section p-4 sm:py-6 rounded-lg sm:rounded-none">
+      <div class="flex flex-col w-full sm:items-center">
+        <div class="flex flex-col gap-3 mb-6 sm:items-center">
+          @if (c.steps.eyebrow) { <h4 class="u-text-brand uppercase">{{ c.steps.eyebrow }}</h4> }
+          <h2 class="u-text-body max-w-48 sm:max-w-none sm:!text-[2rem]">{{ c.steps.heading }}</h2>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-start w-full">
+          @for (card of c.steps.cards; track $index) {
+            <mvo-work-step [workStep]="{index: $index + 1, icon: icon(card.icon), title: card.title, description: card.text}"/>
+          }
+        </div>
+      </div>
+    </section>
+  }
+  @case ('projects') {
+    <section class="u-bg-dark pt-6 pb-4 px-4 lg:px-8 theme-dark">
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-3">
+          @if (c.projects.eyebrow) { <h4 class="u-text-brand uppercase">{{ c.projects.eyebrow }}</h4> }
+          <h2 class="u-text-inverse">{{ c.projects.heading }}</h2>
+        </div>
+        @if (projectImages().length) {
+          <mvo-project-carousel [items]="projectImages()"/>
+        }
+        <a routerLink="/projekter" class="inline-flex items-center gap-2 self-center text-sm font-bold uppercase tracking-wide u-text-brand hover:underline">
+          <span>{{ 'projects.seeMore' | translate }}</span><fa-icon [icon]="faArrowRightLong"/>
+        </a>
+      </div>
+    </section>
+  }
+}

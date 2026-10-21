@@ -4,7 +4,10 @@ public record PrimaryImageDto(int MediaId, string Url, string? AltText);
 
 public record GalleryImageDto(int Id, int MediaId, string Url, string? AltText, int Position);
 
-public record SectionListItemDto(int Id, string Title, string SectionType, int DisplayOrder, bool IsPublished, int Version);
+public record SectionListItemDto(int Id, string Title, string SectionType, int DisplayOrder, bool IsPublished, int Version, string? Key);
+
+/// <summary>A point of a section. Points shown as cards also have a text and an icon.</summary>
+public record SectionItemDto(string Text, string? Description, string? Icon);
 
 public record SectionContentDto(
     int Id,
@@ -23,4 +26,6 @@ public record SectionContentDto(
     bool IsPublished,
     int Version,
     PrimaryImageDto? PrimaryImage,
-    IReadOnlyList<GalleryImageDto> Gallery);
+    IReadOnlyList<GalleryImageDto> Gallery,
+    string? Key,
+    IReadOnlyList<SectionItemDto> Items);

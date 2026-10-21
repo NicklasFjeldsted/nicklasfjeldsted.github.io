@@ -1,6 +1,14 @@
-import {Component, HostListener, ViewEncapsulation, input, signal} from '@angular/core';
+import {Component, HostListener, ViewEncapsulation, inject, input, signal} from '@angular/core';
+import {Router} from '@angular/router';
 import {FaIconComponent} from '@fortawesome/angular-fontawesome';
 import {faChevronLeft, faChevronRight, faXmark} from '@fortawesome/free-solid-svg-icons';
+
+/** An image in the carousel. Images of a project carry its title and a link to the project page. */
+export interface ICarouselItem {
+  url: string;
+  title?: string;
+  link?: string;
+}
 
 @Component({
   selector: 'mvo-project-carousel',
@@ -11,7 +19,9 @@ import {faChevronLeft, faChevronRight, faXmark} from '@fortawesome/free-solid-sv
   encapsulation: ViewEncapsulation.None,
 })
 export class ProjectCarouselComponent {
-  images = input.required<string[]>();
+  private readonly router = inject(Router);
+
+  readonly items = input.required<ICarouselItem[]>();
 
   protected readonly activeIndex = signal(0);
   protected readonly slideClass = signal('');   // 'slide-left' | 'slide-right' | ''
@@ -25,14 +35,14 @@ export class ProjectCarouselComponent {
   protected readonly desktopOffsets = [-2, -1, 0, 1, 2];
   protected readonly mobileOffsets = [-1, 0, 1];
 
-  protected imageAt(offset: number): string {
-    const imgs = this.images();
-    const idx = ((this.activeIndex() + offset) % imgs.length + imgs.length) % imgs.length;
-    return imgs[idx];
+  protected itemAt(offset: number): ICarouselItem {
+    const items = this.items();
+    const idx = ((this.activeIndex() + offset) % items.length + items.length) % items.length;
+    return items[idx];
   }
 
   protected navigate(delta: number): void {
-    const len = this.images().length;
+    const len = this.items().length;
     this.activeIndex.update(i => ((i + delta) % len + len) % len);
     this.slideClass.set(delta > 0 ? 'slide-left' : 'slide-right');
   }
@@ -45,9 +55,15 @@ export class ProjectCarouselComponent {
     if (offset !== 0) this.navigate(offset);
   }
 
-  protected openModal(): void {
+  /** The middle image opens its project when it has one, and is shown large otherwise. */
+  protected openCenter(): void {
+    const item = this.itemAt(0);
+    if (item.link) {
+      this.router.navigateByUrl(item.link);
+      return;
+    }
     this.modalClosing.set(false);
-    this.modalImage.set(this.imageAt(0));
+    this.modalImage.set(item.url);
   }
 
   protected closeModal(): void {

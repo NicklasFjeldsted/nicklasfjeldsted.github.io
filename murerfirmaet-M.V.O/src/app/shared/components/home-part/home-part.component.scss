@@ -1,5 +1,11 @@
+:host { display: block; }
+
+// The hero's photo sits behind the hero only.
+.home-hero { position: relative; }
+
 // ── Background image ──────────────────────────────────────────────────────────
-// A fixed 480px tall image layer behind all content.
+// A fixed 480px tall image layer behind all content. The photo comes from the
+// admin page through --hero-image.
 // mask-image fades the left, right, top and bottom edges so it blends into
 // the dark background.
 
@@ -12,7 +18,7 @@
   z-index: 0;
 
   // The photo has the mason a little right of centre; keep him in frame on phones.
-  background-image: url("/hero-mvo.jpg");
+  background-image: var(--hero-image);
   background-size: cover;
   background-position: 58% top;
   background-repeat: no-repeat;
@@ -22,7 +28,7 @@
     // Darken the left side so the heading stays readable over the bright sunset.
     background-image:
       linear-gradient(to right, rgba(12, 12, 12, 0.8) 0%, rgba(12, 12, 12, 0.45) 26%, rgba(12, 12, 12, 0) 45%),
-      url("/hero-mvo.jpg");
+      var(--hero-image);
     background-position: center, center 40%;
   }
 
@@ -127,4 +133,17 @@
 
     &:active { background-color: rgba(0, 0, 0, 0.75); }
   }
+}
+
+// Stands in for the quote form in the admin preview, so the hero keeps its layout.
+.hero-form-placeholder {
+  width: 20rem;
+  min-height: 24rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--color-primary);
+  border-radius: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.55);
+  color: var(--text-inverse);
+  font-size: 0.875rem;
 }

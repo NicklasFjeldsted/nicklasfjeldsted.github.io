@@ -8,9 +8,12 @@ namespace Mvo.Application.Features.Public;
 
 public record PublicImageDto(string Id, string Url, string Alt);
 
+public record PublicItemDto(string Text, string? Description, string? Icon);
+
 public record PublicSectionDto(
-    string Id, string Type, string Title, string? Eyebrow, string? Introduction, string Description, string? AdditionalDescription,
-    IReadOnlyList<string> Details, PublicImageDto? PrimaryImage, IReadOnlyList<PublicImageDto> Gallery, int DisplayOrder);
+    string Id, string? Key, string Type, string Title, string? Eyebrow, string? Introduction, string Description, string? AdditionalDescription,
+    IReadOnlyList<string> Details, IReadOnlyList<PublicItemDto> Items, PublicImageDto? PrimaryImage, IReadOnlyList<PublicImageDto> Gallery,
+    int DisplayOrder);
 
 public record PublicPageDto(string? Eyebrow, string Heading, string Introduction, IReadOnlyList<PublicSectionDto> Sections);
 
@@ -33,11 +36,11 @@ public class GetPublicPageHandler(IAppDbContext db, IMediaStorage storage) : IRe
                 Sections = p.Sections.Where(s => s.IsPublished).OrderBy(s => s.DisplayOrder)
                     .Select(s => new
                     {
-                        s.Id, Type = s.SectionTypeId, s.Title, s.Eyebrow, s.Introduction, s.Description, s.AdditionalDescription, s.DisplayOrder,
+                        s.Id, s.Key, Type = s.SectionTypeId, s.Title, s.Eyebrow, s.Introduction, s.Description, s.AdditionalDescription, s.DisplayOrder,
                         s.PrimaryImageAltText,
                         PrimaryId = s.PrimaryMediaId,
                         PrimaryFile = s.PrimaryMedia != null ? s.PrimaryMedia.StoredFileName : null,
-                        Details = s.Details.OrderBy(d => d.DisplayOrder).Select(d => d.Text).ToList(),
+                        Details = s.Details.OrderBy(d => d.DisplayOrder).Select(d => new PublicItemDto(d.Text, d.Description, d.Icon)).ToList(),
                         Gallery = s.Gallery.OrderBy(g => g.DisplayOrder)
                             .Select(g => new { g.Id, g.MediaAsset.StoredFileName, g.AltText }).ToList(),
                     }).ToList(),
@@ -46,7 +49,8 @@ public class GetPublicPageHandler(IAppDbContext db, IMediaStorage storage) : IRe
             ?? throw new NotFoundException($"Page '{request.Slug}' was not found.");
 
         var sections = page.Sections.Select(s => new PublicSectionDto(
-            s.Id.ToString(), s.Type.ToString(), s.Title, s.Eyebrow, s.Introduction, s.Description, s.AdditionalDescription, s.Details,
+            s.Id.ToString(), s.Key, s.Type.ToString(), s.Title, s.Eyebrow, s.Introduction, s.Description, s.AdditionalDescription,
+            s.Details.Select(d => d.Text).ToList(), s.Details,
             s.PrimaryFile is null ? null : new PublicImageDto($"primary-{s.Id}", storage.GetUrl(s.PrimaryFile), s.PrimaryImageAltText ?? s.Title),
             s.Gallery.Select(g => new PublicImageDto(g.Id.ToString(), storage.GetUrl(g.StoredFileName), g.AltText ?? s.Title)).ToList(),
             s.DisplayOrder)).ToList();

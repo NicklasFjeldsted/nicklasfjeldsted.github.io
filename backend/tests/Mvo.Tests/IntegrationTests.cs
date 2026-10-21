@@ -609,6 +609,99 @@ public class AboutPageTests(TestHost host)
 }
 
 [Collection("host")]
+public class HomePageTests(TestHost host)
+{
+    private async Task<SectionContentDto> PartAsync(string key)
+    {
+        var page = await host.SendAsync(new GetPageQuery(HomePage.PageId));
+        return await host.SendAsync(new GetSectionContentQuery(page.Id, page.Sections.Single(s => s.Key == key).Id));
+    }
+
+    private static SaveHomePartCommand Save(SectionContentDto s, string? title, IReadOnlyList<HomePartItemInput> items,
+        string? eyebrow = null, string? description = null, int? media = null) =>
+        new(s.PageId, s.Id, s.Version, eyebrow, title, description, items, media);
+
+    private static HomePartItemInput[] Cards(string icon = "award") =>
+        Enumerable.Range(1, HomePage.CardCount).Select(i => new HomePartItemInput($"Titel {i}", $"Tekst {i}", icon)).ToArray();
+
+    [Fact]
+    public async Task Home_page_starts_with_its_six_parts_and_no_intro()
+    {
+        var pages = await host.SendAsync(new GetPagesQuery());
+        var home = pages.Single(p => p.Slug == HomePage.Slug);
+        home.IsManaged.Should().BeTrue();
+        home.HasFixedLayout.Should().BeTrue();
+        home.HasIntro.Should().BeFalse();
+        pages.Where(p => p.Slug != HomePage.Slug).Should().OnlyContain(p => p.HasIntro);
+
+        var pub = await host.SendAsync(new GetPublicPageQuery(HomePage.Slug));
+        pub.Sections.Select(s => s.Key).Should().Equal(HomePage.Parts.Select(p => p.Key));
+        var trust = pub.Sections.Single(s => s.Key == HomePage.Trust);
+        trust.Items.Should().HaveCount(HomePage.CardCount).And.OnlyContain(i => i.Icon != null && i.Description != null);
+        pub.Sections.Should().OnlyContain(s => s.Type == nameof(SectionTypeId.HomePart));
+    }
+
+    [Fact]
+    public async Task Hero_text_points_and_background_are_saved_and_public()
+    {
+        var hero = await PartAsync(HomePage.Hero);
+        var mediaId = await host.NewMediaAsync("Forsidebillede");
+
+        var saved = await host.SendAsync(Save(hero, "Din murer på Amager",
+            [new("Punkt et", null, null), new("Punkt to", null, null)], "Overtekst", "Ny tekst", mediaId));
+
+        saved.Version.Should().BeGreaterThan(hero.Version);
+        saved.PrimaryImage!.MediaId.Should().Be(mediaId);
+        var pub = (await host.SendAsync(new GetPublicPageQuery(HomePage.Slug))).Sections.Single(s => s.Key == HomePage.Hero);
+        pub.Title.Should().Be("Din murer på Amager");
+        pub.Description.Should().Be("Ny tekst");
+        pub.Details.Should().Equal("Punkt et", "Punkt to");
+        pub.PrimaryImage.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task Cards_are_saved_with_their_icons()
+    {
+        var features = await PartAsync(HomePage.Features);
+        var saved = await host.SendAsync(Save(features, null, Cards("star")));
+        saved.Items.Should().HaveCount(HomePage.CardCount).And.OnlyContain(i => i.Icon == "star");
+        saved.Title.Should().Be(features.Title, "card parts have no heading of their own");
+    }
+
+    [Fact]
+    public async Task Parts_only_take_what_their_design_has_room_for()
+    {
+        var trust = await PartAsync(HomePage.Trust);
+        var tooFew = () => host.SendAsync(Save(trust, null, Cards().Take(3).ToList()));
+        await tooFew.Should().ThrowAsync<ValidationException>();
+        var unknownIcon = () => host.SendAsync(Save(trust, null, Cards("rocket")));
+        await unknownIcon.Should().ThrowAsync<ValidationException>();
+
+        var services = await PartAsync(HomePage.Services);
+        var image = await host.NewMediaAsync();
+        var withImage = () => host.SendAsync(Save(services, "Ydelser", [], media: image));
+        await withImage.Should().ThrowAsync<ValidationException>();
+        var noHeading = () => host.SendAsync(Save(services, " ", []));
+        await noHeading.Should().ThrowAsync<ValidationException>();
+    }
+
+    [Fact]
+    public async Task Home_parts_cannot_be_saved_as_ordinary_sections_or_created()
+    {
+        var hero = await PartAsync(HomePage.Hero);
+        var asSection = () => host.SendAsync(new SaveSectionContentCommand(
+            hero.PageId, hero.Id, hero.Version, "Titel", null, null, null, null, [], SectionMedia.None, null, []));
+        await asSection.Should().ThrowAsync<ConflictException>();
+        var create = () => host.SendAsync(new CreateSectionCommand(TestHost.ManagedPageId, "Del", SectionTypeId.HomePart));
+        await create.Should().ThrowAsync<ValidationException>();
+
+        var other = await host.NewSectionAsync();
+        var homeSave = () => host.SendAsync(Save(other, "Titel", []));
+        await homeSave.Should().ThrowAsync<ConflictException>();
+    }
+}
+
+[Collection("host")]
 public class SectionContentTests(TestHost host)
 {
     private static SaveSectionContentCommand Save(SectionContentDto s, string title = "Titel", string? eyebrow = null,

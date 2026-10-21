@@ -34,7 +34,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 new SectionType { Id = SectionTypeId.MasonryShowcase, Name = nameof(SectionTypeId.MasonryShowcase), DisplayName = "Murerarbejde med billeder", HasPrimaryImage = true, HasGallery = true },
                 new SectionType { Id = SectionTypeId.TextBlock, Name = nameof(SectionTypeId.TextBlock), DisplayName = "Tekstblok", HasPrimaryImage = false, HasGallery = false },
                 new SectionType { Id = SectionTypeId.BeforeAfter, Name = nameof(SectionTypeId.BeforeAfter), DisplayName = "Før og efter", HasPrimaryImage = true, HasGallery = true },
-                new SectionType { Id = SectionTypeId.Profile, Name = nameof(SectionTypeId.Profile), DisplayName = "Profil med billede", HasPrimaryImage = true, HasGallery = false });
+                new SectionType { Id = SectionTypeId.Profile, Name = nameof(SectionTypeId.Profile), DisplayName = "Profil med billede", HasPrimaryImage = true, HasGallery = false },
+                new SectionType { Id = SectionTypeId.HomePart, Name = nameof(SectionTypeId.HomePart), DisplayName = "Del af forsiden", HasPrimaryImage = true, HasGallery = false });
         });
 
         modelBuilder.Entity<ContentPage>(e =>
@@ -49,7 +50,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(x => x.Version).IsConcurrencyToken();
             e.HasIndex(x => x.Slug).IsUnique();
             e.HasData(
-                new ContentPage { Id = 1, Slug = "forside", Name = "Forside", IsManaged = false, Heading = "Forside", Introduction = "" },
+                new ContentPage { Id = HomePage.PageId, Slug = HomePage.Slug, Name = "Forside", IsManaged = true, HasFixedLayout = true, Heading = "Forside", Introduction = "" },
                 new ContentPage
                 {
                     Id = 2,
@@ -96,6 +97,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(x => x.Description).HasMaxLength(4000).IsRequired();
             e.Property(x => x.AdditionalDescription).HasMaxLength(4000);
             e.Property(x => x.PrimaryImageAltText).HasMaxLength(300);
+            // KEY is a reserved word in MySQL.
+            e.Property(x => x.Key).HasColumnName("SectionKey").HasMaxLength(30);
             e.Property(x => x.Version).IsConcurrencyToken();
             e.HasOne(x => x.Page).WithMany(p => p.Sections).HasForeignKey(x => x.PageId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.SectionType).WithMany().HasForeignKey(x => x.SectionTypeId).OnDelete(DeleteBehavior.Restrict);
@@ -108,6 +111,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.ToTable("SectionDetail");
             e.HasKey(x => x.Id);
             e.Property(x => x.Text).HasMaxLength(300).IsRequired();
+            e.Property(x => x.Description).HasMaxLength(HomePage.CardTextMax);
+            e.Property(x => x.Icon).HasMaxLength(30);
             e.HasOne<ContentSection>().WithMany(s => s.Details).HasForeignKey(x => x.SectionId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => new { x.SectionId, x.DisplayOrder });
         });

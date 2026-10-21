@@ -6,6 +6,8 @@ export interface IPageListItem {
   /** Fixed design: sections can be edited but not added, removed, hidden or moved. */
   hasFixedLayout: boolean;
   sectionCount: number;
+  /** False for the home page, whose top is one of its parts instead of an intro text. */
+  hasIntro: boolean;
 }
 
 export interface ISectionListItem {
@@ -15,6 +17,8 @@ export interface ISectionListItem {
   displayOrder: number;
   isPublished: boolean;
   version: number;
+  /** Names a fixed part of the home page ('hero', 'trust', …); null for other sections. */
+  key: string | null;
 }
 
 export interface IPageDetail {
@@ -61,6 +65,24 @@ export interface ISectionContent {
   version: number;
   primaryImage: IPrimaryImage | null;
   gallery: IGalleryImage[];
+  key: string | null;
+  /** The points with their text and icon (cards on the home page). `details` holds just their texts. */
+  items: ISectionItem[];
+}
+
+export interface ISectionItem {
+  text: string;
+  description: string | null;
+  icon: string | null;
+}
+
+/** Everything saved for one part of the home page. */
+export interface IHomePartSave {
+  eyebrow: string | null;
+  title: string | null;
+  description: string | null;
+  items: ISectionItem[];
+  primaryMediaId: number | null;
 }
 
 export interface IMedia {
